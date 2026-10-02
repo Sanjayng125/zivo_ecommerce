@@ -12,5 +12,13 @@ export const errorHandler = async (err: Error | HTTPResponseError, c: Context) =
         return err.getResponse()
     }
 
-    return c.json({ error: err.message }, 500)
+    if (err instanceof SyntaxError) {
+        return c.json(
+            { message: "Invalid Request" },
+            400
+        )
+    }
+
+    console.log(err)
+    return c.json({ message: "Something went wrong on our side" }, 500)
 }
