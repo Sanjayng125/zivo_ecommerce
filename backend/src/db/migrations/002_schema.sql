@@ -210,25 +210,4 @@ BEFORE UPDATE ON orders
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
--- cron-jobs
--- cron to release pending orders after 35mins
-CREATE EXTENSION IF NOT EXISTS pg_cron;
 
-SELECT cron.schedule(
-    'release-pending-orders',
-    '*/10 * * * *',
-    $$
-    UPDATE product_variants pv
-    SET stock = pv.stock + oi.quantity
-    FROM order_items oi
-    JOIN orders o ON o.id = oi.order_id
-    WHERE pv.id = oi.variant_id
-    AND o.payment_status = 'pending'
-    AND o.created_at < NOW() - INTERVAL '35 minutes';
-
-    UPDATE orders
-    SET payment_status = 'failed', status = 'cancelled'
-    WHERE payment_status = 'pending'
-    AND created_at < NOW() - INTERVAL '35 minutes';
-    $$
-);

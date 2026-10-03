@@ -14,6 +14,7 @@ import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import checkoutRoutes from "./routes/checkout.js"
 import homeRoutes from "./routes/home.js"
+import internalRoutes from "./routes/internal.js"
 import ordersRoutes from "./routes/orders.js"
 import productsRoutes from "./routes/products.js"
 import profileRoutes from "./routes/profile.js"
@@ -41,6 +42,7 @@ app.route("/profile", profileRoutes);
 app.route("/checkout", checkoutRoutes);
 app.route("/orders", ordersRoutes);
 app.route("/webhooks", webhooksRoutes);
+app.route("/internal", internalRoutes);
 
 app.notFound(notFound)
 
