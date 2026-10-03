@@ -12,10 +12,13 @@ import { errorHandler, notFound } from './middleware/error.js'
 import addressesRoutes from "./routes/addresses.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
+import checkoutRoutes from "./routes/checkout.js"
 import homeRoutes from "./routes/home.js"
+import ordersRoutes from "./routes/orders.js"
 import productsRoutes from "./routes/products.js"
 import profileRoutes from "./routes/profile.js"
 import searchRoutes from "./routes/search.js"
+import webhooksRoutes from "./routes/webhooks.js"
 import wishlistRoutes from "./routes/wishlist.js"
 
 const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
@@ -35,6 +38,9 @@ app.route("/cart", cartRoutes);
 app.route("/addresses", addressesRoutes);
 app.route("/wishlist", wishlistRoutes);
 app.route("/profile", profileRoutes);
+app.route("/checkout", checkoutRoutes);
+app.route("/orders", ordersRoutes);
+app.route("/webhooks", webhooksRoutes);
 
 app.notFound(notFound)
 

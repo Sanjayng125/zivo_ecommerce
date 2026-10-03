@@ -13,6 +13,8 @@ export const customValidationHandler = (
             )
         ]
 
+        console.log(result.error?.issues)
+
         throw new HTTPException(400, {
             message: fields.length > 0
                 ? `Invalid ${fields.join(", ")}`
