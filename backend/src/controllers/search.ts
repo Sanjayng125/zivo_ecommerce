@@ -1,5 +1,7 @@
 import { Context } from "hono";
+import z from "zod";
 import pool from "../db/client.js";
+import { customValidationHandler } from "../lib/validator.js";
 
 export const searchProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -9,7 +11,13 @@ export const searchProducts = async (c: Context) => {
     const min_price = c.req.query("min_price")
     const max_price = c.req.query("max_price")
 
-    const searchQuery = c.req.query("q")
+    const parsedSearchQuery = z.string().min(2).safeParse(c.req.query("q"))
+
+    if (!parsedSearchQuery.success) {
+        customValidationHandler(parsedSearchQuery)
+    }
+
+    const searchQuery = parsedSearchQuery.data
 
     const conditions: string[] = ["is_active = true"]
     const params: unknown[] = []

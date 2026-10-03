@@ -5,12 +5,18 @@ export const customValidationHandler = (
     result: { success: boolean; error?: z.z.core.$ZodError }
 ) => {
     if (!result.success) {
-        const message = result.error?.issues
-            .map(i => `${i.path.join(".")}: ${i.message}`)
-            .join(", ")
+        const fields = [
+            ...new Set(
+                result.error?.issues
+                    .map(i => i.path.join("."))
+                    .filter(Boolean)
+            )
+        ]
 
         throw new HTTPException(400, {
-            message: message ?? "Validation failed"
+            message: fields.length > 0
+                ? `Invalid ${fields.join(", ")}`
+                : "Validation failed"
         })
     }
 }

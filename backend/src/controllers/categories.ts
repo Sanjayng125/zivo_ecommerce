@@ -19,7 +19,7 @@ export const getCategories = async (c: Context) => {
         ORDER BY c.sort_order;
     `)
 
-    return c.json({ active_categories: active_categories.rows })
+    return c.json({ active_categories: active_categories.rows ?? [] })
 }
 
 export const getCategory = async (c: Context) => {

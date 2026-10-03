@@ -9,11 +9,14 @@ import { auth } from './lib/auth.js'
 import { HonoVariables } from './types/index.js'
 
 import { errorHandler, notFound } from './middleware/error.js'
+import addressesRoutes from "./routes/addresses.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import homeRoutes from "./routes/home.js"
 import productsRoutes from "./routes/products.js"
+import profileRoutes from "./routes/profile.js"
 import searchRoutes from "./routes/search.js"
+import wishlistRoutes from "./routes/wishlist.js"
 
 const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
 
@@ -29,6 +32,9 @@ app.route("/categories", categoriesRoutes);
 app.route("/products", productsRoutes);
 app.route("/search", searchRoutes);
 app.route("/cart", cartRoutes);
+app.route("/addresses", addressesRoutes);
+app.route("/wishlist", wishlistRoutes);
+app.route("/profile", profileRoutes);
 
 app.notFound(notFound)
 

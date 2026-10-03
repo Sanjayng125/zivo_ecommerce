@@ -1,4 +1,5 @@
 import { Context, Next } from "hono"
+import { HTTPException } from "hono/http-exception"
 import pool from "../db/client.js"
 import { auth } from "../lib/auth.js"
 
@@ -8,7 +9,7 @@ export const requireAuth = async (c: Context, next: Next) => {
     })
 
     if (!session) {
-        return c.json({ message: "Unauthorized" }, 401)
+        throw new HTTPException(401, { message: "Unauthorized" })
     }
 
     c.set("user", session.user)
@@ -26,7 +27,7 @@ export const requireAdmin = async (c: Context, next: Next) => {
     )
 
     if (!result.rows[0] || result.rows[0].role !== "admin") {
-        return c.json({ message: "Forbidden" }, 403)
+        throw new HTTPException(403, { message: "Forbidden" })
     }
 
     await next()

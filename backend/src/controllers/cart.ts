@@ -9,14 +9,15 @@ export const getCart = async (c: Context) => {
     const me = c.get("user")
 
     const cartResult = await pool.query(`
-        SELECT ci.*, pv.product_id, pv.price, pv.stock, p.title, p.cover_image FROM cart_items ci
+        SELECT ci.*, pv.product_id, pv.price, pv.stock, p.title, p.cover_image
+        FROM cart_items ci
         LEFT JOIN product_variants pv ON pv.id = ci.variant_id
         LEFT JOIN products p ON p.id = pv.product_id
         WHERE ci.user_id = $1
         ORDER BY ci.updated_at DESC
         `, [me.id])
 
-    return c.json({ cart_items: cartResult.rows })
+    return c.json({ cart_items: cartResult.rows ?? [] })
 }
 
 export const addCartItem = async (c: Context) => {
@@ -32,11 +33,11 @@ export const addCartItem = async (c: Context) => {
         RETURNING *
         `, [me.id, variant_id, quantity])
 
-    if (!cartResult.rows?.[0]) {
+    if (!cartResult.rowCount) {
         throw new HTTPException(500, { message: "Something went wrong while adding item to cart" })
     }
 
-    return c.json({ cart_item: cartResult.rows?.[0], message: "Item added to cart" })
+    return c.json({ cart_item: cartResult.rows?.[0], message: "Item added to cart" }, 201)
 }
 
 export const updateQuantity = async (c: Context) => {
@@ -64,7 +65,7 @@ export const updateQuantity = async (c: Context) => {
         RETURNING *
         `, [parsed.data.quantity, me.id, parsed.data.item_id])
 
-    if (!cartResult.rows[0]) {
+    if (!cartResult.rowCount) {
         throw new HTTPException(404, {
             message: "Cart item not found"
         })
@@ -88,7 +89,7 @@ export const removeCartItem = async (c: Context) => {
         RETURNING id
         `, [me.id, parsed.data])
 
-    if (!cartResult.rows[0]) {
+    if (!cartResult.rowCount) {
         throw new HTTPException(404, {
             message: "Cart item not found"
         })

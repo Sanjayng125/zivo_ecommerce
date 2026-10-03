@@ -168,3 +168,44 @@ CREATE TABLE IF NOT EXISTS product_views (
 
     UNIQUE (user_id, product_id)
 );
+
+-- Functions & Triggers
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON profiles
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON products
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON product_variants
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON addresses
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON cart_items
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON orders
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
