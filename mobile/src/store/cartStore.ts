@@ -6,8 +6,8 @@ import { zustandMMKVStorage } from "./mmkvStorage";
 interface CartStore {
     items: GuestCartItem[],
     addItem: (item: GuestCartItem) => void
-    removeItem: (id: string) => void
-    updateQuantity: (quantity: number, id: string) => void
+    removeItem: (variant_id: string) => void
+    updateQuantity: (quantity: number, variant_id: string) => void
     clearCart: () => void
 }
 
@@ -19,13 +19,13 @@ export const useCartStore = create<CartStore>()(
             addItem(newItem) {
                 set(state => {
                     const exists = state.items.some(
-                        item => item.id === newItem.id
+                        item => item.variant_id === newItem.variant_id
                     )
 
                     if (exists) {
                         return {
                             items: state.items.map(item =>
-                                item.id === newItem.id
+                                item.variant_id === newItem.variant_id
                                     ? {
                                         ...item,
                                         quantity: Math.min((item.quantity + 1), 10)
@@ -41,16 +41,16 @@ export const useCartStore = create<CartStore>()(
                 })
             },
 
-            removeItem(id) {
+            removeItem(variant_id) {
                 set(state => ({
-                    items: state.items.filter(item => item.id !== id)
+                    items: state.items.filter(item => item.variant_id !== variant_id)
                 }))
             },
 
-            updateQuantity(quantity, id) {
+            updateQuantity(quantity, variant_id) {
                 set(state => ({
                     items: state.items.map(item =>
-                        item.id === id
+                        item.variant_id === variant_id
                             ? { ...item, quantity: Math.min(quantity, 10) }
                             : item
                     )

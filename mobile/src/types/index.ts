@@ -9,7 +9,6 @@ export type User = {
 }
 
 export type GuestCartItem = {
-    id: string
     variant_id: string
     quantity: number
     title: string
