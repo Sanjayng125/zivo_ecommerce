@@ -1,0 +1,59 @@
+# Expo
+.expo
+dist
+web-build
+expo-env.d.ts
+
+# Native
+.kotlin/
+_.orig._
+_.jks
+_.p8
+_.p12
+_.key
+\*.mobileprovision
+
+# Metro
+.metro-health-check\*
+
+# Debug
+npm-debug._
+yarn-debug._
+yarn-error.\*
+
+# macOS
+.DS_Store
+*.pem
+
+# Local env files
+.env
+.env\*.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated native folders
+ios
+android
+
+# Backend
+backend
+
+# Git
+.git
+.gitignore
+
+# Node
+node_modules
+
+# Inspection output
+eas-inspect
+
+# Documentation
+*.md
+
+# EAS ignore file
+.easignore
+
+# vs code
+.vscode
