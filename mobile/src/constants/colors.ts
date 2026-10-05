@@ -9,6 +9,10 @@ export const Colors = {
         error: '#E53935',
         success: '#43A047',
 
+        // Text
+        text: '#1A1A1A',
+        textSecondary: '#6B6B6B',
+
         // Button
         btnPrimaryBg: '#1A1A1A',
         btnPrimaryText: '#FFFFFF',
@@ -46,6 +50,10 @@ export const Colors = {
         border: '#2C2C2C',
         error: '#EF5350',
         success: '#66BB6A',
+
+        // Text
+        text: '#FFFFFF',
+        textSecondary: '#A0A0A0',
 
         // Button
         btnPrimaryBg: '#FFFFFF',
