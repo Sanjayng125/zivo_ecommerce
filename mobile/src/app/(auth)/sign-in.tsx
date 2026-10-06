@@ -51,8 +51,6 @@ const SignIn = () => {
         password,
       });
 
-      console.log(res.data);
-
       return res.data;
     },
     onSuccess: async (data) => {
