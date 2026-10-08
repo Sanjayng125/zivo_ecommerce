@@ -24,6 +24,16 @@ export const addCartItem = async (c: Context) => {
     const { variant_id, quantity = 1 } = await c.req.json()
     const me = c.get("user")
 
+    const variant = await pool.query(`
+        SELECT * FROM product_variants WHERE id = $1
+        `, [variant_id])
+
+    if (!variant.rows?.[0]) {
+        throw new HTTPException(404, {
+            message: "Variant not found"
+        })
+    }
+
     const cartResult = await pool.query(`
         INSERT INTO cart_items (user_id, variant_id, quantity)
         VALUES ($1, $2, $3)

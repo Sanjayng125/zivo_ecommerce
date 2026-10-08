@@ -1,6 +1,5 @@
 import { ColorsType } from "@/constants/colors";
-import { useColors } from "@/hooks/useColors";
-import { useMemo } from "react";
+import { useStyles } from "@/hooks/useStyles";
 import {
   Image,
   Linking,
@@ -11,9 +10,7 @@ import {
 } from "react-native";
 
 export default function Footer() {
-  const colors = useColors();
-
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   const openLink = (url: string) => {
     Linking.openURL(url);
@@ -119,7 +116,7 @@ const getStyles = (colors: ColorsType) =>
       paddingHorizontal: 20,
       paddingTop: 32,
       paddingBottom: 24,
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
@@ -184,7 +181,7 @@ const getStyles = (colors: ColorsType) =>
     },
     copyright: {
       fontSize: 12,
-      color: colors.subtext,
+      color: colors.textSecondary,
       textAlign: "center",
     },
   });

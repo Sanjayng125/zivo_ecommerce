@@ -1,6 +1,7 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { HTTPResponseError } from "hono/types"
+import { ContentfulStatusCode } from "hono/utils/http-status"
 
 export const notFound = async (c: Context) => {
     const currentPath = c.req.path
@@ -9,7 +10,11 @@ export const notFound = async (c: Context) => {
 
 export const errorHandler = async (err: Error | HTTPResponseError, c: Context) => {
     if (err instanceof HTTPException) {
-        return err.getResponse()
+        const statusCode = err.getResponse().status as ContentfulStatusCode
+        return c.json(
+            { message: err.message },
+            statusCode
+        )
     }
 
     if (err instanceof SyntaxError) {

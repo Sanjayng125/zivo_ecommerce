@@ -1,13 +1,14 @@
 import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
-import { useMemo, useState } from "react";
+import { useStyles } from "@/hooks/useStyles";
+import { useState } from "react";
 import { StyleSheet, TextInput, TextInputProps } from "react-native";
 
 export default function TextField(props: TextInputProps) {
   const colors = useColors();
   const [isFocused, setIsFocused] = useState(false);
 
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   return (
     <TextInput

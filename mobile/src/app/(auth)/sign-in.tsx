@@ -1,6 +1,7 @@
 import TextField from "@/components/ui/TextField";
 import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
+import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignInSchema, SignInSchemaType } from "@/lib/schemas";
 import { setToken as setSecureStoreToken } from "@/lib/secureStore";
@@ -10,7 +11,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
-import { useMemo } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
@@ -30,7 +30,7 @@ const SignIn = () => {
   const { setToken, setUser } = useAuthStore();
   const colors = useColors();
 
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   const {
     handleSubmit,
@@ -67,7 +67,6 @@ const SignIn = () => {
         text1: "Error",
         text2: message,
       });
-      return error;
     },
   });
 

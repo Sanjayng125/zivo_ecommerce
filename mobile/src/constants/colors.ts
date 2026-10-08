@@ -1,13 +1,12 @@
 export const Colors = {
     light: {
-        background: '#F8F8F8',
+        background: '#ececec',
         surface: '#FFFFFF',
         primary: '#1A1A1A',
-        secondary: '#6B6B6B',
-        subtext: '#9B9B9B',
         border: '#E8E8E8',
         error: '#E53935',
         success: '#43A047',
+        warning: '#FB8C00',
 
         // Text
         text: '#1A1A1A',
@@ -29,7 +28,7 @@ export const Colors = {
         inputBorderFocused: '#1A1A1A',
 
         // Badge / Tag
-        badgeBg: '#F0F0F0',
+        badgeBg: '#e2e2e2',
         badgeText: '#1A1A1A',
 
         // Card
@@ -45,11 +44,10 @@ export const Colors = {
         background: '#121212',
         surface: '#1E1E1E',
         primary: '#FFFFFF',
-        secondary: '#A0A0A0',
-        subtext: '#6B6B6B',
         border: '#2C2C2C',
         error: '#EF5350',
         success: '#66BB6A',
+        warning: '#FFCA28',
 
         // Text
         text: '#FFFFFF',

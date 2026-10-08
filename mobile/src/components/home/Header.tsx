@@ -1,9 +1,9 @@
 import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
+import { useStyles } from "@/hooks/useStyles";
 import { useCartStore } from "@/store/cartStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useMemo } from "react";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function Header() {
@@ -11,7 +11,7 @@ export default function Header() {
   const cartCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0),
   );
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   return (
     <View style={styles.container}>
@@ -54,7 +54,11 @@ export default function Header() {
           pressed && styles.pressed,
         ]}
       >
-        <Ionicons name="search-outline" size={20} color={colors.secondary} />
+        <Ionicons
+          name="search-outline"
+          size={20}
+          color={colors.btnSecondaryText}
+        />
         <Text style={styles.searchText}>Search products</Text>
         <Ionicons name="options-outline" size={20} color={colors.text} />
       </Pressable>
@@ -130,7 +134,7 @@ const getStyles = (colors: ColorsType) =>
     },
     searchText: {
       flex: 1,
-      color: colors.subtext,
+      color: colors.textSecondary,
       fontSize: 14,
     },
     pressed: {

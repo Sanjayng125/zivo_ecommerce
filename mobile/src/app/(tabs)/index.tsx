@@ -5,10 +5,10 @@ import Header from "@/components/home/Header";
 import ProductRow from "@/components/home/ProductRow";
 import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
+import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
 import { HomeSection } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -22,7 +22,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const Index = () => {
   const colors = useColors();
 
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   const {
     data = [],

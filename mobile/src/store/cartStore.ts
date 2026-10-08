@@ -1,11 +1,15 @@
-import { GuestCartItem } from "@/types";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { zustandMMKVStorage } from "./mmkvStorage";
 
+interface CartItem {
+    variant_id: string
+    quantity: number
+}
+
 interface CartStore {
-    items: GuestCartItem[],
-    addItem: (item: GuestCartItem) => void
+    items: CartItem[],
+    addItem: (item: CartItem) => void
     removeItem: (variant_id: string) => void
     updateQuantity: (quantity: number, variant_id: string) => void
     clearCart: () => void

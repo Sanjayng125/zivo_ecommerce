@@ -8,12 +8,11 @@ export type User = {
     updatedAt: string
 }
 
-export type GuestCartItem = {
+export type CartItem = {
+    id: string
+    user_id: string
     variant_id: string
     quantity: number
-    title: string
-    price: number
-    cover_image: string
 }
 
 export type Banner = {
@@ -31,15 +30,35 @@ export type Category = {
     sort_order: number
 }
 
+export type ProductImage = {
+    id: string
+    url: string
+    product_id: string
+    sort_order: number
+}
+
+export type ProductVariant = {
+    id: string
+    sku: string
+    size: string | null
+    color: string | null
+    price: number
+    stock: number
+    product_id: string
+}
+
 export type Product = {
     id: string
     title: string
+    description: string
     slug: string
     base_price: number
     cover_image: string
     rating_avg: string
     rating_count: number
     category_id: string
+    product_images: ProductImage[]
+    product_variants: ProductVariant[]
 }
 
 export type HomeSection = {

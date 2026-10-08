@@ -1,10 +1,11 @@
 import { ColorsType } from "@/constants/colors";
-import { useColors } from "@/hooks/useColors";
+import { useStyles } from "@/hooks/useStyles";
 import { Banner } from "@/types";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   FlatList,
   Image,
+  ScaledSize,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -16,9 +17,8 @@ interface BannerCarouselProps {
 
 export default function BannerCarousel({ banners }: BannerCarouselProps) {
   const { width } = useWindowDimensions();
-  const colors = useColors();
 
-  const styles = useMemo(() => getStyles(colors, width), [colors, width]);
+  const styles = useStyles(getStyles);
 
   const flatListRef = useRef<FlatList<Banner>>(null);
   const currentIndex = useRef(0);
@@ -73,7 +73,7 @@ export default function BannerCarousel({ banners }: BannerCarouselProps) {
   );
 }
 
-const getStyles = (colors: ColorsType, width: number) =>
+const getStyles = (colors: ColorsType, { width }: ScaledSize) =>
   StyleSheet.create({
     container: {
       width,

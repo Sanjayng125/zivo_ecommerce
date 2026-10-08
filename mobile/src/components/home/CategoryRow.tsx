@@ -1,8 +1,7 @@
 import { ColorsType } from "@/constants/colors";
-import { useColors } from "@/hooks/useColors";
+import { useStyles } from "@/hooks/useStyles";
 import { Category } from "@/types";
 import { router } from "expo-router";
-import { useMemo } from "react";
 import {
   FlatList,
   Image,
@@ -18,8 +17,7 @@ interface CategoryRowProps {
 }
 
 export default function CategoryRow({ categories, title }: CategoryRowProps) {
-  const colors = useColors();
-  const styles = useMemo(() => getStyles(colors), [colors]);
+  const styles = useStyles(getStyles);
 
   return (
     <View style={styles.container}>
