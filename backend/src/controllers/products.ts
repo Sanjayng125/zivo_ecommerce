@@ -1,6 +1,8 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import z from "zod";
 import pool from "../db/client.js";
+import { customValidationHandler } from "../lib/validator.js";
 
 export const getProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -92,4 +94,37 @@ export const getProduct = async (c: Context) => {
     }
 
     return c.json({ product: product.rows[0] })
+}
+
+export const addProductView = async (c: Context) => {
+    const me = c.get("user")
+    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("product_id"))
+
+    if (!parsed.success) {
+        customValidationHandler(parsed)
+    }
+
+    const productResult = await pool.query(`
+        SELECT id
+        FROM products
+        WHERE id = $1 AND is_active = true
+        `, [parsed.data])
+
+    if (!productResult.rows?.[0]) {
+        throw new HTTPException(404, { message: "Product not found" })
+    }
+
+    const productViewResult = await pool.query(`
+        INSERT INTO product_views (user_id, product_id, viewed_at)
+        VALUES ($1, $2, NOW())
+        ON CONFLICT (user_id, product_id)
+        DO SET viewed_at = NOW()
+        RETURNING *
+        `, [me.id, parsed.data])
+
+    if (!productViewResult.rowCount) {
+        throw new HTTPException(500, { message: "Something went wrong while adding view" })
+    }
+
+    return c.json({ product_view: productViewResult.rows[0] })
 }

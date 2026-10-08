@@ -169,6 +169,18 @@ CREATE TABLE IF NOT EXISTS product_views (
     UNIQUE (user_id, product_id)
 );
 
+CREATE TABLE IF NOT EXISTS reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
+    product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    UNIQUE (user_id, product_id)
+);
+
 -- Functions & Triggers
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER
@@ -210,4 +222,8 @@ BEFORE UPDATE ON orders
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
+CREATE OR REPLACE TRIGGER set_updated_at
+BEFORE UPDATE ON reviews
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
 

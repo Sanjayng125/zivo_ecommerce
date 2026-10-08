@@ -62,3 +62,18 @@ export const updateAvatar = async (c: Context) => {
 
     return c.json({ message: "Avatar updated", updated_profile: updateResult.rows[0] })
 }
+
+export const getRecentlyViewedProducts = async (c: Context) => {
+    const me = c.get("user")
+
+    const productResult = await pool.query(`
+        SELECT pv.product_id, pv.viewed_at, p.title, p.cover_image
+        FROM product_views pv
+        JOIN products p ON p.id = pv.product_id
+        WHERE pv.user_id = $1
+        ORDER BY pv.viewed_at DESC
+        LIMIT 10
+        `, [me.id])
+
+    return c.json({ products: productResult.rows })
+}
