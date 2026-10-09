@@ -1,4 +1,17 @@
-import z from "zod"
+import z from "zod";
+
+export const createProductSchema = z.object({
+    title: z.string({ error: "Invalid title" }).min(3, "Title must be at least 3 characters").max(200, "Title must be at most 200 characters"),
+    description: z.string({ error: "Invalid description" }).min(10, "Description must be at least 3 characters").max(2000, "Description must be at most 2000 characters"),
+    base_price: z.coerce.number({ error: "Invalid base price" }).min(0, "Base price cannot be negative"),
+    cover_image: z.url({ error: "Invalid cover image URL" }),
+    category_id: z.uuid({ error: "Invalid category ID" }),
+    is_active: z.coerce.boolean().optional().default(true),
+})
+
+export const updateProductSchema = createProductSchema
+    .omit({ is_active: true })
+    .partial()
 
 export const getProductsSchema = z.object({
     category_id: z
@@ -33,4 +46,5 @@ export const getProductsSchema = z.object({
             { error: "Invalid sort option" }
         )
         .default("newest"),
+    is_active: z.coerce.boolean().optional().default(true),
 })

@@ -1,8 +1,100 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { DatabaseError } from "pg";
+import slugify from "slugify";
 import z from "zod";
 import pool from "../db/client.js";
 import { customValidationHandler } from "../lib/validator.js";
+
+export const getProduct = async (c: Context) => {
+    const slug = c.req.param("slug")
+
+    const product = await pool.query(
+        `WITH images AS (
+        SELECT pi.product_id, JSONB_AGG(to_jsonb(pi.*) ORDER BY pi.sort_order) AS product_images
+        FROM product_images pi GROUP BY pi.product_id
+        ),
+        variants AS (
+            SELECT pv.product_id, JSONB_AGG(to_jsonb(pv.*) ORDER BY pv.price) AS product_variants  
+            FROM product_variants pv GROUP BY pv.product_id
+        )
+        SELECT p.*, images.product_images, variants.product_variants
+        FROM products p
+        LEFT JOIN images ON images.product_id = p.id
+        LEFT JOIN variants ON variants.product_id = p.id
+        WHERE p.is_active = true AND p.slug = $1
+            `,
+        [slug])
+
+    if (!product.rows?.[0]) {
+        throw new HTTPException(404, { message: "Product not found" })
+    }
+
+    return c.json({ product: product.rows[0] })
+}
+
+export const addProductView = async (c: Context) => {
+    const me = c.get("user")
+    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("product_id"))
+
+    if (!parsed.success) {
+        customValidationHandler(parsed)
+    }
+
+    const productResult = await pool.query(`
+        SELECT id
+        FROM products
+        WHERE id = $1 AND is_active = true
+        `, [parsed.data])
+
+    if (!productResult.rows?.[0]) {
+        throw new HTTPException(404, { message: "Product not found" })
+    }
+
+    await pool.query(`
+        INSERT INTO product_views (user_id, product_id, viewed_at)
+        VALUES ($1, $2, NOW())
+        ON CONFLICT (user_id, product_id)
+        DO UPDATE SET viewed_at = NOW()
+        `, [me.id, parsed.data])
+
+    return c.json({ message: "View recorded" })
+}
+
+export const createProduct = async (c: Context) => {
+    const { title, description, base_price, cover_image, category_id, is_active } = await c.req.json()
+
+    const categoryResult = await pool.query(`
+        SELECT id, slug
+        FROM categories
+        WHERE id = $1
+        `, [category_id])
+
+    if (!categoryResult.rows?.[0]) {
+        throw new HTTPException(404, { message: "Category not found" })
+    }
+
+    const slug = slugify(title, { lower: true, strict: true })
+
+    try {
+        const productResult = await pool.query(`
+            INSERT INTO products (title, description, slug, base_price, cover_image, category_id, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *
+            `, [title, description, slug, base_price, cover_image, categoryResult.rows[0].id, is_active])
+
+        if (!productResult.rowCount) {
+            throw new HTTPException(500, { message: "Something went wrong while creating product" })
+        }
+
+        return c.json({ product: productResult.rows[0], message: "Product created" })
+    } catch (error) {
+        if (error instanceof DatabaseError && error.code === "23505") {
+            throw new HTTPException(409, { message: "Slug already exists" })
+        }
+        throw error
+    }
+}
 
 export const getProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -11,8 +103,17 @@ export const getProducts = async (c: Context) => {
     const category_id = c.req.query("category_id")
     const min_price = c.req.query("min_price")
     const max_price = c.req.query("max_price")
+    const is_active = c.req.query("is_active")
 
-    const conditions: string[] = ["is_active = true"]
+    const conditions: string[] = []
+
+    if (is_active === "false") {
+        conditions.push("is_active = false")
+    }
+    else {
+        conditions.push("is_active = true")
+    }
+
     const params: unknown[] = []
 
     if (category_id) {
@@ -69,62 +170,100 @@ export const getProducts = async (c: Context) => {
     })
 }
 
-export const getProduct = async (c: Context) => {
-    const slug = c.req.param("slug")
+export const updateProduct = async (c: Context) => {
+    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("id"))
 
-    const product = await pool.query(
-        `WITH images AS (
-        SELECT pi.product_id, JSONB_AGG(to_jsonb(pi.*) ORDER BY pi.sort_order) AS product_images
-        FROM product_images pi GROUP BY pi.product_id
-        ),
-        variants AS (
-            SELECT pv.product_id, JSONB_AGG(to_jsonb(pv.*) ORDER BY pv.price) AS product_variants  
-            FROM product_variants pv GROUP BY pv.product_id
-        )
-        SELECT p.*, images.product_images, variants.product_variants
-        FROM products p
-        LEFT JOIN images ON images.product_id = p.id
-        LEFT JOIN variants ON variants.product_id = p.id
-        WHERE p.is_active = true AND p.slug = $1
-            `,
-        [slug])
+    if (!parsed.success) {
+        customValidationHandler(parsed)
+    }
 
-    if (!product.rows?.[0]) {
+    const { title, description, base_price, cover_image, category_id } = await c.req.json()
+
+    const columns: string[] = []
+    const params: unknown[] = []
+
+    if (title) {
+        params.push(title)
+        columns.push(`title = $${params.length}`)
+        const slug = slugify(title, { lower: true, strict: true })
+        params.push(slug)
+        columns.push(`slug = $${params.length}`)
+    }
+    if (description) {
+        params.push(description)
+        columns.push(`description = $${params.length}`)
+    }
+    if (base_price) {
+        params.push(base_price)
+        columns.push(`base_price = $${params.length}`)
+    }
+    if (cover_image) {
+        params.push(cover_image)
+        columns.push(`cover_image = $${params.length}`)
+    }
+    if (category_id) {
+        params.push(category_id)
+        columns.push(`category_id = $${params.length}`)
+    }
+
+    if (columns.length === 0) {
+        throw new HTTPException(400, { message: "Invalid data" })
+    }
+
+    const setClause = columns.join(", ")
+    params.push(parsed.data)
+
+    const productResult = await pool.query(`
+        UPDATE products
+        SET ${setClause}
+        WHERE id = $${params.length}
+        RETURNING *
+        `, params)
+
+    if (!productResult.rowCount) {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    return c.json({ product: product.rows[0] })
+    return c.json({ product: productResult.rows[0], message: "Product updated" })
 }
 
-export const addProductView = async (c: Context) => {
-    const me = c.get("user")
-    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("product_id"))
+export const toggleIsActive = async (c: Context) => {
+    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("id"))
 
     if (!parsed.success) {
         customValidationHandler(parsed)
     }
 
     const productResult = await pool.query(`
-        SELECT id
-        FROM products
-        WHERE id = $1 AND is_active = true
+        UPDATE products
+        SET is_active = NOT is_active
+        WHERE id = $1
+        RETURNING *
         `, [parsed.data])
 
-    if (!productResult.rows?.[0]) {
+    if (!productResult.rowCount) {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    const productViewResult = await pool.query(`
-        INSERT INTO product_views (user_id, product_id, viewed_at)
-        VALUES ($1, $2, NOW())
-        ON CONFLICT (user_id, product_id)
-        DO SET viewed_at = NOW()
-        RETURNING *
-        `, [me.id, parsed.data])
+    return c.json({ product: productResult.rows[0], message: `Product ${productResult.rows[0].is_active ? "activated" : "deactivated"}` })
+}
 
-    if (!productViewResult.rowCount) {
-        throw new HTTPException(500, { message: "Something went wrong while adding view" })
+export const deleteProduct = async (c: Context) => {
+    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("id"))
+
+    if (!parsed.success) {
+        customValidationHandler(parsed)
     }
 
-    return c.json({ product_view: productViewResult.rows[0] })
+    const productResult = await pool.query(`
+        DELETE FROM products
+        WHERE id = $1
+        RETURNING id
+        `, [parsed.data])
+
+    if (!productResult.rowCount) {
+        throw new HTTPException(404, { message: "Product not found" })
+    }
+
+    return c.json({ message: "Product deleted" })
 }

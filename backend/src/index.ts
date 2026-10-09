@@ -10,6 +10,7 @@ import { HonoVariables } from './types/index.js'
 
 import { errorHandler, notFound } from './middleware/error.js'
 import addressesRoutes from "./routes/addresses.js"
+import bannersRoutes from "./routes/banners.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import checkoutRoutes from "./routes/checkout.js"
@@ -45,6 +46,7 @@ app.route("/orders", ordersRoutes);
 app.route("/webhooks", webhooksRoutes);
 app.route("/internal", internalRoutes);
 app.route("/reviews", reviewsRoutes);
+app.route("/banners", bannersRoutes);
 
 app.notFound(notFound)
 

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS products (
     title TEXT NOT NULL,
     slug TEXT NOT NULL UNIQUE,
     description TEXT,
-    base_price INTEGER NOT NULL,
+    base_price INTEGER NOT NULL CHECK(base_price >= 0),
     cover_image TEXT NOT NULL,
     rating_avg NUMERIC(3, 2) NOT NULL DEFAULT 0.00,
     rating_count INTEGER NOT NULL DEFAULT 0,
