@@ -6,7 +6,7 @@ export const createProductSchema = z.object({
     base_price: z.coerce.number({ error: "Invalid base price" }).min(0, "Base price cannot be negative"),
     cover_image: z.url({ error: "Invalid cover image URL" }),
     category_id: z.uuid({ error: "Invalid category ID" }),
-    is_active: z.coerce.boolean().optional().default(true),
+    is_active: z.boolean().optional().default(true),
 })
 
 export const updateProductSchema = createProductSchema
@@ -46,5 +46,8 @@ export const getProductsSchema = z.object({
             { error: "Invalid sort option" }
         )
         .default("newest"),
-    is_active: z.coerce.boolean().optional().default(true),
+    is_active: z
+        .enum(["true", "false"])
+        .transform((value) => value === "true")
+        .optional(),
 })

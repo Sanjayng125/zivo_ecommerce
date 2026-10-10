@@ -21,6 +21,7 @@ import productsRoutes from "./routes/products.js"
 import profileRoutes from "./routes/profile.js"
 import reviewsRoutes from "./routes/reviews.js"
 import searchRoutes from "./routes/search.js"
+import usersRoutes from "./routes/users.js"
 import webhooksRoutes from "./routes/webhooks.js"
 import wishlistRoutes from "./routes/wishlist.js"
 
@@ -47,6 +48,7 @@ app.route("/webhooks", webhooksRoutes);
 app.route("/internal", internalRoutes);
 app.route("/reviews", reviewsRoutes);
 app.route("/banners", bannersRoutes);
+app.route("/users", usersRoutes);
 
 app.notFound(notFound)
 

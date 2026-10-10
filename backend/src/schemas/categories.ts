@@ -8,7 +8,10 @@ export const getCategoriesSchema = z.object({
 })
 
 export const getAdminCategoriesSchema = getCategoriesSchema.extend({
-    is_active: z.coerce.boolean().optional(),
+    is_active: z
+        .enum(["true", "false"])
+        .transform((value) => value === "true")
+        .optional(),
 })
 
 export const createCategorySchema = z.object({
@@ -16,7 +19,7 @@ export const createCategorySchema = z.object({
     parent_id: z.uuid({ error: "Invalid parent category ID" }).optional(),
     image_url: z.url({ error: "Invalid image URL" }).optional(),
     sort_order: z.coerce.number().optional().default(0),
-    is_active: z.coerce.boolean().optional().default(true),
+    is_active: z.boolean().optional().default(true),
 })
 
 export const updateCategorySchema = createCategorySchema

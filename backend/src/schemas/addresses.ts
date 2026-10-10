@@ -55,7 +55,6 @@ export const addressSchema = z.object({
             "Please enter a valid postal code"
         ),
     is_default: z
-        .coerce
         .boolean({
             error: "Default address must be true or false"
         })

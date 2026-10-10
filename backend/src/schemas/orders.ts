@@ -26,3 +26,12 @@ export const getOrderSchema = z.object({
     id: z.uuid({ error: "Invalid order ID" })
 })
 
+export const getAdminOrdersSchema = getOrdersSchema.extend({
+    status: z.enum(["placed", "confirmed", "shipped", "delivered", "cancelled"]).optional(),
+    payment_status: z.enum(["pending", "paid", "failed", "refunded"]).optional(),
+    user_id: z.uuid({ error: "Invalid user ID" }).optional(),
+})
+
+export const updateOrderStatusSchema = z.object({
+    status: z.enum(["placed", "confirmed", "shipped", "delivered", "cancelled"]),
+})
