@@ -49,18 +49,19 @@ export const getProducts = async (c: Context) => {
     const min_price = c.req.query("min_price")
     const max_price = c.req.query("max_price")
     const is_active = c.req.query("is_active")
+    const searchQuery = c.req.query("q")?.trim()
 
-    const conditions: string[] = []
-
-    if (is_active === "false") {
-        conditions.push("is_active = false")
-    }
-    else {
-        conditions.push("is_active = true")
-    }
-
+    const conditions: string[] = ["TRUE"]
     const params: unknown[] = []
 
+    if (searchQuery) {
+        params.push(searchQuery)
+        conditions.push(`(title ILIKE '%' || $${params.length} || '%' OR description ILIKE '%' || $${params.length} || '%')`)
+    }
+    if (is_active !== undefined) {
+        params.push(is_active)
+        conditions.push(`is_active = $${params.length}`)
+    }
     if (category_id) {
         params.push(category_id)
         conditions.push(`category_id = $${params.length}`)

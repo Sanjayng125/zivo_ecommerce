@@ -18,7 +18,7 @@ export const getUsers = async (c: Context) => {
 
     if (q) {
         params.push(`%${q}%`)
-        conditions.push(`(u.name ILIKE $${params.length} OR u.email ILIKE $${params.length})`)
+        conditions.push(`(u.name ILIKE '%' || $${params.length} || '%' OR u.email ILIKE '%' || $${params.length} || '%')`)
     }
     if (role) {
         params.push(role)

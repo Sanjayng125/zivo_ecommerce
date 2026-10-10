@@ -50,4 +50,5 @@ export const getProductsSchema = z.object({
         .enum(["true", "false"])
         .transform((value) => value === "true")
         .optional(),
+    q: z.string().trim().min(2, "Search query must be at least 2 characters").max(200, "Search query must be at most 200 characters").optional(),
 })
