@@ -35,7 +35,7 @@ const Index = () => {
     queryFn: async () => {
       const res = await api.get("/home");
 
-      return res.data?.active_home_sections ?? [];
+      return res.data?.home_sections ?? [];
     },
   });
 
@@ -65,16 +65,13 @@ const Index = () => {
           {data.map((item) => {
             if (item.type === "banner") {
               return (
-                <BannerCarousel
-                  banners={item.active_banners ?? []}
-                  key={item.id}
-                />
+                <BannerCarousel banners={item.banners ?? []} key={item.id} />
               );
             }
             if (item.type === "category_row") {
               return (
                 <CategoryRow
-                  categories={item.active_categories ?? []}
+                  categories={item.categories ?? []}
                   title={item.title}
                   key={item.id}
                 />

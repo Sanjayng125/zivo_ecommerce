@@ -9,8 +9,8 @@ import { auth } from './lib/auth.js'
 import { HonoVariables } from './types/index.js'
 
 import { errorHandler, notFound } from './middleware/error.js'
+
 import addressesRoutes from "./routes/addresses.js"
-import bannersRoutes from "./routes/banners.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import checkoutRoutes from "./routes/checkout.js"
@@ -21,9 +21,10 @@ import productsRoutes from "./routes/products.js"
 import profileRoutes from "./routes/profile.js"
 import reviewsRoutes from "./routes/reviews.js"
 import searchRoutes from "./routes/search.js"
-import usersRoutes from "./routes/users.js"
 import webhooksRoutes from "./routes/webhooks.js"
 import wishlistRoutes from "./routes/wishlist.js"
+
+import adminRoutes from "./routes/admin.js"
 
 const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
 
@@ -37,6 +38,7 @@ app.all("/auth/*", (c) => auth.handler(c.req.raw));
 app.route("/home", homeRoutes);
 app.route("/categories", categoriesRoutes);
 app.route("/products", productsRoutes);
+app.route("/reviews", reviewsRoutes);
 app.route("/search", searchRoutes);
 app.route("/cart", cartRoutes);
 app.route("/addresses", addressesRoutes);
@@ -44,11 +46,11 @@ app.route("/wishlist", wishlistRoutes);
 app.route("/profile", profileRoutes);
 app.route("/checkout", checkoutRoutes);
 app.route("/orders", ordersRoutes);
+
 app.route("/webhooks", webhooksRoutes);
 app.route("/internal", internalRoutes);
-app.route("/reviews", reviewsRoutes);
-app.route("/banners", bannersRoutes);
-app.route("/users", usersRoutes);
+
+app.route("/admin", adminRoutes);
 
 app.notFound(notFound)
 

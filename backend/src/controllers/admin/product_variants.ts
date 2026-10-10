@@ -2,8 +2,8 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import z from "zod";
-import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
+import pool from "../../db/client.js";
+import { customValidationHandler } from "../../lib/validator.js";
 
 export const getProductVariants = async (c: Context) => {
     const product_id = c.req.param("product_id")

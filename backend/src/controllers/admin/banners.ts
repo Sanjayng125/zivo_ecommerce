@@ -1,8 +1,8 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
-import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
+import pool from "../../db/client.js";
+import { customValidationHandler } from "../../lib/validator.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)

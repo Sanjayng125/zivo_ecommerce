@@ -1,18 +1,20 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import z from "zod";
-import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
+import pool from "../../db/client.js";
+import { customValidationHandler } from "../../lib/validator.js";
 
 export const getUsers = async (c: Context) => {
+    const me = c.get("user")
+
     const page = Number(c.req.query("page") ?? 1)
     const limit = Number(c.req.query("limit") ?? 10)
     const sort = c.req.query("sort") ?? "newest"
     const q = c.req.query("q")?.trim()
     const role = c.req.query("role")
 
-    const conditions: string[] = ["TRUE"]
-    const params: unknown[] = []
+    const conditions: string[] = ["u.id != $1"]
+    const params: unknown[] = [me.id]
 
     if (q) {
         params.push(`%${q}%`)
