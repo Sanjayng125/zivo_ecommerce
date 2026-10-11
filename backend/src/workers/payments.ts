@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import pool from "../db/client.js";
-import { ioRedisConnection } from "../lib/queue.js";
+import { ioRedisConnection } from "../lib/redis.js";
 
 const paymentsWorker = new Worker(
     "payments",
