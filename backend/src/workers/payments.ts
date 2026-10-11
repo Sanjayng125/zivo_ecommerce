@@ -5,6 +5,8 @@ import { ioRedisConnection } from "../lib/redis.js";
 const paymentsWorker = new Worker(
     "payments",
     async (job) => {
+        if (job.name !== "payment.captured" && job.name !== "payment.failed") return
+
         const { payload } = job.data.parsed
         const { order_id: razorpay_order_id, id: razorpay_payment_id } = payload.payment.entity
 
@@ -61,5 +63,5 @@ const paymentsWorker = new Worker(
     }
 );
 
-paymentsWorker.on("completed", (job) => console.log(`Job ${job.id} completed`))
-paymentsWorker.on("failed", (job, err) => console.error(`Job ${job?.id} failed:`, err))
+paymentsWorker.on("completed", (job) => console.log(`Job ${job?.name}-${job.id} completed`))
+paymentsWorker.on("failed", (job, err) => console.error(`Job ${job?.name}-${job?.id} failed:`, err))

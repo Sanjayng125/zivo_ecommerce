@@ -29,7 +29,7 @@ const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
 app.use('*', logger())
 app.use('*', cors())
 
-app.get('/health', (c) => c.json({ status: 'ok' }))
+app.get('/health', (c) => c.json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() }))
 
 app.use("/auth/*", authRateLimit)
 app.all("/auth/*", (c) => auth.handler(c.req.raw));
