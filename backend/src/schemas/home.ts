@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const homeSectionIdSchema = z.object({
+    home_section_id: z.uuid({
+        error: "Invalid home section ID"
+    }),
+})
+
 export const getHomeSectionsSchema = z.object({
     is_active: z
         .enum(["true", "false"])

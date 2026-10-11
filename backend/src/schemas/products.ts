@@ -1,5 +1,9 @@
 import z from "zod";
 
+export const productIdSchema = z.object({
+    product_id: z.uuid({ error: "Invalid product ID" }),
+})
+
 export const createProductSchema = z.object({
     title: z.string({ error: "Invalid title" }).min(3, "Title must be at least 3 characters").max(200, "Title must be at most 200 characters"),
     description: z.string({ error: "Invalid description" }).min(10, "Description must be at least 3 characters").max(2000, "Description must be at most 2000 characters"),

@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const reviewIdSchema = z.object({
+    review_id: z.uuid({
+        error: "Invalid review ID"
+    }),
+})
+
 export const getProductReviewsSchema = z.object({
     page: z.coerce.number().optional().default(1),
     limit: z.coerce.number().optional().default(10),

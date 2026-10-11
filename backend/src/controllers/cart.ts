@@ -1,9 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
-import { updateCartItemSchema } from "../schemas/cart.js";
 
 export const getCart = async (c: Context) => {
     const me = c.get("user")
@@ -54,18 +51,6 @@ export const updateQuantity = async (c: Context) => {
     const item_id = c.req.param("item_id")
     const { quantity } = await c.req.json()
 
-    const parsed = updateCartItemSchema.safeParse({ item_id, quantity })
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    if (!parsed.data) {
-        throw new HTTPException(400, {
-            message: "Invalid data"
-        })
-    }
-
     const me = c.get("user")
 
     const cartResult = await pool.query(`
@@ -73,7 +58,7 @@ export const updateQuantity = async (c: Context) => {
         SET quantity = $1
         WHERE user_id = $2 AND id = $3
         RETURNING *
-        `, [parsed.data.quantity, me.id, parsed.data.item_id])
+        `, [quantity, me.id, item_id])
 
     if (!cartResult.rowCount) {
         throw new HTTPException(404, {
@@ -85,11 +70,7 @@ export const updateQuantity = async (c: Context) => {
 }
 
 export const removeCartItem = async (c: Context) => {
-    const parsed = z.uuid().safeParse(c.req.param("item_id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const item_id = c.req.param("item_id")
 
     const me = c.get("user")
 
@@ -97,7 +78,7 @@ export const removeCartItem = async (c: Context) => {
         DELETE FROM cart_items
         WHERE user_id = $1 AND id = $2
         RETURNING id
-        `, [me.id, parsed.data])
+        `, [me.id, item_id])
 
     if (!cartResult.rowCount) {
         throw new HTTPException(404, {

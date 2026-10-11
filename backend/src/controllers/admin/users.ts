@@ -1,8 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../../db/client.js";
-import { customValidationHandler } from "../../lib/validator.js";
 
 export const getUsers = async (c: Context) => {
     const me = c.get("user")
@@ -78,13 +76,7 @@ export const getUsers = async (c: Context) => {
 }
 
 export const getUser = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid user ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: user_id } = parsed
+    const user_id = c.req.param("user_id")
 
     const userResult = await pool.query(`
         SELECT
@@ -109,13 +101,8 @@ export const getUser = async (c: Context) => {
 }
 
 export const updateUserRole = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid user ID" }).safeParse(c.req.param("id"))
+    const user_id = c.req.param("user_id")
 
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: user_id } = parsed
     const me = c.get("user")
 
     if (me.id === user_id) {

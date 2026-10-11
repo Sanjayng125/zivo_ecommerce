@@ -1,5 +1,11 @@
 import z from "zod"
 
+export const addressIdSchema = z.object({
+    address_id: z.uuid({
+        error: "Invalid address ID"
+    }),
+})
+
 export const addressSchema = z.object({
     full_name: z
         .string({

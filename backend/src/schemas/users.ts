@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const userIdSchema = z.object({
+    user_id: z.uuid({
+        error: "Invalid user ID"
+    }),
+})
+
 export const getUsersSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(0).default(10),

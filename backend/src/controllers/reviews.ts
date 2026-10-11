@@ -1,15 +1,9 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
 
 export const getProductReviews = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("product_id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const product_id = c.req.param("product_id")
 
     const page = Number(c.req.query("page") ?? 1)
     const limit = Number(c.req.query("limit") ?? 10)
@@ -27,7 +21,7 @@ export const getProductReviews = async (c: Context) => {
 
     const countResult = await pool.query(
         `SELECT COUNT(*) FROM reviews WHERE product_id = $1`,
-        [parsed.data]
+        [product_id]
     )
 
     const total = Number(countResult.rows[0].count)
@@ -40,7 +34,7 @@ export const getProductReviews = async (c: Context) => {
         ORDER BY ${orderClause}
         LIMIT $2
         OFFSET $3
-        `, [parsed.data, limit, offset])
+        `, [product_id, limit, offset])
 
     return c.json({
         reviews: reviewsResult.rows ?? [],
@@ -55,11 +49,7 @@ export const getProductReviews = async (c: Context) => {
 
 export const createProductReview = async (c: Context) => {
     const me = c.get("user")
-    const parsed = z.uuid({ error: "Invalid product ID" }).safeParse(c.req.param("product_id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const product_id = c.req.param("product_id")
 
     const { rating, comment } = await c.req.json()
 
@@ -67,7 +57,7 @@ export const createProductReview = async (c: Context) => {
         SELECT id, rating_avg, rating_count
         FROM products
         WHERE id = $1
-        `, [parsed.data])
+        `, [product_id])
 
     if (!productResult.rowCount) {
         throw new HTTPException(404, { message: "Product not found" })
@@ -80,7 +70,7 @@ export const createProductReview = async (c: Context) => {
         DO UPDATE
         SET rating = EXCLUDED.rating, comment = EXCLUDED.comment, updated_at = NOW()
         RETURNING *
-        `, [me.id, parsed.data, rating, comment])
+        `, [me.id, product_id, rating, comment])
 
     if (!reviewResult.rowCount) {
         throw new HTTPException(500, { message: "Something went wrong while creating review" })
@@ -97,24 +87,20 @@ export const createProductReview = async (c: Context) => {
         UPDATE products
         SET rating_avg = ratings.rating_avg, rating_count = ratings.rating_count
         WHERE id = $1
-        `, [parsed.data])
+        `, [product_id])
 
     return c.json({ review: reviewResult.rows[0], message: "Review added" })
 }
 
 export const deleteProductReview = async (c: Context) => {
     const me = c.get("user")
-    const parsed = z.uuid({ error: "Invalid review ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const review_id = c.req.param("review_id")
 
     const reviewResult = await pool.query(`
         DELETE FROM reviews
         WHERE user_id = $1 AND id = $2
         RETURNING *
-        `, [me.id, parsed.data])
+        `, [me.id, review_id])
 
     if (!reviewResult.rowCount) {
         throw new HTTPException(404, { message: "Review not found" })
@@ -140,11 +126,7 @@ export const deleteProductReview = async (c: Context) => {
 
 export const updateProductReview = async (c: Context) => {
     const me = c.get("user")
-    const parsed = z.uuid({ error: "Invalid review ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const review_id = c.req.param("review_id")
 
     const { rating, comment } = await c.req.json()
 
@@ -153,7 +135,7 @@ export const updateProductReview = async (c: Context) => {
         SET rating = $1, comment = $2
         WHERE user_id = $3 AND id = $4
         RETURNING *
-        `, [rating, comment, me.id, parsed.data])
+        `, [rating, comment, me.id, review_id])
 
     if (!reviewResult.rowCount) {
         throw new HTTPException(404, { message: "Review not found" })

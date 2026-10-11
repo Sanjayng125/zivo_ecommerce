@@ -2,9 +2,7 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
-import z from "zod"
 import pool from "../../db/client.js"
-import { customValidationHandler } from "../../lib/validator.js"
 
 export const getCategories = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -138,13 +136,7 @@ export const createCategory = async (c: Context) => {
 }
 
 export const updateCategory = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid category ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: category_id } = parsed
+    const category_id = c.req.param("category_id")
 
     const { name, parent_id, image_url, sort_order } = await c.req.json()
 
@@ -200,13 +192,7 @@ export const updateCategory = async (c: Context) => {
 }
 
 export const toggleIsActive = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid category ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: category_id } = parsed
+    const category_id = c.req.param("category_id")
 
     const categoryResult = await pool.query(`
         UPDATE categories
@@ -223,13 +209,7 @@ export const toggleIsActive = async (c: Context) => {
 }
 
 export const deleteCategory = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid category ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: category_id } = parsed
+    const category_id = c.req.param("category_id")
 
     try {
         const categoryResult = await pool.query(`

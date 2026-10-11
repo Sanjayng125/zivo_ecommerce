@@ -10,7 +10,7 @@ export const searchProducts = async (c: Context) => {
     const max_price = c.req.query("max_price")
     const searchQuery = c.req.query("q")?.trim()
 
-    const conditions: string[] = ["is_active = true"]
+    const conditions: string[] = ["is_active = true AND EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id) AND EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"]
     const params: unknown[] = []
 
     if (category_id) {

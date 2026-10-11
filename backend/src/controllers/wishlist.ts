@@ -1,8 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
 
 export const getWishlist = async (c: Context) => {
     const me = c.get("user")
@@ -38,11 +36,7 @@ export const addWishlistItem = async (c: Context) => {
 }
 
 export const removeWishlistItem = async (c: Context) => {
-    const parsed = z.uuid().safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
+    const item_id = c.req.param("item_id")
 
     const me = c.get("user")
 
@@ -50,7 +44,7 @@ export const removeWishlistItem = async (c: Context) => {
         DELETE FROM wishlist_items
         WHERE user_id = $1 AND id = $2
         RETURNING *
-        `, [me.id, parsed.data])
+        `, [me.id, item_id])
 
     if (!removeResult.rowCount) {
         throw new HTTPException(404, { message: "Item not found" })

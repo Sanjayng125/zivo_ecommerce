@@ -1,5 +1,11 @@
 import z from "zod";
 
+export const categoryIdSchema = z.object({
+    category_id: z.uuid({
+        error: "Invalid category ID"
+    }),
+})
+
 export const getCategoriesSchema = z.object({
     page: z.coerce.number().min(1).optional().default(1),
     limit: z.coerce.number().min(0).optional().default(10),

@@ -1,8 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../db/client.js";
-import { customValidationHandler } from "../lib/validator.js";
 
 export const getAddresses = async (c: Context) => {
     const me = c.get("user")
@@ -43,11 +41,7 @@ export const addAddress = async (c: Context) => {
 }
 
 export const updateAddress = async (c: Context) => {
-    const address_id = z.uuid().safeParse(c.req.param("address_id"))
-
-    if (!address_id.success) {
-        customValidationHandler(address_id)
-    }
+    const address_id = c.req.param("address_id")
 
     const me = c.get("user")
 
@@ -75,7 +69,7 @@ export const updateAddress = async (c: Context) => {
             is_default = $8
             WHERE user_id = $9 AND id = $10
             RETURNING *
-            `, [full_name, phone, line1, line2, city, state, pincode, is_default, me.id, address_id.data])
+            `, [full_name, phone, line1, line2, city, state, pincode, is_default, me.id, address_id])
 
     if (!updateResult.rowCount) {
         throw new HTTPException(404, { message: "Address not found" })
@@ -85,11 +79,7 @@ export const updateAddress = async (c: Context) => {
 }
 
 export const deleteAddress = async (c: Context) => {
-    const address_id = z.uuid().safeParse(c.req.param("address_id"))
-
-    if (!address_id.success) {
-        customValidationHandler(address_id)
-    }
+    const address_id = c.req.param("address_id")
 
     const me = c.get("user")
 
@@ -97,7 +87,7 @@ export const deleteAddress = async (c: Context) => {
         DELETE FROM addresses
         WHERE user_id = $1 AND id = $2
         RETURNING id
-        `, [me.id, address_id.data])
+        `, [me.id, address_id])
 
     if (!deleteResult.rowCount) {
         throw new HTTPException(404, { message: "Address not found" })

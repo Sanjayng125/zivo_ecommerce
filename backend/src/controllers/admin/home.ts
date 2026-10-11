@@ -1,8 +1,6 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
-import z from "zod"
 import pool from "../../db/client.js"
-import { customValidationHandler } from "../../lib/validator.js"
 
 export const getHomeSections = async (c: Context) => {
     const { is_active, sort } = c.req.query()
@@ -33,18 +31,11 @@ export const getHomeSections = async (c: Context) => {
 }
 
 export const updateHomeSection = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid home section ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: home_section_id } = parsed
+    const home_section_id = c.req.param("home_section_id")
 
     const { title, sort_order } = await c.req.json()
 
     const columns: string[] = []
-    const values: string[] = []
     const params: unknown[] = []
 
     if (title) {
@@ -79,13 +70,7 @@ export const updateHomeSection = async (c: Context) => {
 }
 
 export const toggleIsActive = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid home section ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: home_section_id } = parsed
+    const home_section_id = c.req.param("home_section_id")
 
     const homeSectionResult = await pool.query(`
         UPDATE home_sections

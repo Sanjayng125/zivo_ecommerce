@@ -1,8 +1,6 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
-import z from "zod"
 import pool from "../../db/client.js"
-import { customValidationHandler } from "../../lib/validator.js"
 
 export const getOrders = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -90,7 +88,7 @@ export const getOrders = async (c: Context) => {
 }
 
 export const getOrder = async (c: Context) => {
-    const id = c.req.param("id")
+    const order_id = c.req.param("order_id")
 
     const orderResult = await pool.query(`
         WITH order_item AS
@@ -112,7 +110,7 @@ export const getOrder = async (c: Context) => {
             WHERE oi.order_id = o.id) AS order_items
         FROM orders o
         WHERE o.id = $1
-        `, [id])
+        `, [order_id])
 
     if (!orderResult.rows?.[0]) {
         throw new HTTPException(404, { message: "Order not found" })
@@ -122,13 +120,7 @@ export const getOrder = async (c: Context) => {
 }
 
 export const updateOrderStatus = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid order ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: order_id } = parsed
+    const order_id = c.req.param("order_id")
 
     const { status } = await c.req.json()
 

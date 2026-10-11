@@ -67,7 +67,7 @@ export const getOrders = async (c: Context) => {
 }
 
 export const getOrder = async (c: Context) => {
-    const id = c.req.param("id")
+    const order_id = c.req.param("order_id")
 
     const me = c.get("user")
 
@@ -91,7 +91,7 @@ export const getOrder = async (c: Context) => {
             WHERE oi.order_id = o.id) AS order_items
         FROM orders o
         WHERE o.id = $1 AND o.user_id = $2
-        `, [id, me.id])
+        `, [order_id, me.id])
 
     if (!orderResult.rows?.[0]) {
         throw new HTTPException(404, { message: "Order not found" })

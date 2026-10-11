@@ -1,8 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
-import z from "zod";
 import pool from "../../db/client.js";
-import { customValidationHandler } from "../../lib/validator.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -58,12 +56,17 @@ export const getBanners = async (c: Context) => {
 }
 
 export const createBanner = async (c: Context) => {
-    const { image_url, link, sort_order, is_active } = await c.req.json()
+    const { image_url, title, link, sort_order, is_active } = await c.req.json()
 
     const columns: string[] = ["image_url"]
     const values: string[] = ["$1"]
     const params: unknown[] = [image_url]
 
+    if (title) {
+        columns.push("title")
+        params.push(title)
+        values.push(`$${params.length}`)
+    }
     if (link) {
         columns.push("link")
         params.push(link)
@@ -97,13 +100,7 @@ export const createBanner = async (c: Context) => {
 }
 
 export const updateBanner = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid banner ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: banner_id } = parsed
+    const banner_id = c.req.param("banner_id")
 
     const { image_url, link, sort_order } = await c.req.json()
 
@@ -145,13 +142,7 @@ export const updateBanner = async (c: Context) => {
 }
 
 export const toggleIsActive = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid banner ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: banner_id } = parsed
+    const banner_id = c.req.param("banner_id")
 
     const bannerResult = await pool.query(`
         UPDATE banners
@@ -168,13 +159,7 @@ export const toggleIsActive = async (c: Context) => {
 }
 
 export const deleteBanner = async (c: Context) => {
-    const parsed = z.uuid({ error: "Invalid banner ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: banner_id } = parsed
+    const banner_id = c.req.param("banner_id")
 
     const bannerResult = await pool.query(`
         DELETE FROM banners

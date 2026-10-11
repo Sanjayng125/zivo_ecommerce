@@ -1,7 +1,9 @@
 import z from "zod";
 
-export const productVariantsSchema = z.object({
-    product_id: z.uuid({ error: "Invalid product ID" }),
+export const productVariantIdSchema = z.object({
+    product_variant_id: z.uuid({
+        error: "Invalid product variant ID"
+    }),
 })
 
 export const createProductVariantSchema = z.object({

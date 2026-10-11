@@ -1,9 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
-import z from "zod";
 import pool from "../../db/client.js";
-import { customValidationHandler } from "../../lib/validator.js";
 
 export const getProductVariants = async (c: Context) => {
     const product_id = c.req.param("product_id")
@@ -53,13 +51,7 @@ export const createProductVariant = async (c: Context) => {
 export const updateProductVariant = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
-    const parsed = z.uuid({ error: "Invalid product variant ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: variant_id } = parsed
+    const variant_id = c.req.param("product_variant_id")
 
     const { size, color, price } = await c.req.json()
 
@@ -112,13 +104,7 @@ export const updateProductVariant = async (c: Context) => {
 export const updateProductVariantStock = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
-    const parsed = z.uuid({ error: "Invalid product variant ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: variant_id } = parsed
+    const variant_id = c.req.param("product_variant_id")
 
     const { stock } = await c.req.json()
 
@@ -139,13 +125,7 @@ export const updateProductVariantStock = async (c: Context) => {
 export const deleteProductVariant = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
-    const parsed = z.uuid({ error: "Invalid product variant ID" }).safeParse(c.req.param("id"))
-
-    if (!parsed.success) {
-        customValidationHandler(parsed)
-    }
-
-    const { data: variant_id } = parsed
+    const variant_id = c.req.param("product_variant_id")
 
     const productVariantResult = await pool.query(`
         DELETE FROM product_variants

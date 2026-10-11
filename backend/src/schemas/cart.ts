@@ -1,5 +1,11 @@
 import z from "zod"
 
+export const cartItemIdSchema = z.object({
+    item_id: z.uuid({
+        error: "Invalid cart item ID"
+    }),
+})
+
 export const addCartItemSchema = z.object({
     variant_id: z.uuid({
         error: "Invalid product variant ID"
@@ -15,9 +21,6 @@ export const addCartItemSchema = z.object({
 })
 
 export const updateCartItemSchema = z.object({
-    item_id: z.uuid({
-        error: "Invalid cart item ID"
-    }),
     quantity: z.coerce
         .number({
             error: "Quantity must be a number"

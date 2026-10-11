@@ -1,5 +1,11 @@
 import z from "zod"
 
+export const orderIdSchema = z.object({
+    order_id: z.uuid({
+        error: "Invalid order ID"
+    }),
+})
+
 export const getOrdersSchema = z.object({
     page: z
         .coerce
@@ -20,10 +26,6 @@ export const getOrdersSchema = z.object({
             { error: "Invalid sort option" }
         )
         .default("newest"),
-})
-
-export const getOrderSchema = z.object({
-    id: z.uuid({ error: "Invalid order ID" })
 })
 
 export const getAdminOrdersSchema = getOrdersSchema.extend({

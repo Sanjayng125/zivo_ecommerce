@@ -64,7 +64,7 @@ export const getCategories = async (c: Context) => {
 }
 
 export const getCategory = async (c: Context) => {
-    const slug = c.req.param("slug")
+    const category_id = c.req.param("category_id")
 
     const category = await pool.query(`
         SELECT
@@ -77,12 +77,12 @@ export const getCategory = async (c: Context) => {
         LEFT JOIN categories sc
             ON c.id = sc.parent_id
         WHERE
-        c.slug = $1
+        c.id = $1
         AND
         c.is_active = true
         AND c.parent_id IS NULL
         GROUP BY c.id
-    `, [slug])
+    `, [category_id])
 
     if (!category.rows?.[0]) {
         throw new HTTPException(404, { message: "Category not found" })
