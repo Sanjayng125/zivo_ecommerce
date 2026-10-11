@@ -13,13 +13,15 @@ export const searchProducts = async (c: Context) => {
     const conditions: string[] = ["is_active = true AND EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id) AND EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"]
     const params: unknown[] = []
 
+    let searchParamIndex: number | null = null
+    if (searchQuery) {
+        params.push(searchQuery)
+        searchParamIndex = params.length
+        conditions.push(`search_vector @@ websearch_to_tsquery('english', $${params.length})`)
+    }
     if (category_id) {
         params.push(category_id)
         conditions.push(`category_id = $${params.length}`)
-    }
-    if (searchQuery) {
-        params.push(searchQuery)
-        conditions.push(`(title ILIKE '%' || $${params.length} || '%' OR description ILIKE '%' || $${params.length} || '%')`)
     }
     if (min_price) {
         params.push(Number(min_price))
@@ -47,14 +49,20 @@ export const searchProducts = async (c: Context) => {
     }
     const total = Number(countResult.rows[0].count)
 
-    const orderClause = orderBy[sort] ?? "created_at DESC"
+    const orderClause = searchQuery ?
+        (sort === "newest"
+            ? "rank DESC"
+            : orderBy[sort] ?? "rank DESC") : "created_at DESC"
     const offset = (page - 1) * limit
 
     params.push(limit)
     params.push(offset)
 
     const products = await pool.query(`
-        SELECT *
+        SELECT *,
+        ${searchParamIndex
+            ? `ts_rank(search_vector, websearch_to_tsquery('english', $${searchParamIndex})) AS rank`
+            : 'NULL AS rank'}
         FROM products
         WHERE ${whereClause}
         ORDER BY ${orderClause}

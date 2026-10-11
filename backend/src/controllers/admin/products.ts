@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
+import redis from "../../lib/redis.js"
 
 export const createProduct = async (c: Context) => {
     const { title, description, base_price, cover_image, category_id, is_active } = await c.req.json()
@@ -49,12 +50,12 @@ export const getProducts = async (c: Context) => {
     const is_active = c.req.query("is_active")
     const searchQuery = c.req.query("q")?.trim()
 
-    const conditions: string[] = ["TRUE"]
+    const conditions: string[] = ["EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id) AND EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"]
     const params: unknown[] = []
 
     if (searchQuery) {
         params.push(searchQuery)
-        conditions.push(`(title ILIKE '%' || $${params.length} || '%' OR description ILIKE '%' || $${params.length} || '%')`)
+        conditions.push(`(search_vector @@ websearch_to_tsquery('english', $${params.length}))`)
     }
     if (is_active !== undefined) {
         params.push(is_active)
@@ -115,7 +116,7 @@ export const getProducts = async (c: Context) => {
 }
 
 export const getProduct = async (c: Context) => {
-    const product_id = c.req.param("product_id")
+    const slug = c.req.param("slug")
 
     const product = await pool.query(
         `WITH images AS (
@@ -128,11 +129,11 @@ export const getProduct = async (c: Context) => {
         )
         SELECT p.*, images.product_images, variants.product_variants
         FROM products p
-        LEFT JOIN images ON images.product_id = p.id
-        LEFT JOIN variants ON variants.product_id = p.id
-        WHERE p.is_active = true AND p.id = $1
+        JOIN images ON images.product_id = p.id
+        JOIN variants ON variants.product_id = p.id
+        WHERE p.is_active = true AND p.slug = $1
             `,
-        [product_id])
+        [slug])
 
     if (!product.rows?.[0]) {
         throw new HTTPException(404, { message: "Product not found" })
@@ -149,12 +150,17 @@ export const updateProduct = async (c: Context) => {
     const columns: string[] = []
     const params: unknown[] = []
 
+    let oldProductSlug: string | null = null
+
     if (title) {
         params.push(title)
         columns.push(`title = $${params.length}`)
         const slug = slugify(title, { lower: true, strict: true })
         params.push(slug)
         columns.push(`slug = $${params.length}`)
+
+        const product = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
+        oldProductSlug = product.rows[0].slug
     }
     if (description) {
         params.push(description)
@@ -191,6 +197,8 @@ export const updateProduct = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
+    await redis.del(`product:${oldProductSlug ?? productResult.rows[0].slug}`)
+
     return c.json({ product: productResult.rows[0], message: "Product updated" })
 }
 
@@ -208,6 +216,8 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
+    await redis.del(`product:${productResult.rows[0].slug}`)
+
     return c.json({ product: productResult.rows[0], message: `Product ${productResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
 
@@ -217,12 +227,14 @@ export const deleteProduct = async (c: Context) => {
     const productResult = await pool.query(`
         DELETE FROM products
         WHERE id = $1
-        RETURNING id
+        RETURNING *
         `, [product_id])
 
     if (!productResult.rowCount) {
         throw new HTTPException(404, { message: "Product not found" })
     }
+
+    await redis.del(`product:${productResult.rows[0].slug}`)
 
     return c.json({ message: "Product deleted" })
 }

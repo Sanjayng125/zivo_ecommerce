@@ -2,6 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import pool from "../../db/client.js";
+import redis from "../../lib/redis.js";
 
 export const getProductVariants = async (c: Context) => {
     const product_id = c.req.param("product_id")
@@ -29,17 +30,22 @@ export const createProductVariant = async (c: Context) => {
     const { sku, size, color, price, stock } = await c.req.json()
 
     try {
-        const productResult = await pool.query(`
+        const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
+
+        const productVariantResult = await pool.query(`
         INSERT INTO product_variants (product_id, sku, size, color, price, stock)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *
         `, [product_id, sku, size, color, Number(price), Number(stock)])
 
-        if (!productResult.rowCount) {
+        if (!productVariantResult.rowCount) {
             throw new HTTPException(500, { message: "Something went wrong while creating product variant" })
         }
 
-        return c.json({ product_variant: productResult.rows[0], message: "Product variant created" })
+
+        await redis.del(`product:${productResult.rows[0].slug}`)
+
+        return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant created" })
     } catch (error) {
         if (error instanceof DatabaseError && error.code === "23505") {
             throw new HTTPException(409, { message: "SKU already exists" })
@@ -87,6 +93,8 @@ export const updateProductVariant = async (c: Context) => {
 
     const whereClause = conditions.join(" AND ")
 
+    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
+
     const productVariantResult = await pool.query(`
         UPDATE product_variants
         SET ${setClause}
@@ -98,6 +106,8 @@ export const updateProductVariant = async (c: Context) => {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
 
+    await redis.del(`product:${productResult.rows[0].slug}`)
+
     return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant updated" })
 }
 
@@ -107,6 +117,8 @@ export const updateProductVariantStock = async (c: Context) => {
     const variant_id = c.req.param("product_variant_id")
 
     const { stock } = await c.req.json()
+
+    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
 
     const productVariantResult = await pool.query(`
         UPDATE product_variants
@@ -119,6 +131,8 @@ export const updateProductVariantStock = async (c: Context) => {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
 
+    await redis.del(`product:${productResult.rows[0].slug}`)
+
     return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant stock updated" })
 }
 
@@ -126,6 +140,8 @@ export const deleteProductVariant = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
     const variant_id = c.req.param("product_variant_id")
+
+    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
 
     const productVariantResult = await pool.query(`
         DELETE FROM product_variants
@@ -136,6 +152,8 @@ export const deleteProductVariant = async (c: Context) => {
     if (!productVariantResult.rowCount) {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
+
+    await redis.del(`product:${productResult.rows[0].slug}`)
 
     return c.json({ message: "Product variant deleted" })
 }

@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
+import redis from "../../lib/redis.js";
 import { ProductImage } from "../../schemas/product_images.js";
 
 export const getProductImages = async (c: Context) => {
@@ -13,7 +14,7 @@ export const getProductImages = async (c: Context) => {
         ORDER BY sort_order
         `, [product_id])
 
-    return c.json({ product_images: productImagesResult.rows })
+    return c.json({ productImages: productImagesResult.rows })
 }
 
 export const createProductImage = async (c: Context) => {
@@ -41,7 +42,9 @@ export const createProductImage = async (c: Context) => {
         throw new HTTPException(400, { message: "Failed to create product image" })
     }
 
-    return c.json({ product_image: productImagesResult.rows[0], message: "Product image created" })
+    await redis.del(`product:${productResult.rows[0].slug}`)
+
+    return c.json({ productImage: productImagesResult.rows[0], message: "Product image created" })
 }
 
 export const reorderProductImages = async (c: Context) => {
@@ -97,6 +100,8 @@ export const updateProductImage = async (c: Context) => {
     params.push(product_id)
     params.push(product_image_id)
 
+    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
+
     const productImagesResult = await pool.query(`
         UPDATE product_images
         SET ${setClause}
@@ -108,12 +113,16 @@ export const updateProductImage = async (c: Context) => {
         throw new HTTPException(404, { message: "Product image not found" })
     }
 
-    return c.json({ product_image: productImagesResult.rows[0], message: "Product image updated" })
+    await redis.del(`product:${productResult.rows[0].slug}`)
+
+    return c.json({ productImage: productImagesResult.rows[0], message: "Product image updated" })
 }
 
 export const deleteProductImage = async (c: Context) => {
     const product_id = c.req.param("product_id")
     const product_image_id = c.req.param("product_image_id")
+
+    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
 
     const productImagesResult = await pool.query(`
         DELETE FROM product_images
@@ -124,6 +133,8 @@ export const deleteProductImage = async (c: Context) => {
     if (!productImagesResult.rowCount) {
         throw new HTTPException(404, { message: "Product image not found" })
     }
+
+    await redis.del(`product:${productResult.rows[0].slug}`)
 
     return c.json({ message: "Product image deleted" })
 }

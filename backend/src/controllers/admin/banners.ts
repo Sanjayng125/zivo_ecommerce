@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
+import redis from "../../lib/redis.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -96,6 +97,8 @@ export const createBanner = async (c: Context) => {
         throw new HTTPException(500, { message: "Something went wrong while creating banner" })
     }
 
+    await redis.del("home:sections")
+
     return c.json({ banner: bannerResult.rows[0], message: "Banner created" })
 }
 
@@ -138,6 +141,8 @@ export const updateBanner = async (c: Context) => {
         throw new HTTPException(404, { message: "Banner not found" })
     }
 
+    await redis.del("home:sections")
+
     return c.json({ banner: bannerResult.rows[0], message: "Banner updated" })
 }
 
@@ -155,6 +160,8 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Banner not found" })
     }
 
+    await redis.del("home:sections")
+
     return c.json({ banner: bannerResult.rows[0], message: `Banner ${bannerResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
 
@@ -170,6 +177,8 @@ export const deleteBanner = async (c: Context) => {
     if (!bannerResult.rowCount) {
         throw new HTTPException(404, { message: "Banner not found" })
     }
+
+    await redis.del("home:sections")
 
     return c.json({ message: "Banner deleted" })
 }

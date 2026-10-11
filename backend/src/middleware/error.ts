@@ -24,7 +24,7 @@ export const errorHandler = async (err: Error | HTTPResponseError, c: Context) =
         )
     }
 
-    // console.log(err)
     // log errors to a file or somewhere for debugging
+    console.log(err)
     return c.json({ message: "Something went wrong on our side" }, 500)
 }

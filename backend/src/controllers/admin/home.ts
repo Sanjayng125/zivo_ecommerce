@@ -1,6 +1,7 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import pool from "../../db/client.js"
+import redis from "../../lib/redis.js"
 
 export const getHomeSections = async (c: Context) => {
     const { is_active, sort } = c.req.query()
@@ -66,6 +67,8 @@ export const updateHomeSection = async (c: Context) => {
         throw new HTTPException(404, { message: "Home section not found" })
     }
 
+    await redis.del("home:sections")
+
     return c.json({ home_section: homeSectionResult.rows[0], message: "Home section updated" })
 }
 
@@ -82,6 +85,8 @@ export const toggleIsActive = async (c: Context) => {
     if (!homeSectionResult.rowCount) {
         throw new HTTPException(404, { message: "Home section not found" })
     }
+
+    await redis.del("home:sections")
 
     return c.json({ home_section: homeSectionResult.rows[0], message: `Home section ${homeSectionResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }

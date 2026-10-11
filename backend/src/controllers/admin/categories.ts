@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
+import redis from "../../lib/redis.js"
 
 export const getCategories = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -126,6 +127,8 @@ export const createCategory = async (c: Context) => {
             throw new HTTPException(500, { message: "Something went wrong while creating category" })
         }
 
+        await redis.del("home:sections")
+
         return c.json({ category: categoryResult.rows[0], message: "Category created" })
     } catch (error) {
         if (error instanceof DatabaseError && error.code === "23505") {
@@ -143,12 +146,17 @@ export const updateCategory = async (c: Context) => {
     const columns: string[] = []
     const params: unknown[] = []
 
+    let oldCategorySlug: string | null = null
+
     if (name) {
         params.push(name)
         columns.push(`name = $${params.length}`)
         const slug = slugify(name, { lower: true, strict: true })
         params.push(slug)
         columns.push(`slug = $${params.length}`)
+
+        const category = await pool.query(`SELECT slug FROM categories WHERE id = $1`, [category_id])
+        oldCategorySlug = category.rows[0].slug
     }
     if (parent_id) {
         params.push(parent_id)
@@ -182,6 +190,9 @@ export const updateCategory = async (c: Context) => {
             throw new HTTPException(404, { message: "Category not found" })
         }
 
+        await redis.del("home:sections")
+        await redis.del(`category:${oldCategorySlug ?? categoryResult.rows[0].slug}`)
+
         return c.json({ category: categoryResult.rows[0], message: "Category updated" })
     } catch (error) {
         if (error instanceof DatabaseError && error.code === "23505") {
@@ -205,6 +216,9 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Category not found" })
     }
 
+    await redis.del("home:sections")
+    await redis.del(`category:${categoryResult.rows[0].slug}`)
+
     return c.json({ category: categoryResult.rows[0], message: `Category ${categoryResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
 
@@ -215,12 +229,15 @@ export const deleteCategory = async (c: Context) => {
         const categoryResult = await pool.query(`
         DELETE FROM categories
         WHERE id = $1
-        RETURNING id
+        RETURNING *
         `, [category_id])
 
         if (!categoryResult.rowCount) {
             throw new HTTPException(404, { message: "Category not found" })
         }
+
+        await redis.del("home:sections")
+        await redis.del(`category:${categoryResult.rows[0].slug}`)
 
         return c.json({ message: "Category deleted" })
     } catch (error) {

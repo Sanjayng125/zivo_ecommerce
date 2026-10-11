@@ -1,7 +1,15 @@
 import { Context } from "hono"
 import pool from "../db/client.js"
+import redis from "../lib/redis.js"
 
 export const getHomeSections = async (c: Context) => {
+
+    const cached = await redis.get("home:sections")
+
+    if (cached) {
+        return c.json({ home_sections: cached })
+    }
+
     const res = await pool.query(`
         SELECT *
         FROM home_sections
@@ -59,6 +67,8 @@ export const getHomeSections = async (c: Context) => {
             }
         })
     )
+
+    await redis.set("home:sections", { home_sections: home_sections }, { ex: 3600 })
 
     return c.json({ home_sections: home_sections })
 }

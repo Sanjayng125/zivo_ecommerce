@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { requireAdmin, requireAuth } from "../middleware/auth.js";
+import { adminRateLimit } from "../middleware/rate-limit.js";
 import bannersRoutes from "./admin/banners.js";
 import categoriesRoutes from "./admin/categories.js";
 import homeRoutes from "./admin/home.js";
@@ -9,7 +10,7 @@ import usersRoutes from "./admin/users.js";
 
 const admin = new Hono()
 
-admin.use("*", requireAuth, requireAdmin)
+admin.use("*", requireAuth, requireAdmin, adminRateLimit)
 
 admin.route("/products", productsRoutes)
 admin.route("/categories", categoriesRoutes)

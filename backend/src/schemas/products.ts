@@ -4,6 +4,10 @@ export const productIdSchema = z.object({
     product_id: z.uuid({ error: "Invalid product ID" }),
 })
 
+export const productSlugSchema = z.object({
+    slug: z.string({ error: "Invalid slug" }),
+})
+
 export const createProductSchema = z.object({
     title: z.string({ error: "Invalid title" }).min(3, "Title must be at least 3 characters").max(200, "Title must be at most 200 characters"),
     description: z.string({ error: "Invalid description" }).min(10, "Description must be at least 3 characters").max(2000, "Description must be at most 2000 characters"),
@@ -56,3 +60,9 @@ export const getProductsSchema = z.object({
         .optional(),
     q: z.string().trim().min(2, "Search query must be at least 2 characters").max(200, "Search query must be at most 200 characters").optional(),
 })
+
+export const searchProductsSchema = getProductsSchema
+    .omit({ q: true })
+    .extend({
+        q: z.string().trim().min(2, "Search query must be at least 2 characters").max(200, "Search query must be at most 200 characters"),
+    })

@@ -1,9 +1,16 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../db/client.js";
+import redis from "../lib/redis.js";
 
 export const getProduct = async (c: Context) => {
-    const product_id = c.req.param("product_id")
+    const slug = c.req.param("slug")
+
+    const cached = await redis.get(`product:${slug}`)
+
+    if (cached) {
+        return c.json({ product: cached })
+    }
 
     const product = await pool.query(
         `WITH images AS (
@@ -18,13 +25,15 @@ export const getProduct = async (c: Context) => {
         FROM products p
         JOIN images ON images.product_id = p.id
         JOIN variants ON variants.product_id = p.id
-        WHERE p.is_active = true AND p.id = $1
+        WHERE p.is_active = true AND p.slug = $1
             `,
-        [product_id])
+        [slug])
 
     if (!product.rows?.[0]) {
         throw new HTTPException(404, { message: "Product not found" })
     }
+
+    await redis.set(`product:${slug}`, { product: product.rows[0] }, { ex: 3600 })
 
     return c.json({ product: product.rows[0] })
 }
