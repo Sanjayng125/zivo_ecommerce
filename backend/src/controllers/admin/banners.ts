@@ -57,17 +57,12 @@ export const getBanners = async (c: Context) => {
 }
 
 export const createBanner = async (c: Context) => {
-    const { image_url, title, link, sort_order, is_active } = await c.req.json()
+    const { image_url, link, sort_order, is_active } = await c.req.json()
 
     const columns: string[] = ["image_url"]
     const values: string[] = ["$1"]
     const params: unknown[] = [image_url]
 
-    if (title) {
-        columns.push("title")
-        params.push(title)
-        values.push(`$${params.length}`)
-    }
     if (link) {
         columns.push("link")
         params.push(link)

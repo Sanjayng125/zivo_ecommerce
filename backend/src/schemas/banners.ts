@@ -18,7 +18,6 @@ export const getBannersSchema = z.object({
 
 export const createBannerSchema = z.object({
     image_url: z.url({ error: "Invalid image URL" }),
-    title: z.string({ error: "Invalid title" }).min(3, "Title must be at least 3 characters").max(20, "Title must be at most 20 characters").optional(),
     link: z.url({ error: "Invalid link URL" }).optional(),
     sort_order: z.coerce.number().optional().default(0),
     is_active: z.boolean().optional().default(true),

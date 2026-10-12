@@ -68,8 +68,5 @@ export type HomeSection = {
     type: 'banner' | 'category_row' | 'product_row'
     sort_order: number
     is_active: boolean
-    banners?: Banner[]
-    categories?: Category[]
-    new_arrivals?: Product[]
-    best_sellers?: Product[]
+    items: any[]
 }

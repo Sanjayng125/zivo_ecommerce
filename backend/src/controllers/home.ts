@@ -29,7 +29,7 @@ export const getHomeSections = async (c: Context) => {
                     ORDER BY sort_order
                     `)
 
-                section["banners"] = banners.rows
+                section["items"] = banners.rows
             }
             if (section.type === "category_row") {
                 const categories = await pool.query(`
@@ -39,9 +39,21 @@ export const getHomeSections = async (c: Context) => {
                     AND
                     parent_id IS NULL
                     ORDER BY sort_order
+                    LIMIT 15
                     `)
 
-                section["categories"] = categories.rows
+                section["items"] = categories.rows
+            }
+            if (section.type === "product_row" && section.key === "trending") {
+                const trending = await pool.query(`
+                    SELECT *
+                    FROM products
+                    WHERE is_active = true
+                    ORDER BY (rating_count * rating_avg) / (EXTRACT(EPOCH FROM NOW() - created_at) / 86400 + 1) DESC
+                    LIMIT 15;
+                    `)
+
+                section["items"] = trending.rows
             }
             if (section.type === "product_row" && section.key === "new_arrivals") {
                 const new_arrivals = await pool.query(`
@@ -52,18 +64,29 @@ export const getHomeSections = async (c: Context) => {
                     LIMIT 15;
                     `)
 
-                section["new_arrivals"] = new_arrivals.rows
+                section["items"] = new_arrivals.rows
             }
             if (section.type === "product_row" && section.key === "best_sellers") {
                 const best_sellers = await pool.query(`
                     SELECT *
                     FROM products
                     WHERE is_active = true
-                    ORDER BY rating_count DESC
+                    ORDER BY (rating_count * rating_avg) DESC
                     LIMIT 15;
                     `)
 
-                section["best_sellers"] = best_sellers.rows
+                section["items"] = best_sellers.rows
+            }
+            if (section.type === "product_row" && section.key === "top_rated") {
+                const top_rated = await pool.query(`
+                    SELECT *
+                    FROM products
+                    WHERE is_active = true AND rating_count >= 20
+                    ORDER BY rating_avg DESC
+                    LIMIT 15;
+                    `)
+
+                section["items"] = top_rated.rows
             }
         })
     )

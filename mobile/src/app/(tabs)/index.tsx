@@ -7,7 +7,7 @@ import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
-import { HomeSection } from "@/types";
+import { Banner, Category, HomeSection, Product } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import {
   ActivityIndicator,
@@ -65,31 +65,25 @@ const Index = () => {
           {data.map((item) => {
             if (item.type === "banner") {
               return (
-                <BannerCarousel banners={item.banners ?? []} key={item.id} />
+                <BannerCarousel
+                  banners={(item.items as Banner[]) ?? []}
+                  key={item.id}
+                />
               );
             }
             if (item.type === "category_row") {
               return (
                 <CategoryRow
-                  categories={item.categories ?? []}
+                  categories={(item.items as Category[]) ?? []}
                   title={item.title}
                   key={item.id}
                 />
               );
             }
-            if (item.type === "product_row" && item.key === "new_arrivals") {
+            if (item.type === "product_row") {
               return (
                 <ProductRow
-                  products={item.new_arrivals ?? []}
-                  title={item.title}
-                  key={item.id}
-                />
-              );
-            }
-            if (item.type === "product_row" && item.key === "best_sellers") {
-              return (
-                <ProductRow
-                  products={item.best_sellers ?? []}
+                  products={(item.items as Product[]) ?? []}
                   title={item.title}
                   key={item.id}
                 />

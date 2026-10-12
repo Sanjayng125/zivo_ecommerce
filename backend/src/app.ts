@@ -17,7 +17,6 @@ import ordersRoutes from "./routes/orders.js"
 import productsRoutes from "./routes/products.js"
 import profileRoutes from "./routes/profile.js"
 import reviewsRoutes from "./routes/reviews.js"
-import searchRoutes from "./routes/search.js"
 import webhooksRoutes from "./routes/webhooks.js"
 import wishlistRoutes from "./routes/wishlist.js"
 
@@ -38,7 +37,6 @@ app.route("/home", homeRoutes);
 app.route("/categories", categoriesRoutes);
 app.route("/products", productsRoutes);
 app.route("/reviews", reviewsRoutes);
-app.route("/search", searchRoutes);
 app.route("/cart", cartRoutes);
 app.route("/addresses", addressesRoutes);
 app.route("/wishlist", wishlistRoutes);
