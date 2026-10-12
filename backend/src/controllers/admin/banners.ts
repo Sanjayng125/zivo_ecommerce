@@ -57,7 +57,7 @@ export const getBanners = async (c: Context) => {
 }
 
 export const createBanner = async (c: Context) => {
-    const { image_url, link, sort_order, is_active } = await c.req.json()
+    const { image_url, link, sort_order, is_active, group_name } = await c.req.json()
 
     const columns: string[] = ["image_url"]
     const values: string[] = ["$1"]
@@ -76,6 +76,11 @@ export const createBanner = async (c: Context) => {
     if (is_active) {
         columns.push("is_active")
         params.push(is_active)
+        values.push(`$${params.length}`)
+    }
+    if (group_name) {
+        columns.push("group_name")
+        params.push(group_name)
         values.push(`$${params.length}`)
     }
 
@@ -100,7 +105,7 @@ export const createBanner = async (c: Context) => {
 export const updateBanner = async (c: Context) => {
     const banner_id = c.req.param("banner_id")
 
-    const { image_url, link, sort_order } = await c.req.json()
+    const { image_url, link, sort_order, group_name } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
@@ -116,6 +121,10 @@ export const updateBanner = async (c: Context) => {
     if (sort_order !== undefined) {
         params.push(sort_order)
         columns.push(`sort_order = $${params.length}`)
+    }
+    if (group_name) {
+        params.push(group_name)
+        columns.push(`group_name = $${params.length}`)
     }
 
     if (columns.length === 0) {

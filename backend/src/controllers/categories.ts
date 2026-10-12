@@ -70,7 +70,7 @@ export const getCategory = async (c: Context) => {
     const cached = await redis.get(`category:${slug}`)
 
     if (cached) {
-        return c.json({ category: cached })
+        return c.json(cached)
     }
 
     const category = await pool.query(`

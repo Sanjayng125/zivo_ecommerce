@@ -31,10 +31,41 @@ export const getHomeSections = async (c: Context) => {
     return c.json({ home_sections: homeSectionsResult.rows })
 }
 
+export const createHomeSection = async (c: Context) => {
+    const { type, title, key, sort_order, config } = await c.req.json()
+
+    const columns: string[] = ["type", "title", "key", "config"]
+    const values: string[] = ["$1", "$2", "$3", "$4"]
+    const params: unknown[] = [type, title, key, JSON.stringify(config)]
+
+    if (sort_order !== undefined) {
+        columns.push("sort_order")
+        params.push(sort_order)
+        values.push(`$${params.length}`)
+    }
+
+    const allColumns = `(${columns.join(", ")})`
+    const allValues = `(${values.join(", ")})`
+
+    const homeSectionResult = await pool.query(`
+        INSERT INTO home_sections ${allColumns}
+        VALUES ${allValues}
+        RETURNING *
+        `, params)
+
+    if (!homeSectionResult.rowCount) {
+        throw new HTTPException(500, { message: "Something went wrong while creating home section" })
+    }
+
+    await redis.del("home:sections")
+
+    return c.json({ home_section: homeSectionResult.rows[0], message: "Home section created" })
+}
+
 export const updateHomeSection = async (c: Context) => {
     const home_section_id = c.req.param("home_section_id")
 
-    const { title, sort_order } = await c.req.json()
+    const { title, key, sort_order, config } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
@@ -43,9 +74,17 @@ export const updateHomeSection = async (c: Context) => {
         params.push(title)
         columns.push(`title = $${params.length}`)
     }
+    if (key) {
+        params.push(key)
+        columns.push(`key = $${params.length}`)
+    }
     if (sort_order !== undefined) {
         params.push(sort_order)
         columns.push(`sort_order = $${params.length}`)
+    }
+    if (config) {
+        params.push(JSON.stringify(config))
+        columns.push(`config = config || $${params.length}::jsonb`)
     }
 
     if (columns.length === 0) {

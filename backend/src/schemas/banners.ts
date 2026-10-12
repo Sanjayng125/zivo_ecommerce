@@ -21,6 +21,7 @@ export const createBannerSchema = z.object({
     link: z.url({ error: "Invalid link URL" }).optional(),
     sort_order: z.coerce.number().optional().default(0),
     is_active: z.boolean().optional().default(true),
+    group_name: z.string().min(3).max(100).optional().default("main"),
 })
 
 export const updateBannerSchema = createBannerSchema

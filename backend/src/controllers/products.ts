@@ -89,7 +89,7 @@ export const getProduct = async (c: Context) => {
     const cached = await redis.get(`product:${slug}`)
 
     if (cached) {
-        return c.json({ product: cached })
+        return c.json(cached)
     }
 
     const product = await pool.query(

@@ -1,0 +1,5 @@
+ALTER TABLE home_sections
+ADD COLUMN config JSONB NOT NULL DEFAULT '{}'::jsonb;
+
+ALTER TABLE banners
+ADD COLUMN group_name VARCHAR(255) NOT NULL DEFAULT 'main';
