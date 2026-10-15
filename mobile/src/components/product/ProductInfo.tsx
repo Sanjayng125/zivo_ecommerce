@@ -141,7 +141,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         <Text style={styles.sectionTitle}>Description</Text>
         <Text
           numberOfLines={
-            product?.description.length > MAX_DESCRIPTION_LENGTH ? 1 : undefined
+            product?.description.length > MAX_DESCRIPTION_LENGTH ? 6 : undefined
           }
         >
           {product?.description}

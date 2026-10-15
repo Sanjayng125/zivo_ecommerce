@@ -34,7 +34,7 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
         <Text
           style={styles.comment}
           numberOfLines={
-            review?.comment?.length > MAX_COMMENT_LENGTH ? 1 : undefined
+            review?.comment?.length > MAX_COMMENT_LENGTH ? 3 : undefined
           }
         >
           {review?.comment}
