@@ -3,6 +3,19 @@ import { HTTPException } from "hono/http-exception"
 import pool from "../db/client.js"
 import { auth } from "../lib/auth.js"
 
+export const optionalAuth = async (c: Context, next: Next) => {
+    const session = await auth.api.getSession({
+        headers: c.req.raw.headers
+    })
+
+    if (session) {
+        c.set("user", session.user)
+        c.set("session", session.session)
+    }
+
+    await next()
+}
+
 export const requireAuth = async (c: Context, next: Next) => {
     const session = await auth.api.getSession({
         headers: c.req.raw.headers

@@ -172,9 +172,10 @@ const SignUp = () => {
             disabled={isSignUpPending}
             style={[styles.signUpBtn, isSignUpPending && { opacity: 0.5 }]}
           >
-            <Text style={styles.signUpBtnText}>Sign-Up</Text>
-            {isSignUpPending && (
+            {isSignUpPending ? (
               <ActivityIndicator size="small" color={colors.btnPrimaryText} />
+            ) : (
+              <Text style={styles.signUpBtnText}>Sign-Up</Text>
             )}
           </TouchableOpacity>
 

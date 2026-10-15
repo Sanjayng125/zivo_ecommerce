@@ -1,6 +1,6 @@
 import { ColorsType } from "@/constants/colors";
 import { useStyles } from "@/hooks/useStyles";
-import { Product } from "@/types";
+import { HomeSection, Product } from "@/types";
 import { formatPrice } from "@/utils";
 import { router } from "expo-router";
 import {
@@ -13,17 +13,18 @@ import {
 } from "react-native";
 
 interface ProductRowProps {
-  products: Product[];
-  title: string;
+  section: HomeSection;
 }
 
-export default function ProductRow({ products, title }: ProductRowProps) {
+export default function ProductRow({ section }: ProductRowProps) {
   const styles = useStyles(getStyles);
+
+  const products = (section?.items ?? []) as Product[];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{section?.title}</Text>
       </View>
       <FlatList
         data={products}

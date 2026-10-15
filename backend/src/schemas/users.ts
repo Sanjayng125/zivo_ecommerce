@@ -8,7 +8,7 @@ export const userIdSchema = z.object({
 
 export const getUsersSchema = z.object({
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(0).default(10),
+    limit: z.coerce.number().min(1).max(30).default(10),
     sort: z.enum(["newest", "oldest", "name_asc", "name_desc"]).optional().default("newest"),
     q: z.string().trim().optional(),
     role: z.enum(["user", "admin"]).optional(),

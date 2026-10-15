@@ -11,7 +11,7 @@ export const bannerConfigSchema = z.object({
 })
 
 export const categoryRowConfigSchema = z.object({
-    limit: z.coerce.number().min(1).max(100).default(10),
+    limit: z.coerce.number().min(1).max(30).default(10),
     parent_id: z.uuid({ error: "Invalid parent category ID" }).optional(),
     display: z.object({
         show_title: z.boolean().optional().default(true),
@@ -21,7 +21,7 @@ export const categoryRowConfigSchema = z.object({
 })
 
 export const productRowConfigSchema = z.object({
-    limit: z.coerce.number().min(1).max(100).default(10),
+    limit: z.coerce.number().min(1).max(30).default(10),
     sort: z.enum(["new_arrivals", "best_sellers", "top_rated", "trending"]).default("new_arrivals"),
     category_id: z.uuid({ error: "Invalid category ID" }).optional(),
     card_size: z.enum(["small", "medium", "large"]).optional().default("medium"),

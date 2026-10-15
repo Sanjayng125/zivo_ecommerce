@@ -1,5 +1,7 @@
 import { User } from "@/types";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { zustandMMKVStorage } from "./mmkvStorage";
 
 interface AuthStore {
     user: User | null
@@ -10,20 +12,27 @@ interface AuthStore {
 }
 
 export const useAuthStore = create<AuthStore>()(
-    (set): AuthStore => ({
-        user: null,
-        token: null,
+    persist(
+        (set): AuthStore => ({
+            user: null,
+            token: null,
 
-        setUser(user) {
-            set(() => ({ user: user }))
-        },
+            setUser(user) {
+                set(() => ({ user: user }))
+            },
 
-        setToken(token) {
-            set(() => ({ token: token }))
-        },
+            setToken(token) {
+                set(() => ({ token: token }))
+            },
 
-        logout() {
-            set(() => ({ user: null, token: null }))
-        },
-    })
+            logout() {
+                set(() => ({ user: null, token: null }))
+            },
+        }),
+        {
+            name: "auth-storage",
+            storage: createJSONStorage(() => zustandMMKVStorage),
+            partialize: (state) => ({ user: state.user }),
+        }
+    )
 )

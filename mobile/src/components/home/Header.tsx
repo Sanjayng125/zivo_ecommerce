@@ -15,52 +15,29 @@ export default function Header() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topRow}>
-        <View style={styles.brand}>
-          <Image
-            accessibilityLabel="Zivo logo"
-            source={require("@/assets/images/logo.png")}
-            style={styles.logo}
-          />
-          <Text style={styles.title}>Zivo</Text>
-        </View>
-
-        <Pressable
-          accessibilityLabel={`Shopping cart, ${cartCount} items`}
-          accessibilityRole="button"
-          onPress={() => router.push("/(tabs)/cart")}
-          style={({ pressed }) => [
-            styles.cartButton,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Ionicons name="cart-outline" size={23} color={colors.text} />
-          {cartCount > 0 && (
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {cartCount > 99 ? "99+" : cartCount}
-              </Text>
-            </View>
-          )}
-        </Pressable>
+      <View style={styles.brand}>
+        <Image
+          accessibilityLabel="Zivo logo"
+          source={require("@/assets/images/logo.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.title}>Zivo</Text>
       </View>
 
       <Pressable
-        accessibilityLabel="Search products"
+        accessibilityLabel={`Shopping cart, ${cartCount} items`}
         accessibilityRole="button"
-        onPress={() => router.push("/(tabs)/explore")}
-        style={({ pressed }) => [
-          styles.searchButton,
-          pressed && styles.pressed,
-        ]}
+        onPress={() => router.push("/(tabs)/cart")}
+        style={({ pressed }) => [styles.cartButton, pressed && styles.pressed]}
       >
-        <Ionicons
-          name="search-outline"
-          size={20}
-          color={colors.btnSecondaryText}
-        />
-        <Text style={styles.searchText}>Search products</Text>
-        <Ionicons name="options-outline" size={20} color={colors.text} />
+        <Ionicons name="cart-outline" size={23} color={colors.text} />
+        {cartCount > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>
+              {cartCount > 99 ? "99+" : cartCount}
+            </Text>
+          </View>
+        )}
       </Pressable>
     </View>
   );
@@ -74,8 +51,6 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: 18,
       gap: 18,
       backgroundColor: colors.background,
-    },
-    topRow: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
@@ -86,12 +61,12 @@ const getStyles = (colors: ColorsType) =>
       gap: 10,
     },
     logo: {
-      width: 38,
-      height: 38,
+      width: 44,
+      height: 44,
     },
     title: {
       color: colors.text,
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: "700",
     },
     cartButton: {
@@ -120,22 +95,6 @@ const getStyles = (colors: ColorsType) =>
       color: "#FFFFFF",
       fontSize: 10,
       fontWeight: "700",
-    },
-    searchButton: {
-      minHeight: 50,
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-      paddingHorizontal: 15,
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
-    },
-    searchText: {
-      flex: 1,
-      color: colors.textSecondary,
-      fontSize: 14,
     },
     pressed: {
       opacity: 0.7,

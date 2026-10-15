@@ -3,11 +3,12 @@ import CategoryRow from "@/components/home/CategoryRow";
 import Footer from "@/components/home/Footer";
 import Header from "@/components/home/Header";
 import ProductRow from "@/components/home/ProductRow";
+import StickySearchBar from "@/components/home/StickySearchBar";
 import { ColorsType } from "@/constants/colors";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
-import { Banner, Category, HomeSection, Product } from "@/types";
+import { HomeSection } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 import {
   ActivityIndicator,
@@ -44,6 +45,8 @@ const Index = () => {
       {isLoading && data.length === 0 ? (
         <>
           <Header />
+          <StickySearchBar />
+
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color={colors.primary} />
           </View>
@@ -54,8 +57,10 @@ const Index = () => {
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
           }
+          stickyHeaderIndices={[1]}
         >
           <Header />
+          <StickySearchBar />
 
           {data.length === 0 && !error && (
             <Text style={styles.empty}>No data available yet</Text>
@@ -64,30 +69,13 @@ const Index = () => {
 
           {data.map((item) => {
             if (item.type === "banner") {
-              return (
-                <BannerCarousel
-                  banners={(item.items as Banner[]) ?? []}
-                  key={item.id}
-                />
-              );
+              return <BannerCarousel section={item} key={item.id} />;
             }
             if (item.type === "category_row") {
-              return (
-                <CategoryRow
-                  categories={(item.items as Category[]) ?? []}
-                  title={item.title}
-                  key={item.id}
-                />
-              );
+              return <CategoryRow section={item} key={item.id} />;
             }
             if (item.type === "product_row") {
-              return (
-                <ProductRow
-                  products={(item.items as Product[]) ?? []}
-                  title={item.title}
-                  key={item.id}
-                />
-              );
+              return <ProductRow section={item} key={item.id} />;
             }
 
             return null;

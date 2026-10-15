@@ -151,9 +151,10 @@ const SignIn = () => {
             disabled={isSignInPending}
             style={[styles.signInBtn, isSignInPending && { opacity: 0.5 }]}
           >
-            <Text style={styles.signInBtnText}>Sign-In</Text>
-            {isSignInPending && (
+            {isSignInPending ? (
               <ActivityIndicator size="small" color={colors.btnPrimaryText} />
+            ) : (
+              <Text style={styles.signInBtnText}>Sign-In</Text>
             )}
           </TouchableOpacity>
 

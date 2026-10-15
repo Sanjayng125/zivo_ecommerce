@@ -70,3 +70,16 @@ export type HomeSection = {
     is_active: boolean
     items: any[]
 }
+
+export type Review = {
+    id: string
+    user_id: string
+    product_id: string
+    rating: number
+    title: string
+    comment: string
+    full_name: string
+    avatar_url: string
+    created_at: string
+    updated_at: string
+}

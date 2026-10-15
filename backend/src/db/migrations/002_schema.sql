@@ -174,6 +174,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
     rating INTEGER NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    title VARCHAR(50) NOT NULL,
     comment TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

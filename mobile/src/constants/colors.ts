@@ -11,6 +11,7 @@ export const Colors = {
         // Text
         text: '#1A1A1A',
         textSecondary: '#6B6B6B',
+        linkText: '#5a94ff',
 
         // Button
         btnPrimaryBg: '#1A1A1A',
@@ -52,6 +53,7 @@ export const Colors = {
         // Text
         text: '#FFFFFF',
         textSecondary: '#A0A0A0',
+        linkText: '#5a94ff',
 
         // Button
         btnPrimaryBg: '#FFFFFF',

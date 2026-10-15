@@ -12,7 +12,7 @@ export const categorySlugSchema = z.object({
 
 export const getCategoriesSchema = z.object({
     page: z.coerce.number().min(1).optional().default(1),
-    limit: z.coerce.number().min(0).optional().default(10),
+    limit: z.coerce.number().min(1).max(30).optional().default(10),
     sort: z.enum(["newest", "oldest", "sort_order_asc", "sort_order_desc"]).optional().default("newest"),
     q: z.string().trim().optional().default(""),
 })

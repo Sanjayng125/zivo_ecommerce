@@ -8,7 +8,7 @@ export const bannerIdSchema = z.object({
 
 export const getBannersSchema = z.object({
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(0).default(10),
+    limit: z.coerce.number().min(1).max(30).default(10),
     sort: z.enum(["newest", "oldest", "sort_order_asc", "sort_order_desc"]).optional().default("newest"),
     is_active: z
         .enum(["true", "false"])

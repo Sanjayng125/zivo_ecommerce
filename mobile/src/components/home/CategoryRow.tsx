@@ -1,6 +1,6 @@
 import { ColorsType } from "@/constants/colors";
 import { useStyles } from "@/hooks/useStyles";
-import { Category } from "@/types";
+import { Category, HomeSection } from "@/types";
 import { router } from "expo-router";
 import {
   FlatList,
@@ -12,17 +12,18 @@ import {
 } from "react-native";
 
 interface CategoryRowProps {
-  categories: Category[];
-  title: string;
+  section: HomeSection;
 }
 
-export default function CategoryRow({ categories, title }: CategoryRowProps) {
+export default function CategoryRow({ section }: CategoryRowProps) {
   const styles = useStyles(getStyles);
+
+  const categories = (section?.items ?? []) as Category[];
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{section?.title}</Text>
       </View>
       <FlatList
         data={categories}

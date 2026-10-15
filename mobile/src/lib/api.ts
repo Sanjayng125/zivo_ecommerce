@@ -9,6 +9,16 @@ export const api = axios.create({
     timeout: 5000
 });
 
+api.interceptors.request.use(async (config) => {
+    const token = await getToken();
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
 export const authApi = axios.create({
     baseURL: SERVER_BASE_URL,
     timeout: 5000

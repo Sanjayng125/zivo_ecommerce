@@ -57,7 +57,7 @@ export default function AddToCart({ variant }: AddToCartProps) {
   });
 
   const handleAddToCart = () => {
-    if (!variant || isAddingToCart) return;
+    if (isAddingToCart) return;
 
     if (itemExistsInCart) {
       router.push("/cart");
@@ -88,15 +88,18 @@ export default function AddToCart({ variant }: AddToCartProps) {
       onPress={handleAddToCart}
       disabled={isAddingToCart}
     >
-      <Text
-        style={[
-          styles.addToCartButtonText,
-          itemExistsInCart && styles.itemExistsBtnText,
-        ]}
-      >
-        {itemExistsInCart ? "Go to cart" : "Add to cart"}
-      </Text>
-      {isAddingToCart && <ActivityIndicator size="small" color={colors.text} />}
+      {isAddingToCart ? (
+        <ActivityIndicator size="small" color={colors.text} />
+      ) : (
+        <Text
+          style={[
+            styles.addToCartButtonText,
+            itemExistsInCart && styles.itemExistsBtnText,
+          ]}
+        >
+          {itemExistsInCart ? "Go to cart" : "Add to cart"}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }

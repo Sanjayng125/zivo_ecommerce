@@ -1,13 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, View } from "react-native";
+import { useState } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
 interface StarRatingProps {
-  rating: number;
+  value: number;
   size?: number;
+  editable?: boolean;
+  onChange?: (value: number) => void;
+  disabled?: boolean;
 }
 
-export default function StarRating({ rating, size = 18 }: StarRatingProps) {
+export default function StarRating({
+  size = 18,
+  editable = false,
+  value,
+  onChange,
+  disabled = false,
+}: StarRatingProps) {
+  const [rating, setRating] = useState(value);
   const rounded = Math.round(rating * 2) / 2;
+
+  const handleStarClick = (index: number) => {
+    if (editable) {
+      setRating(index + 1);
+      onChange?.(index + 1);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -20,7 +38,16 @@ export default function StarRating({ rating, size = 18 }: StarRatingProps) {
               : i + 0.5 === rounded
                 ? "star-half"
                 : "star-outline";
-          return <Ionicons key={i} name={name} size={size} color="#fba124" />;
+          return (
+            <Pressable
+              key={i}
+              onPress={() => handleStarClick(i)}
+              disabled={disabled}
+              style={{ opacity: disabled ? 0.5 : 1 }}
+            >
+              <Ionicons key={i} name={name} size={size} color="#ff9500" />
+            </Pressable>
+          );
         })}
     </View>
   );
