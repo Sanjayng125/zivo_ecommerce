@@ -4,7 +4,8 @@ import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
-import { ProductVariant } from "@/types";
+import { Product, ProductVariant } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
@@ -17,10 +18,11 @@ import {
 import Toast from "react-native-toast-message";
 
 interface AddToCartProps {
+  product: Product;
   variant: ProductVariant;
 }
 
-export default function AddToCart({ variant }: AddToCartProps) {
+export default function AddToCart({ variant, product }: AddToCartProps) {
   const { token } = useAuthStore();
   const { items, addItem } = useCartStore();
 
@@ -43,8 +45,14 @@ export default function AddToCart({ variant }: AddToCartProps) {
         text1: data?.message || "Item added to cart",
       });
       addItem({
-        variant_id: variant.id,
-        quantity: 1,
+        variant_id: data?.cart_item?.variant_id,
+        quantity: data?.cart_item?.quantity,
+        title: data?.cart_item?.title,
+        slug: data?.cart_item?.slug,
+        price: data?.cart_item?.price,
+        cover_image: data?.cart_item?.cover_image,
+        size: data?.cart_item?.size,
+        color: data?.cart_item?.color,
       });
     },
     onError: (err: AxiosError<ApiError>) => {
@@ -73,6 +81,12 @@ export default function AddToCart({ variant }: AddToCartProps) {
       addItem({
         variant_id: variant.id,
         quantity: 1,
+        title: product?.title,
+        slug: product?.slug,
+        price: variant?.price,
+        cover_image: product?.cover_image,
+        size: variant?.size,
+        color: variant?.color,
       });
     }
   };
@@ -91,14 +105,21 @@ export default function AddToCart({ variant }: AddToCartProps) {
       {isAddingToCart ? (
         <ActivityIndicator size="small" color={colors.text} />
       ) : (
-        <Text
-          style={[
-            styles.addToCartButtonText,
-            itemExistsInCart && styles.itemExistsBtnText,
-          ]}
-        >
-          {itemExistsInCart ? "Go to cart" : "Add to cart"}
-        </Text>
+        <>
+          <Text
+            style={[
+              styles.addToCartButtonText,
+              itemExistsInCart && { color: colors.text },
+            ]}
+          >
+            {itemExistsInCart ? "Go to cart" : "Add to cart"}
+          </Text>
+          <Ionicons
+            name="cart-outline"
+            size={24}
+            color={itemExistsInCart ? colors.text : colors.btnPrimaryText}
+          />
+        </>
       )}
     </TouchableOpacity>
   );
@@ -124,11 +145,6 @@ const getStyles = (colors: ColorsType) =>
     },
     addToCartButtonText: {
       color: colors.btnPrimaryText,
-      fontSize: 15,
-      fontWeight: "700",
-    },
-    itemExistsBtnText: {
-      color: colors.text,
       fontSize: 15,
       fontWeight: "700",
     },

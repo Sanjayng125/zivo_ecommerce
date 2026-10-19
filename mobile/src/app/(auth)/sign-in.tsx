@@ -1,11 +1,15 @@
+import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
 import { ColorsType } from "@/constants/colors";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignInSchema, SignInSchemaType } from "@/lib/schemas";
 import { setToken as setSecureStoreToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -13,7 +17,6 @@ import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -28,6 +31,7 @@ import Toast from "react-native-toast-message";
 
 const SignIn = () => {
   const { setToken, setUser } = useAuthStore();
+  const { clearCart } = useCartStore();
   const colors = useColors();
 
   const styles = useStyles(getStyles);
@@ -57,6 +61,7 @@ const SignIn = () => {
       await setSecureStoreToken(data.token);
       setToken(data.token);
       setUser(data.user);
+      clearCart();
 
       router.replace("/(tabs)");
     },
@@ -75,6 +80,15 @@ const SignIn = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {router.canGoBack() && (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.backBtn}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back-sharp" size={28} color={colors.text} />
+        </TouchableOpacity>
+      )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -84,19 +98,7 @@ const SignIn = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {router.canGoBack() && (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.backBtn}
-              onPress={() => router.back()}
-            >
-              <Ionicons
-                name="arrow-back-sharp"
-                size={28}
-                color={colors.btnPrimaryText}
-              />
-            </TouchableOpacity>
-          )}
+          <Text style={styles.title}>Welcome Back</Text>
 
           <View style={styles.logoContainer}>
             <Image
@@ -105,7 +107,7 @@ const SignIn = () => {
             />
           </View>
 
-          <Text style={styles.title}>Sign-In to your account</Text>
+          <Text style={styles.subtitle}>Sign-In to your account</Text>
 
           <View>
             <Controller
@@ -118,7 +120,7 @@ const SignIn = () => {
                   autoCapitalize="none"
                   value={value}
                   onChangeText={onChange}
-                  style={{ marginTop: 20 }}
+                  style={{ marginTop: spacing.xl }}
                 />
               )}
             />
@@ -137,7 +139,7 @@ const SignIn = () => {
                   secureTextEntry
                   value={value}
                   onChangeText={onChange}
-                  style={{ marginTop: 20 }}
+                  style={{ marginTop: spacing.xl }}
                 />
               )}
             />
@@ -146,27 +148,23 @@ const SignIn = () => {
             )}
           </View>
 
-          <TouchableOpacity
+          <AppButton
+            title="Sign-In"
             onPress={handleSubmit(onSubmit)}
             disabled={isSignInPending}
-            style={[styles.signInBtn, isSignInPending && { opacity: 0.5 }]}
-          >
-            {isSignInPending ? (
-              <ActivityIndicator size="small" color={colors.btnPrimaryText} />
-            ) : (
-              <Text style={styles.signInBtnText}>Sign-In</Text>
-            )}
-          </TouchableOpacity>
+            loading={isSignInPending}
+            style={{ marginTop: spacing.xl }}
+          />
 
           <View style={styles.footer}>
-            <Text style={styles.subtitle}>Don't have an account?</Text>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.signUpBtn}
+            <Text style={styles.footerText}>Don't have an account?</Text>
+            <AppButton
+              title="Sign-Up"
               onPress={() => router.push("/(auth)/sign-up")}
-            >
-              <Text style={styles.signUpBtnText}>Sign-Up</Text>
-            </TouchableOpacity>
+              variant="ghost"
+              size="sm"
+              style={{ paddingHorizontal: spacing.xs }}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -179,74 +177,59 @@ const getStyles = (colors: ColorsType) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingHorizontal: 20,
+      paddingHorizontal: spacing.xl,
+      position: "relative",
     },
     content: {
       flexGrow: 1,
-      paddingBottom: 34,
+      paddingBottom: spacing.xxxl,
       justifyContent: "center",
     },
     backBtn: {
-      marginTop: 20,
-      paddingHorizontal: 4,
+      position: "absolute",
+      top: 24,
+      left: 20,
+      marginTop: spacing.xl,
+      paddingHorizontal: spacing.xs,
     },
     logo: {
-      width: 300,
-      height: 300,
+      width: 260,
+      height: 260,
     },
     logoContainer: {
       alignItems: "center",
       justifyContent: "center",
-      marginVertical: 20,
+      marginVertical: spacing.xl,
     },
     title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      marginTop: 10,
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
+      marginTop: spacing.md,
       textAlign: "center",
       color: colors.text,
     },
     subtitle: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: colors.textSecondary,
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
+      color: colors.text,
+      textAlign: "center",
     },
     error: {
-      fontSize: 12,
+      fontSize: typography.caption.fontSize,
       color: colors.error,
-      paddingHorizontal: 4,
-    },
-    signInBtn: {
-      marginTop: 20,
-      padding: 12,
-      borderRadius: 10,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "row",
-      gap: 8,
-      overflow: "hidden",
-    },
-    signInBtnText: {
-      color: colors.btnPrimaryText,
-      fontSize: 18,
-      fontWeight: "bold",
+      paddingHorizontal: spacing.xs,
     },
     footer: {
-      marginTop: 20,
+      marginTop: spacing.xl,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.md,
     },
-    signUpBtn: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    signUpBtnText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: "bold",
+    footerText: {
+      color: colors.textSecondary,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
       textAlign: "center",
     },
   });

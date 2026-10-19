@@ -2,7 +2,7 @@ export const Colors = {
     light: {
         background: '#ececec',
         surface: '#FFFFFF',
-        primary: '#1A1A1A',
+        primary: '#c0d7ff',
         border: '#E8E8E8',
         error: '#E53935',
         success: '#43A047',
@@ -16,10 +16,8 @@ export const Colors = {
         // Button
         btnPrimaryBg: '#1A1A1A',
         btnPrimaryText: '#FFFFFF',
-        btnSecondaryBg: '#F0F0F0',
+        btnSecondaryBg: '#cccccc',
         btnSecondaryText: '#1A1A1A',
-        btnDisabledBg: '#D4D4D4',
-        btnDisabledText: '#9B9B9B',
 
         // Input
         inputBg: '#FFFFFF',
@@ -41,11 +39,12 @@ export const Colors = {
         tabBarActive: '#1A1A1A',
         tabBarInactive: '#9B9B9B',
     },
+
     dark: {
         background: '#121212',
-        surface: '#1E1E1E',
-        primary: '#FFFFFF',
-        border: '#2C2C2C',
+        surface: '#262626',
+        primary: '#8DB6FF',
+        border: '#525252',
         error: '#EF5350',
         success: '#66BB6A',
         warning: '#FFCA28',
@@ -53,36 +52,35 @@ export const Colors = {
         // Text
         text: '#FFFFFF',
         textSecondary: '#A0A0A0',
-        linkText: '#5a94ff',
+        linkText: '#8DB6FF',
 
         // Button
-        btnPrimaryBg: '#FFFFFF',
-        btnPrimaryText: '#121212',
-        btnSecondaryBg: '#2C2C2C',
+        btnPrimaryBg: '#8DB6FF',
+        btnPrimaryText: '#FFFFFF',
+        btnSecondaryBg: '#434343',
         btnSecondaryText: '#FFFFFF',
-        btnDisabledBg: '#3A3A3A',
-        btnDisabledText: '#6B6B6B',
 
         // Input
-        inputBg: '#1E1E1E',
+        inputBg: '#262626',
         inputText: '#FFFFFF',
-        inputPlaceholder: '#6B6B6B',
+        inputPlaceholder: '#858585',
         inputBorder: '#2C2C2C',
-        inputBorderFocused: '#FFFFFF',
+        inputBorderFocused: '#8DB6FF',
 
         // Badge / Tag
-        badgeBg: '#2C2C2C',
-        badgeText: '#FFFFFF',
+        badgeBg: '#26354D',
+        badgeText: '#C0D7FF',
 
         // Card
-        cardBg: '#1E1E1E',
+        cardBg: '#262626',
         cardShadow: '#00000040',
 
         // Tab bar
-        tabBarBg: '#1E1E1E',
-        tabBarActive: '#FFFFFF',
-        tabBarInactive: '#6B6B6B',
+        tabBarBg: '#262626',
+        tabBarActive: '#8DB6FF',
+        tabBarInactive: '#858585',
     }
+
 }
 
 export type ColorsType = typeof Colors.light

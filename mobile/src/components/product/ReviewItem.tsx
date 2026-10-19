@@ -31,29 +31,33 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
       <View style={styles.review}>
         <StarRating value={review.rating} size={20} />
         <Text style={styles.title}>{review.title}</Text>
-        <Text
-          style={styles.comment}
-          numberOfLines={
-            review?.comment?.length > MAX_COMMENT_LENGTH ? 3 : undefined
-          }
-        >
-          {review?.comment}
-        </Text>
-        {review?.comment?.length > MAX_COMMENT_LENGTH && (
-          <Pressable
-            style={styles.expandButton}
-            onPress={() => setViewFullComment(!viewFullComment)}
-          >
-            <Text style={styles.expandButtonText}>View more</Text>
-          </Pressable>
+        {review?.comment && (
+          <>
+            <Text
+              style={styles.comment}
+              numberOfLines={
+                review.comment.length > MAX_COMMENT_LENGTH ? 3 : undefined
+              }
+            >
+              {review.comment}
+            </Text>
+            {review.comment.length > MAX_COMMENT_LENGTH && (
+              <Pressable
+                style={styles.expandButton}
+                onPress={() => setViewFullComment(!viewFullComment)}
+              >
+                <Text style={styles.expandButtonText}>View more</Text>
+              </Pressable>
+            )}
+            <ExpandedModal
+              isOpen={viewFullComment}
+              onCloseModal={() => setViewFullComment(false)}
+              title="Review"
+              subtitle={`By ${review?.full_name ?? "User"}`}
+              content={review.comment}
+            />
+          </>
         )}
-        <ExpandedModal
-          isOpen={viewFullComment}
-          onCloseModal={() => setViewFullComment(false)}
-          title="Review"
-          subtitle={`By ${review?.full_name ?? "User"}`}
-          content={review?.comment}
-        />
       </View>
 
       <View style={styles.userInfo}>

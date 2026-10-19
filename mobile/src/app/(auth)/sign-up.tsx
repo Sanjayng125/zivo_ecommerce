@@ -1,11 +1,15 @@
+import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
 import { ColorsType } from "@/constants/colors";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/schemas";
 import { setToken as setSecureStoreToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
+import { useCartStore } from "@/store/cartStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -13,7 +17,6 @@ import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -28,6 +31,7 @@ import Toast from "react-native-toast-message";
 
 const SignUp = () => {
   const { setToken, setUser } = useAuthStore();
+  const { clearCart } = useCartStore();
   const colors = useColors();
 
   const styles = useStyles(getStyles);
@@ -59,6 +63,7 @@ const SignUp = () => {
       await setSecureStoreToken(data.token);
       setToken(data.token);
       setUser(data.user);
+      clearCart();
 
       router.replace("/(tabs)");
     },
@@ -77,6 +82,15 @@ const SignUp = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {router.canGoBack() && (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.backBtn}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back-sharp" size={28} color={colors.text} />
+        </TouchableOpacity>
+      )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -86,19 +100,7 @@ const SignUp = () => {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {router.canGoBack() && (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.backBtn}
-              onPress={() => router.back()}
-            >
-              <Ionicons
-                name="arrow-back-sharp"
-                size={28}
-                color={colors.btnPrimaryText}
-              />
-            </TouchableOpacity>
-          )}
+          <Text style={styles.title}>Welcome To</Text>
 
           <View style={styles.logoContainer}>
             <Image
@@ -106,9 +108,7 @@ const SignUp = () => {
               style={styles.logo}
             />
           </View>
-
-          <Text style={[styles.title, { fontSize: 28 }]}>Welcome</Text>
-          <Text style={styles.title}>Create your account to continue</Text>
+          <Text style={styles.subtitle}>Create your account to continue</Text>
 
           <View>
             <Controller
@@ -119,7 +119,7 @@ const SignUp = () => {
                   placeholder="Full Name"
                   value={value}
                   onChangeText={onChange}
-                  style={{ marginTop: 20 }}
+                  style={{ marginTop: spacing.xl }}
                 />
               )}
             />
@@ -139,7 +139,7 @@ const SignUp = () => {
                   autoCapitalize="none"
                   value={value}
                   onChangeText={onChange}
-                  style={{ marginTop: 20 }}
+                  style={{ marginTop: spacing.xl }}
                 />
               )}
             />
@@ -158,7 +158,7 @@ const SignUp = () => {
                   secureTextEntry
                   value={value}
                   onChangeText={onChange}
-                  style={{ marginTop: 20 }}
+                  style={{ marginTop: spacing.xl }}
                 />
               )}
             />
@@ -167,27 +167,23 @@ const SignUp = () => {
             )}
           </View>
 
-          <TouchableOpacity
+          <AppButton
+            title="Sign-Up"
             onPress={handleSubmit(onSubmit)}
             disabled={isSignUpPending}
-            style={[styles.signUpBtn, isSignUpPending && { opacity: 0.5 }]}
-          >
-            {isSignUpPending ? (
-              <ActivityIndicator size="small" color={colors.btnPrimaryText} />
-            ) : (
-              <Text style={styles.signUpBtnText}>Sign-Up</Text>
-            )}
-          </TouchableOpacity>
+            loading={isSignUpPending}
+            style={{ marginTop: spacing.xl }}
+          />
 
           <View style={styles.footer}>
-            <Text style={styles.subtitle}>Already have an account?</Text>
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.signInBtn}
+            <Text style={styles.footerText}>Already have an account?</Text>
+            <AppButton
+              title="Sign-In"
               onPress={() => router.push("/(auth)/sign-in")}
-            >
-              <Text style={styles.signInBtnText}>Sign-In</Text>
-            </TouchableOpacity>
+              variant="ghost"
+              size="sm"
+              style={{ paddingHorizontal: spacing.xs }}
+            />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -200,74 +196,60 @@ const getStyles = (colors: ColorsType) =>
     container: {
       flex: 1,
       backgroundColor: colors.background,
-      paddingHorizontal: 20,
+      paddingHorizontal: spacing.xl,
+      position: "relative",
     },
     content: {
       flexGrow: 1,
-      paddingBottom: 34,
+      paddingBottom: spacing.xxxl,
       justifyContent: "center",
     },
     backBtn: {
-      marginTop: 20,
-      paddingHorizontal: 4,
+      position: "absolute",
+      top: 24,
+      left: 20,
+      marginTop: spacing.xl,
+      paddingHorizontal: spacing.xs,
     },
     logo: {
-      width: 300,
-      height: 300,
+      width: 260,
+      height: 260,
     },
     logoContainer: {
       alignItems: "center",
       justifyContent: "center",
-      marginVertical: 20,
+      marginVertical: spacing.xl,
     },
     title: {
-      fontSize: 24,
-      fontWeight: "bold",
-      marginTop: 10,
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
+      marginTop: spacing.md,
+      marginHorizontal: "auto",
       textAlign: "center",
       color: colors.text,
     },
     subtitle: {
-      fontSize: 16,
-      fontWeight: "bold",
-      color: colors.textSecondary,
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
+      color: colors.text,
+      textAlign: "center",
     },
     error: {
-      fontSize: 12,
+      fontSize: typography.caption.fontSize,
       color: colors.error,
       paddingHorizontal: 4,
     },
-    signUpBtn: {
-      marginTop: 20,
-      padding: 12,
-      borderRadius: 10,
-      backgroundColor: colors.primary,
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "row",
-      gap: 8,
-      overflow: "hidden",
-    },
-    signUpBtnText: {
-      color: colors.btnPrimaryText,
-      fontSize: 18,
-      fontWeight: "bold",
-    },
     footer: {
-      marginTop: 20,
+      marginTop: spacing.xl,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.md,
     },
-    signInBtn: {
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    signInBtnText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: "bold",
+    footerText: {
+      color: colors.textSecondary,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
       textAlign: "center",
     },
   });

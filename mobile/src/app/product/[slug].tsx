@@ -2,6 +2,9 @@ import ProductCarousel from "@/components/product/ProductCarousel";
 import ProductInfo from "@/components/product/ProductInfo";
 import Reviews from "@/components/product/Reviews";
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, authApi } from "@/lib/api";
@@ -70,7 +73,7 @@ const ProductScreen = () => {
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="chevron-back" size={22} color={colors.text} />
         </Pressable>
-        <ActivityIndicator size="large" color={colors.btnPrimaryBg} />
+        <ActivityIndicator size="large" color={colors.text} />
       </SafeAreaView>
     );
   }
@@ -123,33 +126,33 @@ const getStyles = (colors: ColorsType) =>
     center: {
       justifyContent: "center",
       alignItems: "center",
-      gap: 16,
+      gap: spacing.lg,
     },
     backButton: {
       position: "absolute",
-      top: 56,
+      top: 20,
       left: 16,
       width: 38,
       height: 38,
-      borderRadius: 19,
+      borderRadius: radius.full,
       backgroundColor: colors.surface,
       justifyContent: "center",
       alignItems: "center",
     },
     errorText: {
       color: colors.error,
-      fontSize: 16,
+      fontSize: typography.caption.fontSize,
     },
     retryButton: {
       backgroundColor: colors.btnPrimaryBg,
-      borderRadius: 8,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.xxl,
+      paddingVertical: spacing.md,
     },
     retryButtonText: {
       color: colors.btnPrimaryText,
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
   });
 

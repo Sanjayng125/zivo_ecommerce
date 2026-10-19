@@ -2,12 +2,12 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 
-import { auth } from './lib/auth.js'
 import { HonoVariables } from './types/index.js'
 
 import { errorHandler, notFound } from './middleware/error.js'
 
 import addressesRoutes from "./routes/addresses.js"
+import authRoutes from "./routes/auth.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import checkoutRoutes from "./routes/checkout.js"
@@ -19,7 +19,6 @@ import profileRoutes from "./routes/profile.js"
 import webhooksRoutes from "./routes/webhooks.js"
 import wishlistRoutes from "./routes/wishlist.js"
 
-import { authRateLimit } from './middleware/rate-limit.js'
 import adminRoutes from "./routes/admin.js"
 
 const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
@@ -29,8 +28,7 @@ app.use('*', cors())
 
 app.get('/health', (c) => c.json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() }))
 
-app.use("/auth/*", authRateLimit)
-app.all("/auth/*", (c) => auth.handler(c.req.raw));
+app.route("/auth", authRoutes);
 
 app.route("/home", homeRoutes);
 app.route("/categories", categoriesRoutes);

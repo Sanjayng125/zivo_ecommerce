@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
@@ -10,17 +13,10 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import {
-  ActivityIndicator,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import StarRating from "../rating/StarRating";
+import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
 
 interface ReviewModalProps {
@@ -124,6 +120,30 @@ export default function ReviewModal({
       },
     });
 
+  const { mutate: deleteReviewMutation, isPending: isDeletingReview } =
+    useMutation({
+      mutationFn: async () => {
+        const res = await authApi.delete(`/products/reviews/${review?.id}`);
+
+        return res.data;
+      },
+      onSuccess: (res) => {
+        Toast.show({
+          type: "success",
+          text1: res?.message ?? "Review deleted successfully",
+        });
+        reset();
+        onSuccess?.();
+      },
+      onError: (error: AxiosError<ApiError>) => {
+        const message = error.response?.data?.message ?? "Something went wrong";
+        Toast.show({
+          type: "error",
+          text1: message,
+        });
+      },
+    });
+
   const onSubmit: SubmitHandler<ReviewSchemaType> = async (data) => {
     if (review) {
       updateReviewMutation(data);
@@ -152,7 +172,7 @@ export default function ReviewModal({
       <Toast position="bottom" />
       <View style={styles.header}>
         <Text style={styles.title}>Review</Text>
-        <Pressable style={styles.closeBtn} onPress={onCloseModal}>
+        <Pressable onPress={onCloseModal}>
           <Ionicons name="close" size={22} color={colors.text} />
         </Pressable>
       </View>
@@ -217,26 +237,23 @@ export default function ReviewModal({
         )}
       </View>
 
-      <TouchableOpacity
-        style={[
-          styles.addReviewBtn,
-          (isCreatingReview || isUpdatingReview || !isValid || !isDirty) && {
-            opacity: 0.5,
-          },
-        ]}
+      <AppButton
+        title={review ? "Update Review" : "Add Review"}
         onPress={handleSubmit(onSubmit)}
         disabled={isCreatingReview || isUpdatingReview || !isValid || !isDirty}
-      >
-        <Text style={styles.addReviewBtnText}>
-          {isCreatingReview || isUpdatingReview ? (
-            <ActivityIndicator size="small" color={colors.btnPrimaryText} />
-          ) : review ? (
-            "Update Review"
-          ) : (
-            "Add Review"
-          )}
-        </Text>
-      </TouchableOpacity>
+        loading={isCreatingReview || isUpdatingReview}
+        style={{ marginTop: spacing.xl }}
+      />
+      {review && (
+        <AppButton
+          title="Delete Review"
+          onPress={() => deleteReviewMutation()}
+          variant="destructive"
+          disabled={isCreatingReview || isUpdatingReview}
+          loading={isDeletingReview}
+          style={{ marginTop: spacing.xl }}
+        />
+      )}
     </Modal>
   );
 }
@@ -246,66 +263,57 @@ const getStyles = (colors: ColorsType) =>
     container: {
       flex: 1,
       backgroundColor: colors.surface,
-      paddingHorizontal: 10,
-      paddingBottom: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      marginTop: 20,
+      paddingHorizontal: spacing.md,
+      paddingBottom: spacing.xl,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      marginTop: spacing.xl,
     },
     header: {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: 20,
-      paddingTop: 20,
-      paddingBottom: 10,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.md,
     },
     title: {
-      fontSize: 24,
-      fontWeight: "700",
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
       color: colors.text,
     },
-    closeBtn: {
-      width: 38,
-      height: 38,
-      borderRadius: 19,
-      borderWidth: 1,
-      borderColor: colors.border,
-      justifyContent: "center",
-      alignItems: "center",
-    },
     ratingContainer: {
-      marginTop: 10,
-      gap: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      marginTop: spacing.md,
+      gap: spacing.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     section: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     sectionText: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "600",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     error: {
       color: colors.error,
-      fontSize: 14,
-      marginTop: 4,
-      paddingHorizontal: 4,
+      fontSize: typography.caption.fontSize,
+      marginTop: spacing.xs,
+      paddingHorizontal: spacing.xs,
     },
     addReviewBtn: {
-      marginTop: 20,
+      marginTop: spacing.xl,
       backgroundColor: colors.btnPrimaryBg,
-      borderRadius: 8,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.xxl,
+      paddingVertical: spacing.md,
     },
     addReviewBtnText: {
       color: colors.btnPrimaryText,
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       textAlign: "center",
     },
   });

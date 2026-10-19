@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
 import { Category, HomeSection } from "@/types";
 import { router } from "expo-router";
@@ -50,7 +53,9 @@ export default function CategoryRow({ section }: CategoryRowProps) {
                   </Text>
                 </View>
               )}
-              <Text style={styles.categoryName}>{item.name}</Text>
+              <Text style={styles.categoryName} numberOfLines={1}>
+                {item.name}
+              </Text>
             </Pressable>
           );
         }}
@@ -63,27 +68,27 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 14,
-      marginTop: 20,
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.xl,
     },
     header: {
-      marginBottom: 10,
+      marginBottom: spacing.md,
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: spacing.md,
     },
     title: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     listContainer: {
-      marginVertical: 10,
-      gap: 10,
+      marginVertical: spacing.md,
+      gap: spacing.md,
     },
     pillContainer: {
       width: 100,
-      borderRadius: 6,
+      borderRadius: radius.sm,
       backgroundColor: colors.surface,
       alignItems: "center",
       overflow: "hidden",
@@ -101,15 +106,17 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
     },
     placeholderText: {
-      color: colors.primary,
-      fontSize: 16,
-      fontWeight: "700",
+      color: colors.text,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
     },
     categoryName: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       textAlign: "center",
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
       marginVertical: "auto",
     },
   });

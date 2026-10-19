@@ -1,6 +1,6 @@
 import axios from "axios";
 import { router } from "expo-router";
-import { clearTokens, getToken } from "./secureStore";
+import { clearToken, getToken } from "./secureStore";
 
 const SERVER_BASE_URL = process.env.EXPO_PUBLIC_SERVER_BASE_URL
 
@@ -38,8 +38,8 @@ authApi.interceptors.response.use(
     },
     async function (error) {
         if (error.response?.status === 401) {
-            await clearTokens()
-            router.replace("/(auth)/sign-in")
+            await clearToken()
+            router.push("/(tabs)")
         }
         return Promise.reject(error)
     }

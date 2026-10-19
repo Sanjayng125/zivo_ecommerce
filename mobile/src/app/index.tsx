@@ -32,7 +32,7 @@ export default function Index() {
           style={{ width: 300, height: 300 }}
         />
       </View>
-      <ActivityIndicator size={"large"} color={colors.primary} />
+      <ActivityIndicator size={"large"} color={colors.text} />
     </View>
   );
 }

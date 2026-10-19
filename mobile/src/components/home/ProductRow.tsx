@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
 import { HomeSection, Product } from "@/types";
 import { formatPrice } from "@/utils";
@@ -76,27 +79,27 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      paddingHorizontal: 14,
-      marginTop: 20,
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.xl,
     },
     header: {
-      marginBottom: 10,
+      marginBottom: spacing.md,
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: spacing.md,
     },
     title: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     listContainer: {
-      marginVertical: 10,
-      gap: 10,
+      marginVertical: spacing.md,
+      gap: spacing.md,
     },
     productContainer: {
       width: 200,
-      borderRadius: 6,
+      borderRadius: radius.sm,
       backgroundColor: colors.surface,
       overflow: "hidden",
     },
@@ -106,16 +109,16 @@ const getStyles = (colors: ColorsType) =>
       resizeMode: "cover",
     },
     productInfo: {
-      gap: 8,
-      paddingHorizontal: 10,
-      paddingVertical: 10,
+      gap: spacing.xs,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     productName: {
       height: 20,
       color: colors.textSecondary,
-      fontSize: 14,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       lineHeight: 20,
-      fontWeight: "700",
       textAlign: "left",
     },
     productPriceContainer: {
@@ -127,25 +130,25 @@ const getStyles = (colors: ColorsType) =>
     },
     productPrice: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
       textAlign: "center",
     },
     productRating: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
       textAlign: "center",
-      paddingVertical: 2,
+      paddingVertical: spacing.xs,
     },
     noProductRating: {
       color: colors.success,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
       textAlign: "center",
       backgroundColor: colors.badgeBg,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: spacing.xs,
     },
   });

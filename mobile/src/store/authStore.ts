@@ -31,8 +31,8 @@ export const useAuthStore = create<AuthStore>()(
         }),
         {
             name: "auth-storage",
-            storage: createJSONStorage(() => zustandMMKVStorage),
             partialize: (state) => ({ user: state.user }),
+            storage: createJSONStorage(() => zustandMMKVStorage),
         }
     )
 )

@@ -15,7 +15,8 @@ app.post("/", zValidator("json", addCartItemSchema, customValidationHandler), ad
 app.patch("/:item_id",
     zValidator("param", cartItemIdSchema, customValidationHandler),
     zValidator("json", updateCartItemSchema, customValidationHandler),
-    updateQuantity)
+    updateQuantity
+)
 app.delete("/", clearCart)
 app.delete("/:item_id", zValidator("param", cartItemIdSchema, customValidationHandler), removeCartItem)
 

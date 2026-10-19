@@ -101,15 +101,17 @@ export default function Reviews({ product }: ReviewsProps) {
         {isLoading && (
           <ActivityIndicator
             size="large"
-            color={colors.btnPrimaryBg}
+            color={colors.text}
             style={{ marginVertical: 10 }}
           />
         )}
 
         {error && <Text style={styles.errorText}>Failed to load reviews</Text>}
 
-        {!isLoading && !error && reviews?.length === 0 && (
-          <Text style={styles.errorText}>No reviews yet</Text>
+        {!isLoading && !error && reviews?.length === 0 && !myReview && (
+          <Text style={styles.emptyText}>
+            Be the first to review this product
+          </Text>
         )}
 
         <View key={"reviews"}>
@@ -178,8 +180,14 @@ const getStyles = (colors: ColorsType) =>
     reviewContainer: {
       marginBottom: 20,
     },
+    emptyText: {
+      marginVertical: 20,
+      color: colors.textSecondary,
+      fontSize: 16,
+      textAlign: "center",
+    },
     errorText: {
-      marginTop: 20,
+      marginVertical: 20,
       color: colors.error,
       fontSize: 16,
       textAlign: "center",

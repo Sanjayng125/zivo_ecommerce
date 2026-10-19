@@ -9,10 +9,16 @@ export type User = {
 }
 
 export type CartItem = {
-    id: string
-    user_id: string
+    id?: string
+    user_id?: string
     variant_id: string
     quantity: number
+    title: string
+    slug: string
+    price: number
+    cover_image: string
+    size: string | null
+    color: string | null
 }
 
 export type Banner = {
@@ -65,6 +71,7 @@ export type HomeSection = {
     id: string
     key: string
     title: string
+    bg_image?: string
     type: 'banner' | 'category_row' | 'product_row'
     sort_order: number
     is_active: boolean
@@ -80,6 +87,21 @@ export type Review = {
     comment: string
     full_name: string
     avatar_url: string
+    created_at: string
+    updated_at: string
+}
+
+export type Address = {
+    id: string
+    user_id: string
+    full_name: string
+    phone: string
+    line1: string
+    line2: string
+    city: string
+    state: string
+    pincode: string
+    is_default: boolean
     created_at: string
     updated_at: string
 }

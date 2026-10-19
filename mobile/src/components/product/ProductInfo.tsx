@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { Product, ProductVariant } from "@/types";
@@ -24,7 +27,9 @@ export default function ProductInfo({ product }: ProductInfoProps) {
     useState<boolean>(false);
 
   const variants = product?.product_variants ?? [];
-  const [selectedId, setSelectedId] = useState<string>(variants[0]?.id);
+  const [selectedId, setSelectedId] = useState<string>(
+    variants.find((v) => v.stock > 0)?.id ?? variants[0]?.id,
+  );
 
   const selectedVariant: ProductVariant = useMemo(() => {
     return (
@@ -165,7 +170,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
 
       <HorizontalSeparator style={{ marginBottom: 0 }} />
 
-      <AddToCart variant={selectedVariant} />
+      <AddToCart product={product} variant={selectedVariant} />
     </View>
   );
 }
@@ -175,62 +180,62 @@ const getStyles = (colors: ColorsType) =>
     infoContainer: {
       flexGrow: 1,
       backgroundColor: colors.surface,
-      padding: 20,
+      padding: spacing.xl,
     },
     title: {
-      fontSize: 22,
-      fontWeight: "600",
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
       color: colors.text,
       textAlign: "left",
     },
     ratingContainer: {
-      marginTop: 10,
+      marginTop: spacing.md,
       flexDirection: "row",
       alignItems: "center",
-      gap: 4,
+      gap: spacing.xs,
     },
     productRating: {
       color: colors.textSecondary,
-      fontSize: 16,
-      fontWeight: "700",
-      paddingVertical: 2,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.title.fontWeight,
+      paddingVertical: spacing.xs,
     },
     noProductRating: {
       color: colors.success,
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.title.fontWeight,
       backgroundColor: colors.badgeBg,
-      paddingHorizontal: 6,
+      paddingHorizontal: spacing.xs,
       paddingVertical: 2,
-      borderRadius: 4,
+      borderRadius: radius.sm,
     },
     productPrice: {
-      marginTop: 10,
+      marginTop: spacing.md,
       color: colors.text,
-      fontSize: 20,
-      fontWeight: "700",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.title.fontWeight,
     },
     stockText: {
       color: colors.text,
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.title.fontWeight,
       backgroundColor: colors.badgeBg,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+      borderRadius: radius.sm,
       marginRight: "auto",
     },
     sectionTitle: {
       color: colors.text,
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     expandButton: {
       marginRight: "auto",
     },
     expandButtonText: {
       color: colors.textSecondary,
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
   });

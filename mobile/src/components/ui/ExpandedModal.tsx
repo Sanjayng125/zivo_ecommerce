@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { Ionicons } from "@expo/vector-icons";
@@ -40,16 +43,17 @@ export default function ExpandedModal({
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{title}</Text>
-          <Pressable style={styles.closeBtn} onPress={onCloseModal}>
-            <Ionicons name="close" size={22} color={colors.text} />
+          <Pressable onPress={onCloseModal}>
+            <Ionicons name="close" size={24} color={colors.text} />
           </Pressable>
         </View>
         {subtitle && (
-          <Text style={styles.subtitle} numberOfLines={1}>
+          <Text style={styles.subtitle} numberOfLines={2}>
             {subtitle}
           </Text>
         )}
       </View>
+
       <ScrollView style={{ flex: 1 }}>
         <Text style={styles.content}>{content}</Text>
       </ScrollView>
@@ -62,16 +66,16 @@ const getStyles = (colors: ColorsType) =>
     container: {
       flex: 1,
       backgroundColor: colors.surface,
-      paddingHorizontal: 10,
-      paddingBottom: 20,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      marginTop: 20,
+      paddingHorizontal: spacing.md,
+      paddingBottom: spacing.xl,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      marginTop: spacing.xl,
     },
     header: {
-      paddingHorizontal: 20,
-      paddingTop: 20,
-      paddingBottom: 10,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.md,
     },
     titleContainer: {
       flexDirection: "row",
@@ -79,28 +83,19 @@ const getStyles = (colors: ColorsType) =>
       justifyContent: "space-between",
     },
     title: {
-      fontSize: 24,
-      fontWeight: "700",
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
       color: colors.text,
     },
     subtitle: {
-      fontSize: 16,
-      fontWeight: "600",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
       color: colors.textSecondary,
     },
-    closeBtn: {
-      width: 34,
-      height: 34,
-      borderRadius: 17,
-      borderWidth: 1,
-      borderColor: colors.border,
-      justifyContent: "center",
-      alignItems: "center",
-    },
     content: {
-      fontSize: 16,
+      fontSize: typography.body.fontSize,
       color: colors.text,
-      paddingHorizontal: 20,
-      paddingBottom: 20,
+      paddingHorizontal: spacing.xl,
+      paddingBottom: spacing.xl,
     },
   });

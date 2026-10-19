@@ -6,7 +6,7 @@ export const getCart = async (c: Context) => {
     const me = c.get("user")
 
     const cartResult = await pool.query(`
-        SELECT ci.*, pv.product_id, pv.price, pv.stock, p.title, p.cover_image
+        SELECT ci.*, pv.product_id, pv.price, pv.stock, p.title, p.cover_image, pv.size, pv.color, p.slug
         FROM cart_items ci
         LEFT JOIN product_variants pv ON pv.id = ci.variant_id
         LEFT JOIN products p ON p.id = pv.product_id
@@ -22,7 +22,10 @@ export const addCartItem = async (c: Context) => {
     const me = c.get("user")
 
     const variant = await pool.query(`
-        SELECT * FROM product_variants WHERE id = $1
+        SELECT pv.*,
+        (SELECT p.slug FROM products p WHERE p.id = pv.product_id) AS slug
+        FROM product_variants pv
+        WHERE pv.id = $1
         `, [variant_id])
 
     if (!variant.rows?.[0]) {
@@ -44,7 +47,18 @@ export const addCartItem = async (c: Context) => {
         throw new HTTPException(500, { message: "Something went wrong while adding item to cart" })
     }
 
-    return c.json({ cart_item: cartResult.rows?.[0], message: "Item added to cart" }, 201)
+    return c.json({
+        cart_item: {
+            ...cartResult.rows?.[0],
+            title: variant.rows?.[0].title,
+            slug: variant.rows?.[0].slug,
+            price: variant.rows?.[0].price,
+            cover_image: variant.rows?.[0].cover_image,
+            size: variant.rows?.[0].size,
+            color: variant.rows?.[0].color,
+        },
+        message: "Item added to cart"
+    }, 201)
 }
 
 export const updateQuantity = async (c: Context) => {

@@ -5,14 +5,16 @@ import Header from "@/components/home/Header";
 import ProductRow from "@/components/home/ProductRow";
 import StickySearchBar from "@/components/home/StickySearchBar";
 import { ColorsType } from "@/constants/colors";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
 import { HomeSection } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIndicator,
   RefreshControl,
+  ScaledSize,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,6 +23,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Index = () => {
+  const queryClient = useQueryClient();
   const colors = useColors();
 
   const styles = useStyles(getStyles);
@@ -40,55 +43,59 @@ const Index = () => {
     },
   });
 
+  const handleRefresh = () => {
+    refetch();
+    queryClient.refetchQueries({
+      queryKey: ["address"],
+    });
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {isLoading && data.length === 0 ? (
-        <>
-          <Header />
-          <StickySearchBar />
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
+        }
+        stickyHeaderIndices={[1]}
+      >
+        <Header />
+        <StickySearchBar />
 
+        {isLoading && data?.length === 0 ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={colors.text} />
           </View>
-        </>
-      ) : (
-        <ScrollView
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
-          }
-          stickyHeaderIndices={[1]}
-        >
-          <Header />
-          <StickySearchBar />
+        ) : (
+          <>
+            {data.length === 0 && !error && (
+              <Text style={styles.empty}>No data available yet</Text>
+            )}
+            {error && <Text style={styles.error}>{error.message}</Text>}
 
-          {data.length === 0 && !error && (
-            <Text style={styles.empty}>No data available yet</Text>
-          )}
-          {error && <Text style={styles.error}>{error.message}</Text>}
+            {data.map((item) => {
+              if (item.type === "banner") {
+                return <BannerCarousel section={item} key={item.id} />;
+              }
+              if (item.type === "category_row") {
+                return <CategoryRow section={item} key={item.id} />;
+              }
+              if (item.type === "product_row") {
+                return <ProductRow section={item} key={item.id} />;
+              }
 
-          {data.map((item) => {
-            if (item.type === "banner") {
-              return <BannerCarousel section={item} key={item.id} />;
-            }
-            if (item.type === "category_row") {
-              return <CategoryRow section={item} key={item.id} />;
-            }
-            if (item.type === "product_row") {
-              return <ProductRow section={item} key={item.id} />;
-            }
+              return null;
+            })}
+          </>
+        )}
 
-            return null;
-          })}
-
-          <Footer />
-        </ScrollView>
-      )}
+        <Footer />
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = (colors: ColorsType, { height }: ScaledSize) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -99,16 +106,17 @@ const getStyles = (colors: ColorsType) =>
     },
     loadingContainer: {
       flex: 1,
+      minHeight: height * 0.75,
       justifyContent: "center",
       alignItems: "center",
     },
     empty: {
-      fontSize: 24,
+      fontSize: typography.body.fontSize,
       color: colors.text,
       textAlign: "center",
     },
     error: {
-      fontSize: 24,
+      fontSize: typography.body.fontSize,
       color: colors.error,
       textAlign: "center",
     },

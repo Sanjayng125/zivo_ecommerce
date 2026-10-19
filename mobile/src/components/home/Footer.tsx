@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
 import {
   Image,
@@ -112,22 +115,22 @@ export default function Footer() {
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
-      marginTop: 32,
-      paddingHorizontal: 20,
-      paddingTop: 32,
-      paddingBottom: 24,
+      marginTop: spacing.xxxl,
+      paddingHorizontal: spacing.xl,
+      paddingTop: spacing.xxxl,
+      paddingBottom: spacing.xxl,
       backgroundColor: colors.surface,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
     brandSection: {
-      marginBottom: 28,
-      gap: 10,
+      marginBottom: spacing.xxxl,
+      gap: spacing.md,
     },
     brand: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 10,
+      gap: spacing.md,
     },
     logo: {
       width: 38,
@@ -135,52 +138,52 @@ const getStyles = (colors: ColorsType) =>
     },
     title: {
       color: colors.text,
-      fontSize: 24,
-      fontWeight: "700",
+      fontSize: typography.title.fontSize,
+      fontWeight: typography.title.fontWeight,
     },
     description: {
-      fontSize: 14,
+      fontSize: typography.caption.fontSize,
       lineHeight: 21,
       color: colors.textSecondary,
       maxWidth: 320,
     },
     section: {
-      marginBottom: 26,
+      marginBottom: spacing.xxl,
     },
     heading: {
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       color: colors.text,
-      marginBottom: 12,
+      marginBottom: spacing.md,
     },
     link: {
-      fontSize: 14,
+      fontSize: typography.caption.fontSize,
       color: colors.textSecondary,
-      marginBottom: 10,
+      marginBottom: spacing.sm,
     },
     socialRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 8,
+      gap: spacing.sm,
     },
     socialButton: {
-      paddingHorizontal: 12,
-      paddingVertical: 8,
-      borderRadius: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
       backgroundColor: colors.badgeBg,
     },
     socialText: {
-      fontSize: 13,
-      fontWeight: "500",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.body.fontWeight,
       color: colors.badgeText,
     },
     bottom: {
-      paddingTop: 20,
+      paddingTop: spacing.xl,
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
     copyright: {
-      fontSize: 12,
+      fontSize: typography.caption.fontSize,
       color: colors.textSecondary,
       textAlign: "center",
     },

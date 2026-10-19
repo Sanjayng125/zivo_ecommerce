@@ -1,3 +1,4 @@
+import { spacing } from "@/constants/spacing";
 import { useColors } from "@/hooks/useColors";
 import { StyleProp, View, ViewStyle } from "react-native";
 
@@ -11,7 +12,7 @@ interface HorizontalSeparatorProps {
 export default function HorizontalSeparator({
   color,
   height = 1,
-  marginVertical = 10,
+  marginVertical = spacing.sm,
   style,
 }: HorizontalSeparatorProps) {
   const colors = useColors();

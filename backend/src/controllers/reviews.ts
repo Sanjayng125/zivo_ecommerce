@@ -116,6 +116,7 @@ export const createProductReview = async (c: Context) => {
 
         UPDATE products
         SET rating_avg = ratings.rating_avg, rating_count = ratings.rating_count
+        FROM ratings
         WHERE id = $1
         `, [product_id])
 
@@ -148,6 +149,7 @@ export const deleteProductReview = async (c: Context) => {
         SET
         rating_avg = CASE WHEN ratings.rating_count = 0 THEN 0 ELSE ratings.rating_avg END,
         rating_count = CASE WHEN ratings.rating_count = 0 THEN 0 ELSE ratings.rating_count END
+        FROM ratings
         WHERE id = $1
         `, [reviewResult.rows[0].product_id])
 

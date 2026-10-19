@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS home_sections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     key TEXT NOT NULL UNIQUE,
     title VARCHAR(255),
+    bg_image TEXT,
     type TEXT NOT NULL CHECK(type IN ('product_row', 'category_row', 'banner')),
     sort_order INTEGER NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
