@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Address } from "@/types";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 import {
   Modal,
   Pressable,
@@ -16,9 +17,11 @@ import {
   Text,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import AddressItem from "./AddressItem";
+import AddressModal from "./AddressModal";
 
 interface AddressListModalProps {
   isOpen: boolean;
@@ -35,6 +38,8 @@ export default function AddressListModal({
   const styles = useStyles(getStyles);
   const colors = useColors();
 
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+
   return (
     <Modal
       visible={isOpen}
@@ -43,6 +48,7 @@ export default function AddressListModal({
       presentationStyle="pageSheet"
       style={styles.container}
     >
+      <Toast position="bottom" />
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Your Addresses</Text>
@@ -81,7 +87,7 @@ export default function AddressListModal({
                 color={colors.btnSecondaryText}
               />
             }
-            onPress={() => router.push("/address")}
+            onPress={() => setIsAddAddressModalOpen(true)}
             fullWidth
             variant="secondary"
             style={{ justifyContent: "space-between" }}
@@ -94,6 +100,12 @@ export default function AddressListModal({
           ))}
         </ScrollView>
       )}
+
+      <AddressModal
+        isOpen={isAddAddressModalOpen}
+        onCloseModal={() => setIsAddAddressModalOpen(false)}
+        onSuccess={() => setIsAddAddressModalOpen(false)}
+      />
     </Modal>
   );
 }

@@ -4,10 +4,16 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
+import { ApiError, authApi } from "@/lib/api";
 import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { StyleSheet, Text, View } from "react-native";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { useState } from "react";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 import ActionMenu from "../ui/ActionMenu";
+import AddressModal from "./AddressModal";
 
 interface AddressItemProps {
   address: Address;
@@ -16,9 +22,49 @@ interface AddressItemProps {
 export default function AddressItem({ address }: AddressItemProps) {
   const colors = useColors();
   const styles = useStyles(getStyles);
+  const queryClient = useQueryClient();
+
+  const [isEditAddressModalOpen, setIsEditAddressModalOpen] = useState(false);
+
+  const { mutate: deleteAddressMutation, isPending: isDeletingAddress } =
+    useMutation({
+      mutationFn: async () => {
+        const res = await authApi.delete(`/addresses/${address.id}`);
+
+        return res.data;
+      },
+      onSuccess: (res) => {
+        Toast.show({
+          type: "success",
+          text1: res?.message ?? "Address deleted successfully",
+        });
+        queryClient.refetchQueries({ queryKey: ["addresses"] });
+      },
+      onError: (error: AxiosError<ApiError>) => {
+        const message = error.response?.data?.message ?? "Something went wrong";
+        Toast.show({
+          type: "error",
+          text1: message,
+        });
+      },
+    });
+
+  const handleDelete = () => {
+    Alert.alert("Are you sure?", "You won't be able to recover this address", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Delete",
+        style: "destructive",
+        onPress: () => deleteAddressMutation(),
+      },
+    ]);
+  };
 
   return (
-    <View style={styles.container}>
+    <Pressable style={styles.container}>
       <View style={styles.iconContainer}>
         <Ionicons
           name="location-outline"
@@ -39,7 +85,9 @@ export default function AddressItem({ address }: AddressItemProps) {
             options={[
               {
                 label: "Edit",
-                onPress() {},
+                onPress() {
+                  setIsEditAddressModalOpen(true);
+                },
                 icon: (
                   <Ionicons
                     name="pencil-outline"
@@ -50,7 +98,9 @@ export default function AddressItem({ address }: AddressItemProps) {
               },
               {
                 label: "Delete",
-                onPress() {},
+                onPress() {
+                  handleDelete();
+                },
                 icon: (
                   <Ionicons
                     name="trash-outline"
@@ -66,6 +116,7 @@ export default function AddressItem({ address }: AddressItemProps) {
               name="ellipsis-vertical-outline"
               size={20}
               color={colors.text}
+              style={[styles.icon, isDeletingAddress && styles.disabled]}
             />
           </ActionMenu>
         </View>
@@ -78,7 +129,14 @@ export default function AddressItem({ address }: AddressItemProps) {
           <Text style={styles.phoneText}>{address.phone}</Text>
         </View>
       </View>
-    </View>
+
+      <AddressModal
+        isOpen={isEditAddressModalOpen}
+        onCloseModal={() => setIsEditAddressModalOpen(false)}
+        address={address}
+        onSuccess={() => setIsEditAddressModalOpen(false)}
+      />
+    </Pressable>
   );
 }
 
@@ -146,5 +204,12 @@ const getStyles = (colors: ColorsType) =>
       color: colors.text,
       fontSize: typography.caption.fontSize,
       fontWeight: typography.heading.fontWeight,
+    },
+    icon: {
+      paddingHorizontal: spacing.xs,
+      paddingVertical: spacing.xxs,
+    },
+    disabled: {
+      opacity: 0.45,
     },
   });

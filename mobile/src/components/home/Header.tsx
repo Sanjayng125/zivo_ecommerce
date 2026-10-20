@@ -31,7 +31,7 @@ export default function Header() {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
 
   const { data: addresses } = useQuery({
-    queryKey: ["address"],
+    queryKey: ["addresses"],
     queryFn: async () => {
       const res = await authApi.get("/addresses");
       return res.data?.addresses ?? [];
@@ -45,7 +45,10 @@ export default function Header() {
     const defaultAddress = addresses.find(
       (address: Address) => address.is_default,
     );
-    if (!defaultAddress) return;
+    if (!defaultAddress) {
+      setDefaultAddress(null);
+      return;
+    }
 
     const da = `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`;
     setDefaultAddress(da);

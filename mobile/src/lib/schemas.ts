@@ -21,7 +21,7 @@ export const AddressSchema = z.object({
     full_name: z.string({ message: "Invalid full name" }).min(3, "Name must be at least 3 characters").max(50, "Name must be at most 50 characters").trim(),
     phone: z
         .string({
-            error: "Phone number must be a text value"
+            error: "Phone number must be a text value",
         })
         .trim()
         .regex(
@@ -41,7 +41,7 @@ export const AddressSchema = z.object({
             /^[A-Za-z0-9][A-Za-z0-9\s-]{2,9}$/,
             "Please enter a valid postal code"
         ),
-    is_default: z.boolean({ message: "Invalid default address" }).default(false),
+    is_default: z.boolean({ message: "Invalid default address" }),
 });
 
 export type SignInSchemaType = z.infer<typeof SignInSchema>;

@@ -47,7 +47,7 @@ export default function ActionMenu({
         style={styles.container}
       >
         <Pressable onPress={() => setIsOpen(false)} style={styles.overlay}>
-          <View style={styles.content}>
+          <View style={styles.content} onStartShouldSetResponder={() => true}>
             {title && (
               <View style={styles.header}>
                 <Text style={styles.title}>{title}</Text>

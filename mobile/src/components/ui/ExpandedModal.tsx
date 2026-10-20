@@ -73,7 +73,7 @@ const getStyles = (colors: ColorsType) =>
       marginTop: spacing.xl,
     },
     header: {
-      paddingHorizontal: spacing.xl,
+      paddingHorizontal: spacing.sm,
       paddingTop: spacing.xl,
       paddingBottom: spacing.md,
     },
@@ -95,7 +95,7 @@ const getStyles = (colors: ColorsType) =>
     content: {
       fontSize: typography.body.fontSize,
       color: colors.text,
-      paddingHorizontal: spacing.xl,
+      paddingHorizontal: spacing.md,
       paddingBottom: spacing.xl,
     },
   });

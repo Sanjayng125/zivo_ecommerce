@@ -41,7 +41,6 @@ export default function ReviewModal({
     handleSubmit,
     control,
     formState: { errors, isValid, isDirty },
-    setValues,
     reset,
   } = useForm<ReviewSchemaType>({
     resolver: zodResolver(ReviewSchema),
@@ -53,7 +52,7 @@ export default function ReviewModal({
 
   useEffect(() => {
     if (review) {
-      setValues({
+      reset({
         rating: review.rating,
         title: review.title,
         comment: review.comment ?? undefined,
@@ -87,6 +86,7 @@ export default function ReviewModal({
           text1: message,
         });
       },
+      onSettled: () => onClose(),
     });
 
   const { mutate: updateReviewMutation, isPending: isUpdatingReview } =
@@ -118,6 +118,7 @@ export default function ReviewModal({
           text1: message,
         });
       },
+      onSettled: () => onClose(),
     });
 
   const { mutate: deleteReviewMutation, isPending: isDeletingReview } =
@@ -142,6 +143,7 @@ export default function ReviewModal({
           text1: message,
         });
       },
+      onSettled: () => onClose(),
     });
 
   const onSubmit: SubmitHandler<ReviewSchemaType> = async (data) => {
@@ -153,7 +155,7 @@ export default function ReviewModal({
   };
 
   const onCloseModal = () => {
-    setValues({
+    reset({
       rating: review?.rating ?? 1,
       title: review?.title ?? "",
       comment: review?.comment ?? undefined,
@@ -169,7 +171,6 @@ export default function ReviewModal({
       presentationStyle="pageSheet"
       style={styles.container}
     >
-      <Toast position="bottom" />
       <View style={styles.header}>
         <Text style={styles.title}>Review</Text>
         <Pressable onPress={onCloseModal}>
@@ -273,7 +274,7 @@ const getStyles = (colors: ColorsType) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      paddingHorizontal: spacing.xl,
+      paddingHorizontal: spacing.sm,
       paddingTop: spacing.xl,
       paddingBottom: spacing.md,
     },
