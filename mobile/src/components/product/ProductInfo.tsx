@@ -9,7 +9,7 @@ import { formatPrice } from "@/utils";
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import AddToCart from "../cart/AddToCart";
-import StarRating from "../rating/StarRating";
+import StarRating from "../review/StarRating";
 import ExpandedModal from "../ui/ExpandedModal";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import VariantPicker from "./VariantPicker";
@@ -148,6 +148,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           numberOfLines={
             product?.description.length > MAX_DESCRIPTION_LENGTH ? 6 : undefined
           }
+          style={styles.description}
         >
           {product?.description}
         </Text>
@@ -229,6 +230,9 @@ const getStyles = (colors: ColorsType) =>
       color: colors.text,
       fontSize: typography.heading.fontSize,
       fontWeight: typography.heading.fontWeight,
+    },
+    description: {
+      color: colors.text,
     },
     expandButton: {
       marginRight: "auto",

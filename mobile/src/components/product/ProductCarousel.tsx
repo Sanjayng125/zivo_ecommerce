@@ -1,4 +1,6 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
 import { useStyles } from "@/hooks/useStyles";
 import { ProductImage } from "@/types";
 import { useRef, useState } from "react";
@@ -16,8 +18,8 @@ interface CarouselProps {
   images: ProductImage[];
 }
 
-const BUTTON_IMG_PADDING = 10;
-const BUTTON_IMG_GAP = 6;
+const BUTTON_IMG_PADDING = spacing.sm;
+const BUTTON_IMG_GAP = radius.sm;
 const BUTTON_IMG_VISIBLE_COUNT = 4;
 
 export default function ProductCarousel({ images }: CarouselProps) {
@@ -95,7 +97,7 @@ const getStyles = (
 ) =>
   StyleSheet.create({
     container: {
-      gap: 10,
+      gap: spacing.md,
     },
     imageContainer: {
       width,
@@ -109,13 +111,13 @@ const getStyles = (
       paddingBottom: 10,
     },
     buttonContent: {
-      gap: 6,
+      gap: spacing.sm,
       paddingHorizontal: 10,
     },
     buttonContainer: {
       width: buttonImageWidth,
       borderWidth: 2,
-      borderRadius: 6,
+      borderRadius: radius.sm,
       borderColor: colors.border,
       overflow: "hidden",
     },

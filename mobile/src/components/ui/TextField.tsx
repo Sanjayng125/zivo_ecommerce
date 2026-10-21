@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { useState } from "react";
@@ -35,15 +38,15 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     input: {
       height: 50,
-      borderRadius: 10,
+      borderRadius: radius.sm,
       backgroundColor: colors.surface,
       color: colors.inputText,
       justifyContent: "center",
       alignItems: "center",
-      paddingHorizontal: 16,
+      paddingHorizontal: spacing.lg,
       borderWidth: 1,
       borderColor: colors.border,
-      fontSize: 16,
+      fontSize: typography.body.fontSize,
     },
     textArea: {
       height: 100,

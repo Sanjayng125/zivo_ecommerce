@@ -15,9 +15,9 @@ import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
-import StarRating from "../rating/StarRating";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
+import StarRating from "./StarRating";
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -226,6 +226,7 @@ export default function ReviewModal({
             <TextField
               placeholder="Enter comment"
               autoCapitalize="none"
+              textArea
               value={value}
               onChangeText={(text) => onChange(text === "" ? undefined : text)}
               style={{ marginTop: 20 }}

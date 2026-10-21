@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
 import { Review } from "@/types";
 import { formatDate } from "@/utils";
@@ -11,15 +14,15 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import StarRating from "../rating/StarRating";
 import ExpandedModal from "../ui/ExpandedModal";
+import StarRating from "./StarRating";
 
 interface ReviewItemProps {
   review: Review;
   style?: StyleProp<ViewStyle>;
 }
 
-const MAX_COMMENT_LENGTH = 200;
+const MAX_COMMENT_LENGTH = 150;
 
 export default function ReviewItem({ review, style }: ReviewItemProps) {
   const [viewFullComment, setViewFullComment] = useState<boolean>(false);
@@ -31,20 +34,23 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
       <View style={styles.review}>
         <StarRating value={review.rating} size={20} />
         <Text style={styles.title}>{review.title}</Text>
-        {review?.comment && (
+        {review?.comment?.trim() && (
           <>
             <Text
               style={styles.comment}
               numberOfLines={
-                review.comment.length > MAX_COMMENT_LENGTH ? 3 : undefined
+                review.comment?.trim().length > MAX_COMMENT_LENGTH
+                  ? 3
+                  : undefined
               }
+              ellipsizeMode="tail"
             >
-              {review.comment}
+              {review.comment?.trim()}
             </Text>
-            {review.comment.length > MAX_COMMENT_LENGTH && (
+            {review.comment?.trim().length > MAX_COMMENT_LENGTH && (
               <Pressable
                 style={styles.expandButton}
-                onPress={() => setViewFullComment(!viewFullComment)}
+                onPress={() => setViewFullComment(true)}
               >
                 <Text style={styles.expandButtonText}>View more</Text>
               </Pressable>
@@ -54,7 +60,7 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
               onCloseModal={() => setViewFullComment(false)}
               title="Review"
               subtitle={`By ${review?.full_name ?? "User"}`}
-              content={review.comment}
+              content={review.comment?.trim()}
             />
           </>
         )}
@@ -74,45 +80,44 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
-      paddingHorizontal: 10,
-      paddingVertical: 8,
-      borderRadius: 6,
-      marginVertical: 6,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
+      marginVertical: spacing.sm,
     },
     userInfo: {
       flexDirection: "row",
       alignItems: "center",
     },
     review: {
-      marginBottom: 6,
+      marginBottom: spacing.sm,
     },
     title: {
       color: colors.text,
-      fontSize: 16,
-      fontWeight: "500",
-      marginBottom: 4,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
+      marginBottom: spacing.xs,
     },
     comment: {
       color: colors.textSecondary,
-      fontSize: 15,
-      marginTop: 4,
+      fontSize: typography.body.fontSize,
     },
     expandButton: {
       marginRight: "auto",
     },
     expandButtonText: {
       color: colors.textSecondary,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     name: {
       color: colors.textSecondary,
-      fontSize: 14,
-      fontWeight: "500",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     reviewedAt: {
       color: colors.textSecondary,
-      fontSize: 14,
-      fontWeight: "500",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
   });

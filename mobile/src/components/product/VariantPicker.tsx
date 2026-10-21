@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
@@ -42,7 +45,14 @@ export default function VariantPicker({
               onPress={() => onSelect(option)}
               disabled={isUnavailable}
             >
-              <Text style={isUnavailable && styles.disabledText}>{option}</Text>
+              <Text
+                style={[
+                  styles.optionText,
+                  isUnavailable && styles.disabledText,
+                ]}
+              >
+                {option}
+              </Text>
             </Pressable>
           );
         })}
@@ -54,37 +64,39 @@ export default function VariantPicker({
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
-      gap: 8,
-      marginVertical: 8,
+      gap: spacing.sm,
+      marginVertical: spacing.sm,
     },
     label: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     selected: {
       color: colors.text,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     options: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.sm,
     },
     option: {
       backgroundColor: colors.surface,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 6,
+      borderRadius: radius.sm,
       color: colors.textSecondary,
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    optionText: {
+      color: colors.text,
     },
     bold: {
-      color: colors.text,
       borderColor: colors.text,
     },
     disabled: {

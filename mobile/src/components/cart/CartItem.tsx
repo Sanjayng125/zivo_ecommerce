@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
@@ -153,66 +156,66 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
       flexDirection: "row",
-      gap: 16,
-      padding: 16,
+      gap: spacing.lg,
+      padding: spacing.lg,
       backgroundColor: colors.surface,
-      borderRadius: 8,
+      borderRadius: radius.sm,
     },
     leftContainer: {
       flexDirection: "row",
       flex: 1,
-      gap: 8,
+      gap: spacing.sm,
     },
     image: {
       width: 120,
       height: 120,
-      borderRadius: 8,
+      borderRadius: radius.sm,
     },
     infoContainer: {
       flex: 1,
       flexDirection: "column",
-      gap: 8,
+      gap: spacing.sm,
     },
     title: {
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       color: colors.text,
     },
     size: {
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
       color: colors.textSecondary,
     },
     color: {
-      fontSize: 14,
-      fontWeight: "700",
+      fontSize: typography.caption.fontSize,
+      fontWeight: typography.heading.fontWeight,
       color: colors.textSecondary,
     },
     quantityContainer: {
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.sm,
       borderWidth: 1,
       borderColor: colors.border,
-      borderRadius: 8,
+      borderRadius: radius.sm,
       marginRight: "auto",
-      paddingHorizontal: 8,
-      paddingVertical: 4,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
     },
     quantity: {
-      fontSize: 18,
-      fontWeight: "400",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.body.fontWeight,
       color: colors.text,
     },
     disabled: {
       opacity: 0.5,
     },
     rightContainer: {
-      gap: 4,
+      gap: spacing.xs,
     },
     price: {
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
       color: colors.text,
     },
     trashButton: {

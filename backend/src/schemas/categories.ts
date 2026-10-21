@@ -25,7 +25,9 @@ export const getAdminCategoriesSchema = getCategoriesSchema.extend({
 })
 
 export const createCategorySchema = z.object({
-    name: z.string({ error: "Invalid name" }).min(3, "Name must be at least 3 characters").max(200, "Name must be at most 200 characters"),
+    name: z.string({ error: "Invalid name" })
+        .min(3, "Name must be at least 3 characters")
+        .max(200, "Name must be at most 200 characters"),
     parent_id: z.uuid({ error: "Invalid parent category ID" }).optional(),
     image_url: z.url({ error: "Invalid image URL" }).optional(),
     sort_order: z.coerce.number().optional().default(0),

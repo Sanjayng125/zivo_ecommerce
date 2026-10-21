@@ -7,7 +7,9 @@ export const homeSectionIdSchema = z.object({
 })
 
 export const bannerConfigSchema = z.object({
-    group_name: z.string({ error: "Invalid group name" }).min(3, "Group name must be at least 3 characters").max(255, "Group name must be at most 255 characters"),
+    group_name: z.string({ error: "Invalid group name" })
+        .min(3, "Group name must be at least 3 characters")
+        .max(255, "Group name must be at most 255 characters"),
 })
 
 export const categoryRowConfigSchema = z.object({

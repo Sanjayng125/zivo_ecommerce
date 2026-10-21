@@ -28,6 +28,7 @@ export const addressSchema = z.object({
             error: "Address must be a text value"
         })
         .trim()
+        .refine(val => (val.match(/\n/g) ?? []).length <= 2, "Too many line breaks")
         .min(3, "Address must be at least 3 characters")
         .max(500, "Address must be at most 500 characters"),
     line2: z
@@ -35,6 +36,7 @@ export const addressSchema = z.object({
             error: "Address line 2 must be a text value"
         })
         .trim()
+        .refine(val => (val.match(/\n/g) ?? []).length <= 2, "Too many line breaks")
         .max(500, "Address line 2 must be at most 500 characters")
         .optional(),
     city: z

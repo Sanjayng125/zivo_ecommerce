@@ -98,6 +98,7 @@ export default function Header() {
             {defaultAddress ?? "Add a delivery address"}
           </Text>
         </TouchableOpacity>
+        <Ionicons name="chevron-down" size={18} color={colors.text} />
       </View>
       <AddressListModal
         isOpen={isAddressModalOpen}
@@ -125,8 +126,6 @@ const getStyles = (colors: ColorsType) =>
       justifyContent: "space-between",
     },
     addressContainer: {
-      backgroundColor: colors.surface,
-      paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
       flexDirection: "row",
       justifyContent: "center",
@@ -136,7 +135,7 @@ const getStyles = (colors: ColorsType) =>
       borderRadius: radius.sm,
     },
     addressText: {
-      color: colors.textSecondary,
+      color: colors.text,
       fontSize: typography.caption.fontSize,
       fontWeight: typography.heading.fontWeight,
       textDecorationLine: "underline",
@@ -178,10 +177,12 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       justifyContent: "center",
       borderRadius: radius.full,
-      backgroundColor: colors.btnPrimaryBg,
+      backgroundColor: colors.btnSecondaryBg,
+      borderWidth: 1,
+      borderColor: colors.border,
     },
     badgeText: {
-      color: colors.btnPrimaryText,
+      color: colors.btnSecondaryText,
       fontSize: typography.caption.fontSize,
       fontWeight: typography.caption.fontWeight,
     },

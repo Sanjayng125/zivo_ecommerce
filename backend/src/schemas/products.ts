@@ -9,8 +9,13 @@ export const productSlugSchema = z.object({
 })
 
 export const createProductSchema = z.object({
-    title: z.string({ error: "Invalid title" }).min(3, "Title must be at least 3 characters").max(200, "Title must be at most 200 characters"),
-    description: z.string({ error: "Invalid description" }).min(10, "Description must be at least 3 characters").max(2000, "Description must be at most 2000 characters"),
+    title: z.string({ error: "Invalid title" })
+        .min(3, "Title must be at least 3 characters")
+        .max(200, "Title must be at most 200 characters"),
+    description: z.string({ error: "Invalid description" }).trim()
+        .refine(val => (val.match(/\n/g) ?? []).length <= 2, "Too many line breaks")
+        .min(10, "Description must be at least 3 characters")
+        .max(2000, "Description must be at most 2000 characters"),
     base_price: z.coerce.number({ error: "Invalid base price" }).min(0, "Base price cannot be negative"),
     cover_image: z.url({ error: "Invalid cover image URL" }),
     category_id: z.uuid({ error: "Invalid category ID" }),
@@ -58,11 +63,15 @@ export const getProductsSchema = z.object({
         .enum(["true", "false"])
         .transform((value) => value === "true")
         .optional(),
-    q: z.string().trim().min(2, "Search query must be at least 2 characters").max(200, "Search query must be at most 200 characters").optional(),
+    q: z.string().trim()
+        .min(2, "Search query must be at least 2 characters")
+        .max(200, "Search query must be at most 200 characters").optional(),
 })
 
 export const searchProductsSchema = getProductsSchema
     .omit({ q: true })
     .extend({
-        q: z.string().trim().min(2, "Search query must be at least 2 characters").max(200, "Search query must be at most 200 characters"),
+        q: z.string().trim()
+            .min(2, "Search query must be at least 2 characters")
+            .max(200, "Search query must be at most 200 characters"),
     })

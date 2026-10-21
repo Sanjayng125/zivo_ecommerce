@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, authApi } from "@/lib/api";
@@ -15,9 +18,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import ReviewItem from "../review/ReviewItem";
+import ReviewModal from "../review/ReviewModal";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
-import ReviewItem from "./ReviewItem";
-import ReviewModal from "./ReviewModal";
 
 interface ReviewsProps {
   product: Product;
@@ -65,7 +68,7 @@ export default function Reviews({ product }: ReviewsProps) {
       <TouchableOpacity
         activeOpacity={0.6}
         style={[
-          styles.addReviewBtn,
+          styles.reviewBtn,
           myReview && { marginTop: 0 },
           isMyReviewLoading && { opacity: 0.5 },
         ]}
@@ -79,7 +82,7 @@ export default function Reviews({ product }: ReviewsProps) {
           size={24}
           color={colors.text}
         />
-        <Text style={styles.addReviewBtnText}>
+        <Text style={styles.reviewBtnText}>
           {myReview ? "Edit review" : "Add a review"}
         </Text>
         <Ionicons
@@ -149,64 +152,64 @@ const getStyles = (colors: ColorsType) =>
     container: {
       flex: 1,
       backgroundColor: colors.surface,
-      paddingHorizontal: 10,
-      paddingBottom: 20,
-      marginTop: 20,
+      paddingHorizontal: spacing.md,
+      paddingBottom: spacing.xl,
+      marginTop: spacing.xl,
     },
     title: {
-      fontSize: 18,
-      fontWeight: "700",
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.title.fontWeight,
       color: colors.text,
-      marginVertical: 10,
+      marginVertical: spacing.md,
       textAlign: "left",
-      paddingHorizontal: 10,
+      paddingHorizontal: spacing.md,
     },
-    addReviewBtn: {
-      marginTop: 10,
+    reviewBtn: {
+      marginTop: spacing.md,
       flexDirection: "row",
       alignItems: "center",
-      gap: 8,
-      borderRadius: 8,
+      gap: spacing.sm,
+      borderRadius: radius.sm,
       borderBottomWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
-    addReviewBtnText: {
+    reviewBtnText: {
       color: colors.text,
-      fontSize: 16,
-      fontWeight: "600",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     reviewContainer: {
-      marginBottom: 20,
+      marginBottom: spacing.md,
     },
     emptyText: {
-      marginVertical: 20,
+      marginVertical: spacing.xl,
       color: colors.textSecondary,
-      fontSize: 16,
+      fontSize: typography.body.fontSize,
       textAlign: "center",
     },
     errorText: {
-      marginVertical: 20,
+      marginVertical: spacing.xl,
       color: colors.error,
-      fontSize: 16,
+      fontSize: typography.body.fontSize,
       textAlign: "center",
     },
     viewAllReviewsContainer: {
-      marginTop: 20,
+      marginTop: spacing.xl,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
-      borderRadius: 8,
+      gap: spacing.sm,
+      borderRadius: radius.sm,
       borderWidth: 1,
       borderColor: colors.border,
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     viewAllReviews: {
       color: colors.btnPrimaryBg,
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
   });

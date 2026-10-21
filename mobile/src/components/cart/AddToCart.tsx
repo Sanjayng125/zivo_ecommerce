@@ -1,4 +1,7 @@
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
@@ -129,14 +132,14 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     addToCartButton: {
       backgroundColor: colors.btnPrimaryBg,
-      borderRadius: 8,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
-      marginTop: 20,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.xxl,
+      paddingVertical: spacing.md,
+      marginTop: spacing.xl,
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      gap: 8,
+      gap: spacing.sm,
     },
     itemExistsBtn: {
       backgroundColor: "transparent",
@@ -145,8 +148,8 @@ const getStyles = (colors: ColorsType) =>
     },
     addToCartButtonText: {
       color: colors.btnPrimaryText,
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     disabled: {
       opacity: 0.6,
