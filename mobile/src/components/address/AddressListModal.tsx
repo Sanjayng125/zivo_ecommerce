@@ -2,11 +2,11 @@ import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useAddress } from "@/hooks/useAddress";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
-import { Address } from "@/types";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -26,19 +26,22 @@ import AddressModal from "./AddressModal";
 interface AddressListModalProps {
   isOpen: boolean;
   onCloseModal: () => void;
-  addresses: Address[];
 }
 
 export default function AddressListModal({
   isOpen,
   onCloseModal,
-  addresses,
 }: AddressListModalProps) {
   const { token } = useAuthStore();
+  const { addresses, isLoading, refetch, isRefetching } = useAddress();
   const styles = useStyles(getStyles);
   const colors = useColors();
 
   const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+
+  const handleRefresh = () => {
+    if (token && !isLoading) refetch?.();
+  };
 
   return (
     <Modal
@@ -59,53 +62,91 @@ export default function AddressListModal({
         <Text style={styles.subtitle} numberOfLines={2}>
           {!token
             ? "Looks like you're signed out. Please sign-in to continue."
-            : "Select a default delivery address"}
+            : addresses?.length > 0
+              ? "Select a default delivery address"
+              : "Add a delivery address"}
         </Text>
       </View>
 
-      {!token ? (
-        <View style={styles.signInContainer}>
-          <MaterialCommunityIcons
-            name="login-variant"
-            size={200}
-            color={colors.textSecondary}
-          />
-          <Text style={styles.signInText}>Sign-In to continue</Text>
-          <AppButton
-            title="Sign-In"
-            onPress={() => router.push("/(auth)/sign-in")}
-          />
-        </View>
-      ) : (
-        <ScrollView style={styles.content}>
-          <AppButton
-            title="Add new address"
-            rightIcon={
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={colors.btnSecondaryText}
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {token && (
+          <>
+            <View style={styles.actionContainer}>
+              <AppButton
+                title="Add new address"
+                rightIcon={
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={colors.btnSecondaryText}
+                  />
+                }
+                onPress={() => setIsAddAddressModalOpen(true)}
+                variant="secondary"
+                style={{ justifyContent: "space-between", flex: 1 }}
               />
-            }
-            onPress={() => setIsAddAddressModalOpen(true)}
-            fullWidth
-            variant="secondary"
-            style={{ justifyContent: "space-between" }}
-          />
 
-          <HorizontalSeparator style={{ marginVertical: spacing.xl }} />
+              <AppButton
+                leftIcon={
+                  <MaterialIcons
+                    name="refresh"
+                    size={20}
+                    color={colors.btnSecondaryText}
+                  />
+                }
+                variant="secondary"
+                onPress={handleRefresh}
+                disabled={isLoading}
+                loading={isRefetching}
+              />
+            </View>
 
-          {addresses?.map((address, i) => (
+            <HorizontalSeparator style={{ marginVertical: spacing.xl }} />
+
+            <AddressModal
+              isOpen={isAddAddressModalOpen}
+              onCloseModal={() => setIsAddAddressModalOpen(false)}
+              onSuccess={() => setIsAddAddressModalOpen(false)}
+            />
+          </>
+        )}
+
+        {addresses?.length === 0 || !token ? (
+          <View style={styles.ctaContainer}>
+            <MaterialIcons
+              name={
+                !token
+                  ? "login"
+                  : addresses?.length === 0
+                    ? "add-location"
+                    : "location-pin"
+              }
+              size={200}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.ctaText}>
+              {!token
+                ? "Sign-In to continue"
+                : addresses?.length === 0
+                  ? "Add a delivery address"
+                  : "Select a default delivery address"}
+            </Text>
+            {!token && (
+              <AppButton
+                title="Sign-In"
+                onPress={() => router.push("/(auth)/sign-in")}
+              />
+            )}
+          </View>
+        ) : (
+          addresses.map((address, i) => (
             <AddressItem address={address} key={address?.id ?? i} />
-          ))}
-        </ScrollView>
-      )}
-
-      <AddressModal
-        isOpen={isAddAddressModalOpen}
-        onCloseModal={() => setIsAddAddressModalOpen(false)}
-        onSuccess={() => setIsAddAddressModalOpen(false)}
-      />
+          ))
+        )}
+      </ScrollView>
     </Modal>
   );
 }
@@ -122,9 +163,8 @@ const getStyles = (colors: ColorsType) =>
       marginTop: spacing.xl,
     },
     header: {
-      paddingHorizontal: spacing.md,
+      paddingHorizontal: spacing.lg,
       paddingTop: spacing.xl,
-      paddingBottom: spacing.md,
     },
     titleContainer: {
       flexDirection: "row",
@@ -144,20 +184,27 @@ const getStyles = (colors: ColorsType) =>
       fontWeight: typography.body.fontWeight,
       color: colors.textSecondary,
     },
-    signInContainer: {
-      flexGrow: 0.7,
+    actionContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.xs,
+    },
+    ctaContainer: {
+      flexGrow: 1,
       alignItems: "center",
       justifyContent: "center",
       gap: spacing.md,
-      marginTop: spacing.xl,
     },
-    signInText: {
+    ctaText: {
       color: colors.text,
       fontSize: typography.heading.fontSize,
       fontWeight: typography.heading.fontWeight,
     },
+    contentContainer: {
+      flexGrow: 0.75,
+    },
     content: {
-      flexGrow: 1,
+      flex: 1,
       paddingHorizontal: spacing.md,
       marginVertical: spacing.lg,
     },

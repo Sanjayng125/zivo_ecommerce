@@ -1,6 +1,7 @@
 import ProductCarousel from "@/components/product/ProductCarousel";
 import ProductInfo from "@/components/product/ProductInfo";
 import Reviews from "@/components/product/Reviews";
+import { AppButton } from "@/components/ui/AppButton";
 import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
@@ -15,7 +16,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -70,9 +70,20 @@ const ProductScreen = () => {
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color={colors.text} />
-        </Pressable>
+        <AppButton
+          leftIcon={
+            <Ionicons
+              name="chevron-back"
+              size={22}
+              color={colors.btnSecondaryText}
+            />
+          }
+          onPress={() => router.back()}
+          style={styles.backButton}
+          size="sm"
+          variant="secondary"
+        />
+
         <ActivityIndicator size="large" color={colors.text} />
       </SafeAreaView>
     );
@@ -81,13 +92,23 @@ const ProductScreen = () => {
   if (error || !product) {
     return (
       <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="chevron-back" size={22} color={colors.text} />
-        </Pressable>
+        <AppButton
+          leftIcon={
+            <Ionicons
+              name="chevron-back"
+              size={22}
+              color={colors.btnSecondaryText}
+            />
+          }
+          onPress={() => router.back()}
+          style={styles.backButton}
+          size="sm"
+          variant="secondary"
+        />
+
         <Text style={styles.errorText}>Couldn't load this product.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </Pressable>
+
+        <AppButton title="Retry" onPress={() => refetch()} />
       </SafeAreaView>
     );
   }
@@ -107,9 +128,19 @@ const ProductScreen = () => {
         <Reviews product={product} />
       </ScrollView>
 
-      <Pressable style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="chevron-back" size={22} color={colors.text} />
-      </Pressable>
+      <AppButton
+        leftIcon={
+          <Ionicons
+            name="chevron-back"
+            size={22}
+            color={colors.btnSecondaryText}
+          />
+        }
+        onPress={() => router.back()}
+        style={styles.backButton}
+        size="sm"
+        variant="secondary"
+      />
     </SafeAreaView>
   );
 };
@@ -130,29 +161,13 @@ const getStyles = (colors: ColorsType) =>
     },
     backButton: {
       position: "absolute",
-      top: 20,
+      top: 30,
       left: 16,
-      width: 38,
-      height: 38,
       borderRadius: radius.full,
-      backgroundColor: colors.surface,
-      justifyContent: "center",
-      alignItems: "center",
     },
     errorText: {
       color: colors.error,
       fontSize: typography.caption.fontSize,
-    },
-    retryButton: {
-      backgroundColor: colors.btnPrimaryBg,
-      borderRadius: radius.sm,
-      paddingHorizontal: spacing.xxl,
-      paddingVertical: spacing.md,
-    },
-    retryButtonText: {
-      color: colors.btnPrimaryText,
-      fontSize: typography.caption.fontSize,
-      fontWeight: typography.heading.fontWeight,
     },
   });
 

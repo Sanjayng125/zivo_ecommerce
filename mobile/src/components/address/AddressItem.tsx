@@ -151,7 +151,7 @@ const getStyles = (colors: ColorsType) =>
       backgroundColor: colors.surface,
       borderWidth: 1,
       borderColor: colors.border,
-      marginVertical: spacing.sm,
+      marginBottom: spacing.sm,
     },
     iconContainer: {
       padding: spacing.lg,

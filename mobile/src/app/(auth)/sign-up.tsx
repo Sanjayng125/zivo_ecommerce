@@ -3,13 +3,13 @@ import TextField from "@/components/ui/TextField";
 import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/schemas";
 import { setToken as setSecureStoreToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
-import { useCartStore } from "@/store/cartStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -31,7 +31,7 @@ import Toast from "react-native-toast-message";
 
 const SignUp = () => {
   const { setToken, setUser } = useAuthStore();
-  const { clearCart } = useCartStore();
+  const { clearCart } = useCart();
   const colors = useColors();
 
   const styles = useStyles(getStyles);

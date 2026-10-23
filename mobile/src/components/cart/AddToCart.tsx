@@ -1,24 +1,14 @@
-import { ColorsType } from "@/constants/colors";
-import { radius } from "@/constants/radius";
-import { spacing } from "@/constants/spacing";
-import { typography } from "@/constants/typography";
+import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { useCartStore } from "@/store/cartStore";
 import { Product, ProductVariant } from "@/types";
-import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-} from "react-native";
 import Toast from "react-native-toast-message";
+import { AppButton } from "../ui/AppButton";
 
 interface AddToCartProps {
   product: Product;
@@ -27,10 +17,10 @@ interface AddToCartProps {
 
 export default function AddToCart({ variant, product }: AddToCartProps) {
   const { token } = useAuthStore();
-  const { items, addItem } = useCartStore();
+  const { items, addItem } = useCart();
+  const queryClient = useQueryClient();
 
   const colors = useColors();
-  const styles = useStyles(getStyles);
 
   const itemExistsInCart = items.find(
     (item) => item?.variant_id === variant.id,
@@ -57,6 +47,7 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
         size: data?.cart_item?.size,
         color: data?.cart_item?.color,
       });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";
@@ -95,63 +86,26 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={[
-        styles.addToCartButton,
-        isAddingToCart && styles.disabled,
-        itemExistsInCart && styles.itemExistsBtn,
-      ]}
+    <AppButton
+      title={itemExistsInCart ? "Go to cart" : "Add to cart"}
       onPress={handleAddToCart}
       disabled={isAddingToCart}
-    >
-      {isAddingToCart ? (
-        <ActivityIndicator size="small" color={colors.text} />
-      ) : (
-        <>
-          <Text
-            style={[
-              styles.addToCartButtonText,
-              itemExistsInCart && { color: colors.text },
-            ]}
-          >
-            {itemExistsInCart ? "Go to cart" : "Add to cart"}
-          </Text>
-          <Ionicons
-            name="cart-outline"
-            size={24}
-            color={itemExistsInCart ? colors.text : colors.btnPrimaryText}
-          />
-        </>
-      )}
-    </TouchableOpacity>
+      loading={isAddingToCart}
+      leftIcon={
+        <MaterialIcons
+          name="shopping-cart"
+          size={24}
+          color={itemExistsInCart ? colors.text : colors.btnPrimaryText}
+        />
+      }
+      rightIcon={
+        <Ionicons
+          name={itemExistsInCart ? "chevron-forward-sharp" : "add-outline"}
+          size={24}
+          color={itemExistsInCart ? colors.text : colors.btnPrimaryText}
+        />
+      }
+      variant={itemExistsInCart ? "outline" : "primary"}
+    />
   );
 }
-
-const getStyles = (colors: ColorsType) =>
-  StyleSheet.create({
-    addToCartButton: {
-      backgroundColor: colors.btnPrimaryBg,
-      borderRadius: radius.sm,
-      paddingHorizontal: spacing.xxl,
-      paddingVertical: spacing.md,
-      marginTop: spacing.xl,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: spacing.sm,
-    },
-    itemExistsBtn: {
-      backgroundColor: "transparent",
-      borderColor: colors.btnPrimaryBg,
-      borderWidth: 1,
-    },
-    addToCartButtonText: {
-      color: colors.btnPrimaryText,
-      fontSize: typography.body.fontSize,
-      fontWeight: typography.heading.fontWeight,
-    },
-    disabled: {
-      opacity: 0.6,
-    },
-  });

@@ -2,26 +2,20 @@ import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { useCartStore } from "@/store/cartStore";
 import { CartItem as CartItemType } from "@/types";
 import { formatPrice } from "@/utils";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { AppButton } from "../ui/AppButton";
 
 interface CartItemProps {
   item: CartItemType;
@@ -29,7 +23,8 @@ interface CartItemProps {
 
 export default function CartItem({ item }: CartItemProps) {
   const { token } = useAuthStore();
-  const { removeItem, updateQuantity } = useCartStore();
+  const { removeItem, updateQuantity } = useCart();
+  const queryClient = useQueryClient();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -45,6 +40,11 @@ export default function CartItem({ item }: CartItemProps) {
       },
       onSuccess: (_data, quantity) => {
         updateQuantity(quantity, item.variant_id);
+        queryClient.setQueryData(["cart"], (old: CartItemType[]) =>
+          old.map((i) =>
+            i.variant_id === item.variant_id ? { ...i, quantity } : i,
+          ),
+        );
       },
       onError: (err: AxiosError<ApiError>) => {
         const message = err.response?.data?.message ?? "Something went wrong";
@@ -64,6 +64,9 @@ export default function CartItem({ item }: CartItemProps) {
       },
       onSuccess: (data) => {
         removeItem(item.variant_id);
+        queryClient.setQueryData(["cart"], (old: CartItemType[]) =>
+          old.filter((i) => i.variant_id !== item.variant_id),
+        );
         Toast.show({
           type: "success",
           text1: data?.message || "Item removed from cart",
@@ -112,41 +115,53 @@ export default function CartItem({ item }: CartItemProps) {
 
           <View
             style={[styles.quantityContainer, btnsDisabled && styles.disabled]}
+            onStartShouldSetResponder={() => true}
           >
-            <Pressable
+            <AppButton
+              leftIcon={
+                <AntDesign name="minus" size={18} color={colors.text} />
+              }
+              variant="secondary"
               disabled={item.quantity <= 1 || btnsDisabled}
               onPress={() => handleUpdateQuantity(item.quantity - 1)}
-              style={[item.quantity <= 1 && styles.disabled]}
-            >
-              <AntDesign name="minus" size={18} color={colors.text} />
-            </Pressable>
+              size="sm"
+            />
             <Text style={styles.quantity}>{item.quantity}</Text>
-            <Pressable
+            <AppButton
+              rightIcon={
+                <AntDesign name="plus" size={18} color={colors.text} />
+              }
+              variant="secondary"
               disabled={item.quantity >= 10 || btnsDisabled}
               onPress={() => handleUpdateQuantity(item.quantity + 1)}
-              style={[item.quantity >= 10 && styles.disabled]}
-            >
-              <AntDesign name="plus" size={18} color={colors.text} />
-            </Pressable>
+              size="sm"
+            />
           </View>
         </View>
       </Pressable>
 
-      <View style={styles.rightContainer}>
+      <View
+        style={styles.rightContainer}
+        onStartShouldSetResponder={() => true}
+      >
         <Text style={styles.price} numberOfLines={1}>
           {formatPrice(item.price)}
         </Text>
-        <Pressable
-          onPress={handleRemoveItem}
+        <AppButton
+          leftIcon={
+            <Ionicons
+              name="trash-outline"
+              size={24}
+              color={colors.btnPrimaryText}
+            />
+          }
+          variant="destructive"
           disabled={btnsDisabled}
-          style={[styles.trashButton, btnsDisabled && styles.disabled]}
-        >
-          {isRemovingItem ? (
-            <ActivityIndicator size="small" color={colors.text} />
-          ) : (
-            <Ionicons name="trash-outline" size={24} color={colors.error} />
-          )}
-        </Pressable>
+          loading={isRemovingItem}
+          onPress={handleRemoveItem}
+          style={{ marginLeft: "auto" }}
+          size="sm"
+        />
       </View>
     </View>
   );
@@ -195,15 +210,9 @@ const getStyles = (colors: ColorsType) =>
       flexDirection: "row",
       alignItems: "center",
       gap: spacing.sm,
-      borderWidth: 1,
-      borderColor: colors.border,
-      borderRadius: radius.sm,
-      marginRight: "auto",
-      paddingHorizontal: spacing.sm,
-      paddingVertical: spacing.xs,
     },
     quantity: {
-      fontSize: typography.body.fontSize,
+      fontSize: typography.heading.fontSize,
       fontWeight: typography.body.fontWeight,
       color: colors.text,
     },

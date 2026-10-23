@@ -11,7 +11,6 @@ import {
   StyleProp,
   StyleSheet,
   Text,
-  View,
   ViewStyle,
 } from "react-native";
 
@@ -24,7 +23,7 @@ type ButtonVariant =
 type ButtonSize = "sm" | "md" | "lg";
 
 type ButtonProps = {
-  title: string;
+  title?: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
@@ -32,6 +31,8 @@ type ButtonProps = {
   size?: ButtonSize;
   fullWidth?: boolean;
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
+  leftIcon?: ReactNode;
   rightIcon?: ReactNode;
 };
 
@@ -44,6 +45,8 @@ export function AppButton({
   size = "md",
   fullWidth = false,
   style,
+  accessibilityLabel,
+  leftIcon,
   rightIcon,
 }: ButtonProps) {
   const colors = useColors();
@@ -81,6 +84,7 @@ export function AppButton({
       onPress={onPress}
       disabled={disabled || loading}
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
       style={({ pressed }) => [
         ...buttonVariants[variant],
         sizeStyles[size],
@@ -94,8 +98,11 @@ export function AppButton({
         <ActivityIndicator size="small" color={spinnerColor} />
       ) : (
         <>
-          <Text style={[styles.text, textVariants[variant]]}>{title}</Text>
-          {rightIcon && <View>{rightIcon}</View>}
+          {leftIcon && leftIcon}
+          {title != null && (
+            <Text style={[styles.text, textVariants[variant]]}>{title}</Text>
+          )}
+          {rightIcon && rightIcon}
         </>
       )}
     </Pressable>
@@ -110,6 +117,7 @@ const getStyles = (colors: ColorsType) =>
       borderRadius: radius.md,
       backgroundColor: colors.btnPrimaryBg,
       flexDirection: "row",
+      gap: spacing.sm,
     },
     secondary: {
       backgroundColor: colors.btnSecondaryBg,
@@ -126,6 +134,8 @@ const getStyles = (colors: ColorsType) =>
       backgroundColor: "transparent",
       alignItems: "center",
       justifyContent: "center",
+      flexDirection: "row",
+      gap: spacing.sm,
     },
     sizeSm: {
       minHeight: 38,

@@ -8,6 +8,7 @@ export const getAddresses = async (c: Context) => {
     const addressesResult = await pool.query(`
         SELECT * FROM addresses
         WHERE user_id = $1
+        ORDER BY is_default DESC, created_at DESC
         `, [me.id])
 
     return c.json({ addresses: addressesResult.rows ?? [] })

@@ -13,8 +13,8 @@ import { HomeSection } from "@/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIndicator,
+  Pressable,
   RefreshControl,
-  ScaledSize,
   ScrollView,
   StyleSheet,
   Text,
@@ -50,9 +50,63 @@ const Index = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+            />
+          }
+          stickyHeaderIndices={[1]}
+        >
+          <Header />
+          <StickySearchBar />
+
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.text} />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+            />
+          }
+          stickyHeaderIndices={[1]}
+        >
+          <Header />
+          <StickySearchBar />
+
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>Couldn't load home.</Text>
+            <Pressable style={styles.retryButton} onPress={() => refetch()}>
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
@@ -62,17 +116,12 @@ const Index = () => {
         <Header />
         <StickySearchBar />
 
-        {isLoading && data?.length === 0 ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.text} />
+        {data.length === 0 && !error ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.empty}>No data available yet</Text>
           </View>
         ) : (
           <>
-            {data.length === 0 && !error && (
-              <Text style={styles.empty}>No data available yet</Text>
-            )}
-            {error && <Text style={styles.error}>{error.message}</Text>}
-
             {data.map((item) => {
               if (item.type === "banner") {
                 return <BannerCarousel section={item} key={item.id} />;
@@ -86,27 +135,39 @@ const Index = () => {
 
               return null;
             })}
+            <Footer />
           </>
         )}
-
-        <Footer />
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-const getStyles = (colors: ColorsType, { height }: ScaledSize) =>
+const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.background,
     },
+    scrollView: {
+      flex: 1,
+    },
     contentContainer: {
       flexGrow: 1,
     },
     loadingContainer: {
-      flex: 1,
-      minHeight: height * 0.75,
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    errorContainer: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 16,
+    },
+    emptyContainer: {
+      flexGrow: 1,
       justifyContent: "center",
       alignItems: "center",
     },
@@ -115,7 +176,18 @@ const getStyles = (colors: ColorsType, { height }: ScaledSize) =>
       color: colors.text,
       textAlign: "center",
     },
-    error: {
+    retryButton: {
+      backgroundColor: colors.btnPrimaryBg,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+    },
+    retryButtonText: {
+      color: colors.btnPrimaryText,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    errorText: {
       fontSize: typography.body.fontSize,
       color: colors.error,
       textAlign: "center",

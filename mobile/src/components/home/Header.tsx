@@ -4,55 +4,17 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { authApi } from "@/lib/api";
-import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
-import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import AddressListModal from "../address/AddressListModal";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import ShowDefaultAddress from "../address/ShowDefaultAddress";
 
 export default function Header() {
-  const { token } = useAuthStore();
-  const [defaultAddress, setDefaultAddress] = useState<string | null>(null);
   const colors = useColors();
-  const cartCount = useCartStore((state) => state.items.length);
   const styles = useStyles(getStyles);
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
 
-  const { data: addresses } = useQuery({
-    queryKey: ["addresses"],
-    queryFn: async () => {
-      const res = await authApi.get("/addresses");
-      return res.data?.addresses ?? [];
-    },
-    enabled: !!token,
-  });
-
-  useEffect(() => {
-    if (!addresses) return;
-
-    const defaultAddress = addresses.find(
-      (address: Address) => address.is_default,
-    );
-    if (!defaultAddress) {
-      setDefaultAddress(null);
-      return;
-    }
-
-    const da = `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`;
-    setDefaultAddress(da);
-  }, [addresses]);
+  const cartCount = useCartStore((state) => state.items.length);
 
   return (
     <View style={styles.container}>
@@ -86,25 +48,7 @@ export default function Header() {
         </Pressable>
       </View>
 
-      <View style={styles.addressContainer}>
-        {defaultAddress && (
-          <Ionicons name="location" size={18} color={colors.text} />
-        )}
-        <TouchableOpacity
-          activeOpacity={0.6}
-          onPress={() => setIsAddressModalOpen(true)}
-        >
-          <Text style={styles.addressText}>
-            {defaultAddress ?? "Add a delivery address"}
-          </Text>
-        </TouchableOpacity>
-        <Ionicons name="chevron-down" size={18} color={colors.text} />
-      </View>
-      <AddressListModal
-        isOpen={isAddressModalOpen}
-        onCloseModal={() => setIsAddressModalOpen(false)}
-        addresses={addresses}
-      />
+      <ShowDefaultAddress />
     </View>
   );
 }
@@ -125,21 +69,7 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       justifyContent: "space-between",
     },
-    addressContainer: {
-      paddingVertical: spacing.xs,
-      flexDirection: "row",
-      justifyContent: "center",
-      alignItems: "center",
-      gap: spacing.xs,
-      marginRight: "auto",
-      borderRadius: radius.sm,
-    },
-    addressText: {
-      color: colors.text,
-      fontSize: typography.caption.fontSize,
-      fontWeight: typography.heading.fontWeight,
-      textDecorationLine: "underline",
-    },
+
     brand: {
       flexDirection: "row",
       alignItems: "center",

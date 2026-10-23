@@ -88,14 +88,13 @@ export default function AddressModal({
           text1: res?.message ?? "Address created successfully",
         });
         reset({
-          full_name: res?.new_address?.full_name ?? "",
-          phone: res?.new_address?.phone ?? "",
-          line1: res?.new_address?.line1 ?? "",
-          line2: res?.new_address?.line2 ?? undefined,
-          city: res?.new_address?.city ?? "",
-          state: res?.new_address?.state ?? "",
-          pincode: res?.new_address?.pincode ?? "",
-          is_default: res?.new_address?.is_default ?? false,
+          full_name: "",
+          phone: "",
+          line1: "",
+          city: "",
+          state: "",
+          pincode: "",
+          is_default: false,
         });
         queryClient.refetchQueries({ queryKey: ["addresses"] });
       },

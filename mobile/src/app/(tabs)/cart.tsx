@@ -1,18 +1,26 @@
+import ShowDefaultAddress from "@/components/address/ShowDefaultAddress";
 import CartItem from "@/components/cart/CartItem";
+import { AppButton } from "@/components/ui/AppButton";
 import HorizontalSeparator from "@/components/ui/HorizontalSeparator";
 import { ColorsType } from "@/constants/colors";
+import { radius } from "@/constants/radius";
+import { spacing } from "@/constants/spacing";
+import { typography } from "@/constants/typography";
+import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { useCartStore } from "@/store/cartStore";
 import { CartItem as CartItemType } from "@/types";
+import { formatPrice } from "@/utils";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -24,7 +32,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Cart() {
   const { token } = useAuthStore();
-  const { items, setItems, clearCart } = useCartStore();
+  const { items, setItems } = useCart();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -68,49 +76,99 @@ export default function Cart() {
     );
   }
 
+  const subTotal = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
+  const shipping = subTotal <= 50000 ? 4000 : 0;
+  const total = subTotal + shipping;
+
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {isLoading && items?.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.text} />
+      {!token ? (
+        <View style={styles.actionContainer}>
+          <Text style={styles.signInText}>Sign in to continue shopping</Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/sign-in")}
+            activeOpacity={0.6}
+          >
+            <Text style={[styles.signInText, { color: colors.linkText }]}>
+              Sign in
+            </Text>
+          </TouchableOpacity>
         </View>
       ) : (
-        <>
-          {!token && (
-            <View style={styles.signInContainer}>
-              <Text style={styles.signInText}>
-                Sign in to continue shopping
-              </Text>
-              <TouchableOpacity
-                onPress={() => router.push("/(auth)/sign-in")}
-                activeOpacity={0.6}
-              >
-                <Text style={[styles.signInText, { color: colors.linkText }]}>
-                  Sign in
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          <FlatList
-            data={items}
-            contentContainerStyle={styles.contentContainer}
-            refreshControl={
-              <RefreshControl
-                refreshing={isRefetching}
-                onRefresh={handleRefresh}
-              />
-            }
-            renderItem={({ item }) => <CartItem item={item} />}
-            ItemSeparatorComponent={
-              <HorizontalSeparator style={{ marginVertical: 0 }} />
-            }
-            ListEmptyComponent={
-              <Text style={styles.empty}>No items in cart</Text>
-            }
-            ListFooterComponent={<View style={styles.footer}></View>}
-          />
-        </>
+        items.length > 0 && (
+          <View style={styles.actionContainer}>
+            <ShowDefaultAddress />
+          </View>
+        )
       )}
+      <FlatList
+        data={items}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
+        }
+        renderItem={({ item }) => <CartItem item={item} />}
+        ItemSeparatorComponent={
+          <HorizontalSeparator style={{ marginVertical: 0 }} />
+        }
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
+            <MaterialCommunityIcons
+              name="cart-arrow-down"
+              size={200}
+              color={colors.textSecondary}
+            />
+            <Text style={styles.emptyText}>Your cart is empty</Text>
+            <Text style={styles.emptyText}>
+              Explore products and add items to checkout
+            </Text>
+            <AppButton title="Explore" onPress={() => router.push("/(tabs)")} />
+          </View>
+        }
+        ListFooterComponent={
+          items?.length > 0 ? (
+            <View style={styles.footer}>
+              <View style={styles.summaryContainer}>
+                <Text style={styles.summaryTitle}>Order Summary</Text>
+                <View style={styles.summarySection}>
+                  <Text style={styles.summaryText}>Subtotal</Text>
+                  <Text style={styles.summaryValue}>
+                    {formatPrice(subTotal)}
+                  </Text>
+                </View>
+                <View style={styles.summarySection}>
+                  <Text style={styles.summaryText}>Shipping</Text>
+                  <Text style={styles.summaryValue}>
+                    {shipping > 0 ? formatPrice(shipping) : "Free"}
+                  </Text>
+                </View>
+                <View style={styles.summarySection}>
+                  <Text style={styles.summaryText}>Total</Text>
+                  <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
+                </View>
+              </View>
+              <AppButton
+                title="Checkout"
+                onPress={() =>
+                  router.push(token ? "/checkout/address" : "/(auth)/sign-in")
+                }
+                fullWidth
+                style={{ marginTop: spacing.sm }}
+              />
+              <View style={styles.paymentGatewayContainer}>
+                <Image
+                  source={require("@/assets/images/razorpay-logo.png")}
+                  style={styles.paymentGatewayImage}
+                  resizeMode="contain"
+                />
+              </View>
+            </View>
+          ) : null
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -128,56 +186,109 @@ const getStyles = (colors: ColorsType) =>
     },
     contentContainer: {
       flexGrow: 1,
-      paddingBottom: 16,
+      paddingBottom: spacing.lg,
     },
     center: {
       justifyContent: "center",
       alignItems: "center",
-      gap: 16,
+      gap: spacing.lg,
     },
-    empty: {
-      fontSize: 16,
-      color: colors.text,
+    emptyContainer: {
+      flexGrow: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      gap: spacing.md,
+      marginTop: spacing.xl,
+    },
+    emptyText: {
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
+      color: colors.textSecondary,
       textAlign: "center",
     },
     errorText: {
-      fontSize: 16,
+      fontSize: typography.body.fontSize,
       color: colors.error,
       textAlign: "center",
     },
     retryButton: {
       backgroundColor: colors.btnPrimaryBg,
-      borderRadius: 8,
-      paddingHorizontal: 24,
-      paddingVertical: 12,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.xxl,
+      paddingVertical: spacing.md,
     },
     retryButtonText: {
       color: colors.btnPrimaryText,
-      fontSize: 15,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
-    signInContainer: {
+    actionContainer: {
       backgroundColor: colors.surface,
-      borderRadius: 8,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
+      borderRadius: radius.sm,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
-      gap: 4,
+      gap: spacing.xs,
       marginHorizontal: "auto",
-      marginVertical: 20,
+      marginVertical: spacing.xl,
     },
     signInText: {
       color: colors.textSecondary,
-      fontSize: 16,
-      fontWeight: "700",
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
     },
     footer: {
-      marginTop: 20,
-      flexDirection: "row",
+      flex: 1,
+      marginTop: spacing.xl,
       justifyContent: "center",
       alignItems: "center",
-      gap: 8,
+      gap: spacing.sm,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    summaryContainer: {
+      width: "100%",
+      marginTop: spacing.xl,
+      justifyContent: "space-between",
+      gap: spacing.sm,
+      backgroundColor: colors.background,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      borderRadius: radius.sm,
+    },
+    summaryTitle: {
+      color: colors.text,
+      marginBottom: spacing.sm,
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    summarySection: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: spacing.sm,
+    },
+    summaryText: {
+      color: colors.text,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    summaryValue: {
+      color: colors.textSecondary,
+      fontSize: typography.body.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    paymentGatewayContainer: {
+      width: "100%",
+      alignItems: "center",
+      marginVertical: spacing.xl,
+    },
+    paymentGatewayImage: {
+      width: 140,
+      height: 30,
+      backgroundColor: "#FFFFFF",
     },
   });
