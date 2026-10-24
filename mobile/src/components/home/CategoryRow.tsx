@@ -112,7 +112,7 @@ const getStyles = (colors: ColorsType) =>
     },
     categoryName: {
       color: colors.text,
-      fontSize: typography.body.fontSize,
+      fontSize: typography.caption.fontSize,
       fontWeight: typography.heading.fontWeight,
       textAlign: "center",
       paddingHorizontal: spacing.sm,

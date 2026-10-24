@@ -9,14 +9,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
@@ -55,9 +48,13 @@ export default function AddressListModal({
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Your Addresses</Text>
-          <Pressable onPress={onCloseModal} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </Pressable>
+
+          <AppButton
+            onPress={onCloseModal}
+            size="sm"
+            variant="ghost"
+            leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
+          />
         </View>
         <Text style={styles.subtitle} numberOfLines={2}>
           {!token
@@ -175,9 +172,6 @@ const getStyles = (colors: ColorsType) =>
       fontSize: typography.title.fontSize,
       fontWeight: typography.title.fontWeight,
       color: colors.text,
-    },
-    closeButton: {
-      marginHorizontal: spacing.md,
     },
     subtitle: {
       fontSize: typography.body.fontSize,

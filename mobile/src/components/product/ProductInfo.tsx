@@ -169,7 +169,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
         />
       </View>
 
-      <HorizontalSeparator style={{ marginBottom: spacing.md }} />
+      <HorizontalSeparator style={{ marginVertical: spacing.md }} />
 
       <AddToCart product={product} variant={selectedVariant} />
     </View>

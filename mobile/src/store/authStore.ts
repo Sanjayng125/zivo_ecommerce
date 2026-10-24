@@ -6,8 +6,8 @@ import { zustandMMKVStorage } from "./mmkvStorage";
 interface AuthStore {
     user: User | null
     token: string | null
-    setUser: (user: User) => void
-    setToken: (token: string) => void
+    setUser: (user: User | null) => void
+    setToken: (token: string | null) => void
     logout: () => void
 }
 

@@ -1,5 +1,6 @@
 import ShowDefaultAddress from "@/components/address/ShowDefaultAddress";
 import CartItem from "@/components/cart/CartItem";
+import ProductCard from "@/components/product/ProductCard";
 import { AppButton } from "@/components/ui/AppButton";
 import HorizontalSeparator from "@/components/ui/HorizontalSeparator";
 import { ColorsType } from "@/constants/colors";
@@ -9,19 +10,15 @@ import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { authApi } from "@/lib/api";
+import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
-import { CartItem as CartItemType } from "@/types";
 import { formatPrice } from "@/utils";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect } from "react";
 import {
   ActivityIndicator,
   FlatList,
   Image,
-  Pressable,
   RefreshControl,
   StyleSheet,
   Text,
@@ -32,29 +29,26 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Cart() {
   const { token } = useAuthStore();
-  const { items, setItems } = useCart();
+  const {
+    items,
+    refetch,
+    isLoading,
+    error,
+    isRefetching,
+    subTotal,
+    shipping,
+    total,
+  } = useCart();
+  const { data: wishlistItems, refetch: refetchWishlist } = useWishlist();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
 
-  const { data, isLoading, error, isRefetching, refetch } = useQuery<
-    CartItemType[]
-  >({
-    queryKey: ["cart"],
-    queryFn: async () => {
-      const res = await authApi.get("/cart");
-
-      return res.data?.cart_items ?? [];
-    },
-    enabled: !!token,
-  });
-
-  useEffect(() => {
-    if (data) setItems(data ?? []);
-  }, [data]);
-
   const handleRefresh = () => {
-    if (token) refetch();
+    if (token) {
+      refetch();
+      refetchWishlist();
+    }
   };
 
   if (isLoading) {
@@ -69,50 +63,47 @@ export default function Cart() {
     return (
       <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
         <Text style={styles.errorText}>Couldn't load cart.</Text>
-        <Pressable style={styles.retryButton} onPress={() => refetch()}>
-          <Text style={styles.retryButtonText}>Retry</Text>
-        </Pressable>
+
+        <AppButton title="Retry" onPress={() => refetch()} />
       </SafeAreaView>
     );
   }
 
-  const subTotal = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0,
-  );
-  const shipping = subTotal <= 50000 ? 4000 : 0;
-  const total = subTotal + shipping;
-
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {!token ? (
-        <View style={styles.actionContainer}>
-          <Text style={styles.signInText}>Sign in to continue shopping</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/(auth)/sign-in")}
-            activeOpacity={0.6}
-          >
-            <Text style={[styles.signInText, { color: colors.linkText }]}>
-              Sign in
-            </Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        items.length > 0 && (
-          <View style={styles.actionContainer}>
-            <ShowDefaultAddress />
-          </View>
-        )
-      )}
       <FlatList
         data={items}
         contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
         }
+        ListHeaderComponent={
+          !token ? (
+            <View style={styles.actionContainer}>
+              <Text style={styles.signInText}>
+                Sign in to continue shopping
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(auth)/sign-in")}
+                activeOpacity={0.6}
+              >
+                <Text style={[styles.signInText, { color: colors.linkText }]}>
+                  Sign in
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : items.length > 0 ? (
+            <View style={styles.actionContainer}>
+              <ShowDefaultAddress />
+            </View>
+          ) : null
+        }
         renderItem={({ item }) => <CartItem item={item} />}
         ItemSeparatorComponent={
-          <HorizontalSeparator style={{ marginVertical: 0 }} />
+          <HorizontalSeparator
+            backgroundColor={colors.surface}
+            style={{ paddingHorizontal: spacing.md }}
+          />
         }
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
@@ -129,44 +120,90 @@ export default function Cart() {
           </View>
         }
         ListFooterComponent={
-          items?.length > 0 ? (
-            <View style={styles.footer}>
-              <View style={styles.summaryContainer}>
-                <Text style={styles.summaryTitle}>Order Summary</Text>
-                <View style={styles.summarySection}>
-                  <Text style={styles.summaryText}>Subtotal</Text>
-                  <Text style={styles.summaryValue}>
-                    {formatPrice(subTotal)}
-                  </Text>
+          <>
+            {items?.length > 0 && (
+              <>
+                <HorizontalSeparator
+                  backgroundColor={colors.surface}
+                  style={{ paddingHorizontal: spacing.md }}
+                />
+                <View style={styles.summaryContainer}>
+                  <View style={styles.orderSummaryContainer}>
+                    <Text style={styles.summaryTitle}>Order Summary</Text>
+                    <View style={styles.summarySection}>
+                      <Text style={styles.summaryText}>Subtotal</Text>
+                      <Text style={styles.summaryValue}>
+                        {formatPrice(subTotal)}
+                      </Text>
+                    </View>
+                    <View style={styles.summarySection}>
+                      <Text style={styles.summaryText}>Shipping</Text>
+                      <Text style={styles.summaryValue}>
+                        {shipping > 0 ? formatPrice(shipping) : "Free"}
+                      </Text>
+                    </View>
+                    <View style={styles.summarySection}>
+                      <Text style={styles.summaryText}>Total</Text>
+                      <Text style={styles.summaryValue}>
+                        {formatPrice(total)}
+                      </Text>
+                    </View>
+                  </View>
+                  <AppButton
+                    title="Checkout"
+                    onPress={() =>
+                      router.push(
+                        token ? "/checkout/address" : "/(auth)/sign-in",
+                      )
+                    }
+                    fullWidth
+                    style={{ marginTop: spacing.sm }}
+                  />
+                  <View style={styles.paymentGatewayContainer}>
+                    <Image
+                      source={require("@/assets/images/razorpay-logo.png")}
+                      style={styles.paymentGatewayImage}
+                      resizeMode="contain"
+                    />
+                  </View>
                 </View>
-                <View style={styles.summarySection}>
-                  <Text style={styles.summaryText}>Shipping</Text>
-                  <Text style={styles.summaryValue}>
-                    {shipping > 0 ? formatPrice(shipping) : "Free"}
-                  </Text>
-                </View>
-                <View style={styles.summarySection}>
-                  <Text style={styles.summaryText}>Total</Text>
-                  <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
-                </View>
-              </View>
-              <AppButton
-                title="Checkout"
-                onPress={() =>
-                  router.push(token ? "/checkout/address" : "/(auth)/sign-in")
-                }
-                fullWidth
-                style={{ marginTop: spacing.sm }}
-              />
-              <View style={styles.paymentGatewayContainer}>
-                <Image
-                  source={require("@/assets/images/razorpay-logo.png")}
-                  style={styles.paymentGatewayImage}
-                  resizeMode="contain"
+              </>
+            )}
+
+            {wishlistItems?.length > 0 && (
+              <View style={styles.wishlistContainer}>
+                {items?.length > 0 && (
+                  <HorizontalSeparator
+                    color={colors.textSecondary}
+                    style={{ paddingHorizontal: 0, paddingBottom: spacing.xl }}
+                  />
+                )}
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  style={styles.wishlistHeader}
+                  onPress={() => router.push("/(tabs)/wishlist")}
+                >
+                  <Text style={styles.wishlistTitle}>Wishlist</Text>
+                  <Ionicons
+                    name="chevron-forward-sharp"
+                    size={20}
+                    color={colors.text}
+                  />
+                </TouchableOpacity>
+
+                <FlatList
+                  data={wishlistItems}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.wishlistListContainer}
+                  renderItem={({ item }) => {
+                    return <ProductCard item={item} size="sm" />;
+                  }}
                 />
               </View>
-            </View>
-          ) : null
+            )}
+          </>
         }
       />
     </SafeAreaView>
@@ -211,17 +248,6 @@ const getStyles = (colors: ColorsType) =>
       color: colors.error,
       textAlign: "center",
     },
-    retryButton: {
-      backgroundColor: colors.btnPrimaryBg,
-      borderRadius: radius.sm,
-      paddingHorizontal: spacing.xxl,
-      paddingVertical: spacing.md,
-    },
-    retryButtonText: {
-      color: colors.btnPrimaryText,
-      fontSize: typography.body.fontSize,
-      fontWeight: typography.heading.fontWeight,
-    },
     actionContainer: {
       backgroundColor: colors.surface,
       borderRadius: radius.sm,
@@ -232,16 +258,14 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       gap: spacing.xs,
       marginHorizontal: "auto",
-      marginVertical: spacing.xl,
+      marginVertical: spacing.md,
     },
     signInText: {
       color: colors.textSecondary,
       fontSize: typography.body.fontSize,
       fontWeight: typography.heading.fontWeight,
     },
-    footer: {
-      flex: 1,
-      marginTop: spacing.xl,
+    summaryContainer: {
       justifyContent: "center",
       alignItems: "center",
       gap: spacing.sm,
@@ -249,7 +273,7 @@ const getStyles = (colors: ColorsType) =>
       paddingVertical: spacing.sm,
       backgroundColor: colors.surface,
     },
-    summaryContainer: {
+    orderSummaryContainer: {
       width: "100%",
       marginTop: spacing.xl,
       justifyContent: "space-between",
@@ -290,5 +314,27 @@ const getStyles = (colors: ColorsType) =>
       width: 140,
       height: 30,
       backgroundColor: "#FFFFFF",
+    },
+
+    wishlistContainer: {
+      flex: 1,
+      paddingHorizontal: spacing.lg,
+      marginTop: spacing.xl,
+    },
+    wishlistHeader: {
+      marginBottom: spacing.sm,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: spacing.sm,
+      marginRight: "auto",
+    },
+    wishlistTitle: {
+      color: colors.text,
+      fontSize: typography.heading.fontSize,
+      fontWeight: typography.heading.fontWeight,
+    },
+    wishlistListContainer: {
+      marginVertical: spacing.md,
+      gap: spacing.md,
     },
   });

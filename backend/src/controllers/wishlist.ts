@@ -6,7 +6,7 @@ export const getWishlist = async (c: Context) => {
     const me = c.get("user")
 
     const wishlistResult = await pool.query(`
-        SELECT wi.*, p.base_price, p.title, p.cover_image, p.slug
+        SELECT wi.*, p.base_price, p.title, p.cover_image, p.slug, p.rating_avg, p.rating_count
         FROM wishlist_items wi
         LEFT JOIN products p ON p.id = wi.product_id
         WHERE wi.user_id = $1

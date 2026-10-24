@@ -174,7 +174,6 @@ const getStyles = (colors: ColorsType) =>
       gap: spacing.lg,
       padding: spacing.lg,
       backgroundColor: colors.surface,
-      borderRadius: radius.sm,
     },
     leftContainer: {
       flexDirection: "row",

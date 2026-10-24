@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 export const useCart = () => {
     const { token } = useAuthStore();
-    const { items, addItem, removeItem, clearCart, updateQuantity, setItems } = useCartStore();
+    const state = useCartStore();
 
     const { data, isLoading, error, isRefetching, refetch } = useQuery<
         CartItem[]
@@ -22,20 +22,25 @@ export const useCart = () => {
     });
 
     useEffect(() => {
-        if (data) setItems(data ?? []);
+        if (data) state.setItems(data);
     }, [data]);
 
+
+    const subTotal = state.items?.reduce(
+        (acc, item) => acc + item.price * item.quantity,
+        0,
+    );
+    const shipping = subTotal <= 50000 ? 4000 : 0;
+    const total = subTotal + shipping;
+
     return {
-        data,
         isLoading,
         error,
         isRefetching,
         refetch,
-        addItem,
-        removeItem,
-        clearCart,
-        updateQuantity,
-        setItems,
-        items
+        subTotal,
+        shipping,
+        total,
+        ...state
     }
 }

@@ -23,7 +23,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -83,13 +82,19 @@ const SignUp = () => {
   return (
     <SafeAreaView style={styles.container}>
       {router.canGoBack() && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.backBtn}
+        <AppButton
+          leftIcon={
+            <Ionicons
+              name="arrow-back"
+              size={30}
+              color={colors.btnSecondaryText}
+            />
+          }
           onPress={() => router.back()}
-        >
-          <Ionicons name="arrow-back-sharp" size={28} color={colors.text} />
-        </TouchableOpacity>
+          style={styles.backBtn}
+          size="sm"
+          variant="ghost"
+        />
       )}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -206,10 +211,9 @@ const getStyles = (colors: ColorsType) =>
     },
     backBtn: {
       position: "absolute",
-      top: 24,
+      top: 16,
       left: 20,
-      marginTop: spacing.xl,
-      paddingHorizontal: spacing.xs,
+      zIndex: 1,
     },
     logo: {
       width: 260,

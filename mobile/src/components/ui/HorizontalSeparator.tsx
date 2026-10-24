@@ -4,15 +4,15 @@ import { StyleProp, View, ViewStyle } from "react-native";
 
 interface HorizontalSeparatorProps {
   color?: string;
+  backgroundColor?: string;
   height?: number;
-  marginVertical?: number;
   style?: StyleProp<ViewStyle>;
 }
 
 export default function HorizontalSeparator({
   color,
+  backgroundColor = "transparent",
   height = 1,
-  marginVertical = spacing.sm,
   style,
 }: HorizontalSeparatorProps) {
   const colors = useColors();
@@ -21,12 +21,18 @@ export default function HorizontalSeparator({
     <View
       style={[
         {
-          backgroundColor: color ?? colors.border,
-          height,
-          marginVertical: marginVertical,
+          backgroundColor: backgroundColor,
+          paddingVertical: spacing.md,
         },
         style,
       ]}
-    />
+    >
+      <View
+        style={{
+          backgroundColor: color ?? colors.border,
+          height,
+        }}
+      />
+    </View>
   );
 }

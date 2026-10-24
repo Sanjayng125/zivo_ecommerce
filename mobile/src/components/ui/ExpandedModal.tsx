@@ -5,14 +5,8 @@ import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import { AppButton } from "./AppButton";
 
 interface ExpandedModalProps {
   isOpen: boolean;
@@ -43,9 +37,13 @@ export default function ExpandedModal({
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>{title}</Text>
-          <Pressable onPress={onCloseModal}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </Pressable>
+
+          <AppButton
+            onPress={onCloseModal}
+            size="sm"
+            variant="ghost"
+            leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
+          />
         </View>
         {subtitle && (
           <Text style={styles.subtitle} numberOfLines={2}>

@@ -13,7 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -173,9 +173,13 @@ export default function ReviewModal({
     >
       <View style={styles.header}>
         <Text style={styles.title}>Review</Text>
-        <Pressable onPress={onCloseModal}>
-          <Ionicons name="close" size={22} color={colors.text} />
-        </Pressable>
+
+        <AppButton
+          onPress={onCloseModal}
+          size="sm"
+          variant="ghost"
+          leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
+        />
       </View>
 
       <View style={styles.ratingContainer}>

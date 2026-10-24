@@ -4,6 +4,7 @@ import Footer from "@/components/home/Footer";
 import Header from "@/components/home/Header";
 import ProductRow from "@/components/home/ProductRow";
 import StickySearchBar from "@/components/home/StickySearchBar";
+import { AppButton } from "@/components/ui/AppButton";
 import { ColorsType } from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
@@ -13,7 +14,6 @@ import { HomeSection } from "@/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIndicator,
-  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -94,9 +94,8 @@ const Index = () => {
 
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>Couldn't load home.</Text>
-            <Pressable style={styles.retryButton} onPress={() => refetch()}>
-              <Text style={styles.retryButtonText}>Retry</Text>
-            </Pressable>
+
+            <AppButton title="Retry" onPress={() => refetch()} />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -175,17 +174,6 @@ const getStyles = (colors: ColorsType) =>
       fontSize: typography.body.fontSize,
       color: colors.text,
       textAlign: "center",
-    },
-    retryButton: {
-      backgroundColor: colors.btnPrimaryBg,
-      borderRadius: 8,
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-    },
-    retryButtonText: {
-      color: colors.btnPrimaryText,
-      fontSize: typography.body.fontSize,
-      fontWeight: typography.heading.fontWeight,
     },
     errorText: {
       fontSize: typography.body.fontSize,

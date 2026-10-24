@@ -13,14 +13,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { AppButton } from "../ui/AppButton";
 import Checkbox from "../ui/CheckBox";
@@ -163,9 +156,13 @@ export default function AddressModal({
           <Text style={styles.title}>
             {address ? "Edit Address" : "Add New Address"}
           </Text>
-          <Pressable onPress={onCloseModal}>
-            <Ionicons name="close" size={24} color={colors.text} />
-          </Pressable>
+
+          <AppButton
+            onPress={onCloseModal}
+            size="sm"
+            variant="ghost"
+            leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
+          />
         </View>
       </View>
 

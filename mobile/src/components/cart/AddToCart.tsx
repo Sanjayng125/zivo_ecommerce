@@ -75,12 +75,12 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
       addItem({
         variant_id: variant.id,
         quantity: 1,
-        title: product?.title,
-        slug: product?.slug,
-        price: variant?.price,
-        cover_image: product?.cover_image,
-        size: variant?.size,
-        color: variant?.color,
+        title: product.title,
+        slug: product.slug,
+        price: variant.price,
+        cover_image: product.cover_image,
+        size: variant.size,
+        color: variant.color,
       });
     }
   };
