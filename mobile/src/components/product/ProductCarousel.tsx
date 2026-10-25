@@ -1,6 +1,7 @@
 import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
+import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { ProductImage } from "@/types";
 import { useRef, useState } from "react";
@@ -34,6 +35,7 @@ export default function ProductCarousel({ images }: CarouselProps) {
       BUTTON_IMG_GAP * (BUTTON_IMG_VISIBLE_COUNT - 1)) /
     BUTTON_IMG_VISIBLE_COUNT;
   const styles = useStyles(getStyles, BUTTON_IMG_WIDTH);
+  const colors = useColors();
 
   const handleImagePress = (index: number) => {
     setCurrentIndex(index);
@@ -98,6 +100,7 @@ const getStyles = (
   StyleSheet.create({
     container: {
       gap: spacing.md,
+      position: "relative",
     },
     imageContainer: {
       width,

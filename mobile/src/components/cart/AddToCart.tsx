@@ -47,7 +47,7 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
         size: data?.cart_item?.size,
         color: data?.cart_item?.color,
       });
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.refetchQueries({ queryKey: ["cart"] });
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";

@@ -1,8 +1,9 @@
-import { authApi } from "@/lib/api"
+import { ApiError, authApi } from "@/lib/api"
 import { clearToken } from "@/lib/secureStore"
 import { useAuthStore } from "@/store/authStore"
 import { useCartStore } from "@/store/cartStore"
-import { useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { AxiosError } from "axios"
 import { router } from "expo-router"
 import Toast from "react-native-toast-message"
 
@@ -11,10 +12,12 @@ export const useSignOut = () => {
     const clearCart = useCartStore(state => state.clearCart)
     const queryClient = useQueryClient()
 
-    const signOut = async () => {
-        if (!token) return
-        try {
-            await authApi.delete("/auth/sign-out")
+    const { mutate: signOutMutation, isPending: isSigningOut } = useMutation({
+        mutationFn: async () => {
+            const res = await authApi.delete("/auth/sign-out")
+            return res.data
+        },
+        onSuccess: async () => {
             await clearToken()
             logout()
             clearCart()
@@ -24,13 +27,21 @@ export const useSignOut = () => {
                 type: "success",
                 text1: "Signed out successfully"
             })
-        } catch (error) {
+        },
+        onError: (error: AxiosError<ApiError>) => {
+            const message = error.response?.data?.message ?? "Something went wrong while signing out"
             Toast.show({
                 type: "error",
-                text1: "Something went wrong while signing out"
+                text1: message
             })
-        }
+        },
+    })
+
+    const handleSignOut = async () => {
+        if (!token) return
+
+        signOutMutation()
     }
 
-    return signOut
+    return { signOut: handleSignOut, isSigningOut }
 }

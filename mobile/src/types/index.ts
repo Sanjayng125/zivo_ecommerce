@@ -8,6 +8,17 @@ export type User = {
     updatedAt: string
 }
 
+export type Profile = {
+    id: string
+    name: string
+    email: string
+    full_name: string
+    phone: string
+    avatar_url: string
+    updated_at: string
+    created_at: string
+}
+
 export type CartItem = {
     id?: string
     user_id?: string
@@ -104,4 +115,16 @@ export type Address = {
     is_default: boolean
     created_at: string
     updated_at: string
+}
+
+export type WishlistItem = {
+    id: string
+    product_id: string
+    title: string
+    description: string
+    slug: string
+    base_price: number
+    cover_image: string
+    rating_avg: string
+    rating_count: number
 }

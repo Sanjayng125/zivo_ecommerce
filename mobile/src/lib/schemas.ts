@@ -69,7 +69,28 @@ export const AddressSchema = z.object({
     is_default: z.boolean({ message: "Invalid default address" }),
 });
 
+export const ProfileSchema = z.object({
+    full_name: z
+        .string({
+            error: "Full name must be a text value"
+        })
+        .trim()
+        .min(3, "Full name must be at least 3 characters")
+        .max(30, "Full name must be at most 30 characters"),
+
+    phone: z
+        .string({
+            error: "Phone number must be a text value"
+        })
+        .trim()
+        .regex(
+            /^\+?[1-9]\d{7,14}$/,
+            "Please enter a valid phone number"
+        ),
+});
+
 export type SignInSchemaType = z.infer<typeof SignInSchema>;
 export type SignUpSchemaType = z.infer<typeof SignUpSchema>;
 export type ReviewSchemaType = z.infer<typeof ReviewSchema>;
 export type AddressSchemaType = z.infer<typeof AddressSchema>;
+export type ProfileSchemaType = z.infer<typeof ProfileSchema>;

@@ -1,7 +1,9 @@
+import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import ProductCarousel from "@/components/product/ProductCarousel";
 import ProductInfo from "@/components/product/ProductInfo";
 import Reviews from "@/components/product/Reviews";
 import { AppButton } from "@/components/ui/AppButton";
+import AddToWishlist from "@/components/wishlist/AddToWishlist";
 import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
@@ -14,14 +16,7 @@ import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 const ProductScreen = () => {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -69,65 +64,64 @@ const ProductScreen = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <AppButton
-          leftIcon={
-            <Ionicons
-              name="chevron-back"
-              size={22}
-              color={colors.btnSecondaryText}
-            />
-          }
-          onPress={() => router.back()}
-          style={styles.backButton}
-          size="sm"
-          variant="secondary"
-        />
+      <ScreenWrapper edges={["top"]} scrollable={false}>
+        <View style={styles.center}>
+          <AppButton
+            leftIcon={
+              <Ionicons
+                name="chevron-back"
+                size={22}
+                color={colors.btnSecondaryText}
+              />
+            }
+            onPress={() => router.back()}
+            style={styles.backButton}
+            size="sm"
+            variant="secondary"
+          />
 
-        <ActivityIndicator size="large" color={colors.text} />
-      </SafeAreaView>
+          <ActivityIndicator size="large" color={colors.text} />
+        </View>
+      </ScreenWrapper>
     );
   }
 
   if (error || !product) {
     return (
-      <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <AppButton
-          leftIcon={
-            <Ionicons
-              name="chevron-back"
-              size={22}
-              color={colors.btnSecondaryText}
-            />
-          }
-          onPress={() => router.back()}
-          style={styles.backButton}
-          size="sm"
-          variant="secondary"
-        />
+      <ScreenWrapper
+        edges={["top"]}
+        refreshing={isRefetching}
+        onRefresh={handleRefresh}
+      >
+        <View style={styles.center}>
+          <AppButton
+            leftIcon={
+              <Ionicons
+                name="chevron-back"
+                size={22}
+                color={colors.btnSecondaryText}
+              />
+            }
+            onPress={() => router.back()}
+            style={styles.backButton}
+            size="sm"
+            variant="secondary"
+          />
 
-        <Text style={styles.errorText}>Couldn't load this product.</Text>
+          <Text style={styles.errorText}>Couldn't load this product.</Text>
 
-        <AppButton title="Retry" onPress={() => refetch()} />
-      </SafeAreaView>
+          <AppButton title="Retry" onPress={() => refetch()} />
+        </View>
+      </ScreenWrapper>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
-        }
-      >
-        <ProductCarousel images={product.product_images} />
-
-        <ProductInfo product={product} />
-
-        <Reviews product={product} />
-      </ScrollView>
-
+    <ScreenWrapper
+      edges={["top"]}
+      onRefresh={handleRefresh}
+      refreshing={isRefetching}
+    >
       <AppButton
         leftIcon={
           <Ionicons
@@ -141,27 +135,28 @@ const ProductScreen = () => {
         size="sm"
         variant="secondary"
       />
-    </SafeAreaView>
+
+      <ProductCarousel images={product.product_images} />
+      <AddToWishlist product={product} />
+
+      <ProductInfo product={product} />
+
+      <Reviews product={product} />
+    </ScreenWrapper>
   );
 };
 
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    contentContainer: {
-      flexGrow: 1,
-    },
     center: {
+      flex: 1,
       justifyContent: "center",
       alignItems: "center",
       gap: spacing.lg,
     },
     backButton: {
       position: "absolute",
-      top: 30,
+      top: 10,
       left: 16,
       borderRadius: radius.full,
     },

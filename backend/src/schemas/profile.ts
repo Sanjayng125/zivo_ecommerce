@@ -7,7 +7,7 @@ export const profileUpdateSchema = z.object({
         })
         .trim()
         .min(3, "Full name must be at least 3 characters")
-        .max(100, "Full name must be at most 100 characters"),
+        .max(30, "Full name must be at most 30 characters"),
 
     phone: z
         .string({

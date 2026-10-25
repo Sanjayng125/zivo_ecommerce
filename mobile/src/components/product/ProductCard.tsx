@@ -3,13 +3,13 @@ import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
-import { Product } from "@/types";
+import { Product, WishlistItem } from "@/types";
 import { formatPrice } from "@/utils";
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface ProductCardProps {
-  item: Product;
+  item: Product | WishlistItem;
   size?: "sm" | "md" | "lg";
 }
 

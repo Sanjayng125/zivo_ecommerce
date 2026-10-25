@@ -1,5 +1,6 @@
 import ShowDefaultAddress from "@/components/address/ShowDefaultAddress";
 import CartItem from "@/components/cart/CartItem";
+import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import ProductCard from "@/components/product/ProductCard";
 import { AppButton } from "@/components/ui/AppButton";
 import HorizontalSeparator from "@/components/ui/HorizontalSeparator";
@@ -9,6 +10,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useStyles } from "@/hooks/useStyles";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
@@ -25,9 +27,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Cart() {
+const CartScreen = () => {
   const { token } = useAuthStore();
   const {
     items,
@@ -40,6 +41,10 @@ export default function Cart() {
     total,
   } = useCart();
   const { data: wishlistItems, refetch: refetchWishlist } = useWishlist();
+  const {
+    data: recentlyViewedProducts,
+    refetch: refetchRecentlyViewedProducts,
+  } = useRecentlyViewed();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -48,34 +53,48 @@ export default function Cart() {
     if (token) {
       refetch();
       refetchWishlist();
+      refetchRecentlyViewedProducts();
     }
   };
 
   if (isLoading) {
     return (
-      <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <ActivityIndicator size="large" color={colors.text} />
-      </SafeAreaView>
+      <ScreenWrapper edges={["top"]} scrollable={false}>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={colors.text} />
+        </View>
+      </ScreenWrapper>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, styles.center]} edges={["top"]}>
-        <Text style={styles.errorText}>Couldn't load cart.</Text>
+      <ScreenWrapper
+        edges={["top"]}
+        refreshing={isRefetching}
+        onRefresh={handleRefresh}
+      >
+        <View style={styles.center}>
+          <Text style={styles.errorText}>Couldn't load cart.</Text>
 
-        <AppButton title="Retry" onPress={() => refetch()} />
-      </SafeAreaView>
+          <AppButton title="Retry" onPress={() => refetch()} />
+        </View>
+      </ScreenWrapper>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <ScreenWrapper edges={["top"]} scrollable={false}>
       <FlatList
         data={items}
         contentContainerStyle={styles.contentContainer}
         refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
+          token ? (
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+            />
+          ) : undefined
         }
         ListHeaderComponent={
           !token ? (
@@ -170,18 +189,40 @@ export default function Cart() {
               </>
             )}
 
+            {items?.length > 0 && (
+              <HorizontalSeparator
+                color={colors.textSecondary}
+                style={{
+                  paddingHorizontal: spacing.md,
+                  marginTop: spacing.xxxl,
+                }}
+              />
+            )}
+
+            {recentlyViewedProducts?.length > 0 && (
+              <View style={styles.otherContainer}>
+                <View style={styles.otherHeader}>
+                  <Text style={styles.wishlistTitle}>Recently Viewed</Text>
+                </View>
+
+                <FlatList
+                  data={recentlyViewedProducts}
+                  keyExtractor={(item, i) => item.id ?? i}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.otherListContainer}
+                  renderItem={({ item }) => {
+                    return <ProductCard item={item} size="sm" />;
+                  }}
+                />
+              </View>
+            )}
             {wishlistItems?.length > 0 && (
-              <View style={styles.wishlistContainer}>
-                {items?.length > 0 && (
-                  <HorizontalSeparator
-                    color={colors.textSecondary}
-                    style={{ paddingHorizontal: 0, paddingBottom: spacing.xl }}
-                  />
-                )}
+              <View style={styles.otherContainer}>
                 <TouchableOpacity
                   activeOpacity={0.6}
-                  style={styles.wishlistHeader}
-                  onPress={() => router.push("/(tabs)/wishlist")}
+                  style={styles.otherHeader}
+                  onPress={() => router.push("/wishlist")}
                 >
                   <Text style={styles.wishlistTitle}>Wishlist</Text>
                   <Ionicons
@@ -196,7 +237,7 @@ export default function Cart() {
                   keyExtractor={(item) => item.id}
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.wishlistListContainer}
+                  contentContainerStyle={styles.otherListContainer}
                   renderItem={({ item }) => {
                     return <ProductCard item={item} size="sm" />;
                   }}
@@ -206,16 +247,12 @@ export default function Cart() {
           </>
         }
       />
-    </SafeAreaView>
+    </ScreenWrapper>
   );
-}
+};
 
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
     loadingContainer: {
       flex: 1,
       justifyContent: "center",
@@ -226,6 +263,7 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: spacing.lg,
     },
     center: {
+      flex: 1,
       justifyContent: "center",
       alignItems: "center",
       gap: spacing.lg,
@@ -316,12 +354,12 @@ const getStyles = (colors: ColorsType) =>
       backgroundColor: "#FFFFFF",
     },
 
-    wishlistContainer: {
+    otherContainer: {
       flex: 1,
       paddingHorizontal: spacing.lg,
       marginTop: spacing.xl,
     },
-    wishlistHeader: {
+    otherHeader: {
       marginBottom: spacing.sm,
       flexDirection: "row",
       alignItems: "center",
@@ -333,8 +371,10 @@ const getStyles = (colors: ColorsType) =>
       fontSize: typography.heading.fontSize,
       fontWeight: typography.heading.fontWeight,
     },
-    wishlistListContainer: {
+    otherListContainer: {
       marginVertical: spacing.md,
       gap: spacing.md,
     },
   });
+
+export default CartScreen;

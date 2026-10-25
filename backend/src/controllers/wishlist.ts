@@ -25,14 +25,13 @@ export const addWishlistItem = async (c: Context) => {
         INSERT INTO wishlist_items (user_id, product_id)
         VALUES ($1, $2)
         ON CONFLICT (user_id, product_id) DO NOTHING
-        RETURNING *
         `, [me.id, product_id])
 
     if (!wishlistResult.rowCount) {
         throw new HTTPException(400, { message: "Item already in wishlist" })
     }
 
-    return c.json({ message: "Item added to wishlist", new_wishlist_item: wishlistResult.rows?.[0] })
+    return c.json({ message: "Item added to wishlist" })
 }
 
 export const removeWishlistItem = async (c: Context) => {

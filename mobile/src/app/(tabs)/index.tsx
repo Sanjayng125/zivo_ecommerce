@@ -4,6 +4,7 @@ import Footer from "@/components/home/Footer";
 import Header from "@/components/home/Header";
 import ProductRow from "@/components/home/ProductRow";
 import StickySearchBar from "@/components/home/StickySearchBar";
+import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
 import { ColorsType } from "@/constants/colors";
 import { typography } from "@/constants/typography";
@@ -12,17 +13,9 @@ import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
 import { HomeSection } from "@/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
-const Index = () => {
+const HomeScreen = () => {
   const queryClient = useQueryClient();
   const colors = useColors();
 
@@ -52,108 +45,75 @@ const Index = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={handleRefresh}
-            />
-          }
-          stickyHeaderIndices={[1]}
-        >
-          <Header />
-          <StickySearchBar />
+      <ScreenWrapper edges={["top"]} stickyHeaderIndices={[1]}>
+        <Header />
+        <StickySearchBar />
 
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={colors.text} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.text} />
+        </View>
+      </ScreenWrapper>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container} edges={["top"]}>
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching}
-              onRefresh={handleRefresh}
-            />
-          }
-          stickyHeaderIndices={[1]}
-        >
-          <Header />
-          <StickySearchBar />
-
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>Couldn't load home.</Text>
-
-            <AppButton title="Retry" onPress={() => refetch()} />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
-        }
+      <ScreenWrapper
+        edges={["top"]}
         stickyHeaderIndices={[1]}
+        refreshing={isRefetching}
+        onRefresh={handleRefresh}
       >
         <Header />
         <StickySearchBar />
 
-        {data.length === 0 && !error ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.empty}>No data available yet</Text>
-          </View>
-        ) : (
-          <>
-            {data.map((item) => {
-              if (item.type === "banner") {
-                return <BannerCarousel section={item} key={item.id} />;
-              }
-              if (item.type === "category_row") {
-                return <CategoryRow section={item} key={item.id} />;
-              }
-              if (item.type === "product_row") {
-                return <ProductRow section={item} key={item.id} />;
-              }
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Couldn't load home.</Text>
 
-              return null;
-            })}
-            <Footer />
-          </>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          <AppButton title="Retry" onPress={() => refetch()} />
+        </View>
+      </ScreenWrapper>
+    );
+  }
+
+  return (
+    <ScreenWrapper
+      edges={["top"]}
+      stickyHeaderIndices={[1]}
+      refreshing={isRefetching}
+      onRefresh={handleRefresh}
+    >
+      <Header />
+      <StickySearchBar />
+
+      {data.length === 0 && !error ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.empty}>No data available yet</Text>
+        </View>
+      ) : (
+        <>
+          {data.map((item) => {
+            if (item.type === "banner") {
+              return <BannerCarousel section={item} key={item.id} />;
+            }
+            if (item.type === "category_row") {
+              return <CategoryRow section={item} key={item.id} />;
+            }
+            if (item.type === "product_row") {
+              return <ProductRow section={item} key={item.id} />;
+            }
+
+            return null;
+          })}
+          <Footer />
+        </>
+      )}
+    </ScreenWrapper>
   );
 };
 
 const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    scrollView: {
-      flex: 1,
-    },
-    contentContainer: {
-      flexGrow: 1,
-    },
     loadingContainer: {
       flexGrow: 1,
       justifyContent: "center",
@@ -182,4 +142,4 @@ const getStyles = (colors: ColorsType) =>
     },
   });
 
-export default Index;
+export default HomeScreen;

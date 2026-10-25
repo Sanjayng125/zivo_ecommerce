@@ -42,18 +42,9 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="wishlist"
+        name="account"
         options={{
-          title: "Wishlist",
-          tabBarIcon({ size, color }) {
-            return <Ionicons name="heart-outline" size={size} color={color} />;
-          },
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
+          title: "Account",
           tabBarIcon({ size, color }) {
             return <Ionicons name="person-outline" size={size} color={color} />;
           },

@@ -1,6 +1,6 @@
 import { Text, View } from "react-native";
 
-const Explore = () => {
+const ExploreScreen = () => {
   return (
     <View>
       <Text>Explore</Text>
@@ -8,4 +8,4 @@ const Explore = () => {
   );
 };
 
-export default Explore;
+export default ExploreScreen;

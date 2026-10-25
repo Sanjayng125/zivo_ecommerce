@@ -7,9 +7,14 @@ export const getProfile = async (c: Context) => {
 
     const profileResult = await pool.query(`
         SELECT
-        p.*,
         u.name,
-        u.email
+        u.email,
+        p.id,
+        p.full_name,
+        p.phone,
+        p.avatar_url,
+        p.updated_at,
+        p.created_at
         FROM profiles p
         JOIN "user" u ON u."id" = p.id
         WHERE p.id = $1
@@ -67,7 +72,7 @@ export const getRecentlyViewedProducts = async (c: Context) => {
     const me = c.get("user")
 
     const productResult = await pool.query(`
-        SELECT pv.product_id, pv.viewed_at, p.title, p.cover_image
+        SELECT pv.product_id, pv.viewed_at, p.base_price, p.title, p.cover_image, p.slug, p.rating_avg, p.rating_count
         FROM product_views pv
         JOIN products p ON p.id = pv.product_id
         WHERE pv.user_id = $1
