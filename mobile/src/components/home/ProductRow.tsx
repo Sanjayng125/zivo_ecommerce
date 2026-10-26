@@ -27,7 +27,7 @@ export default function ProductRow({ section }: ProductRowProps) {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
         renderItem={({ item }) => {
-          return <ProductCard item={item} />;
+          return <ProductCard product={item} />;
         }}
       />
     </View>

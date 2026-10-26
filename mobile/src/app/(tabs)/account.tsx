@@ -1,3 +1,4 @@
+import AccountSignedOut from "@/components/account/AccountSignedOut";
 import EditProfileModal from "@/components/account/EditProfileModal";
 import SettingsRow from "@/components/account/SettingsRow";
 import AddressListModal from "@/components/address/AddressListModal";
@@ -16,7 +17,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import { useThemeStore } from "@/store/uiStore";
 import { getDefaultAvatar } from "@/utils";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -74,20 +75,11 @@ const AccountScreen = () => {
   return (
     <ScreenWrapper
       edges={["top"]}
-      refreshing={isRefetching}
-      onRefresh={handleRefresh}
+      {...(token ? { refreshing: isRefetching, onRefresh: handleRefresh } : {})}
+      style={{ paddingTop: spacing.xl, paddingBottom: spacing.xxxl }}
     >
       {!token ? (
-        <View style={styles.actionContainer}>
-          <Text style={styles.signInText}>
-            Looks like you're signed out. Please sign-in to continue.
-          </Text>
-          <MaterialIcons name="login" size={200} color={colors.textSecondary} />
-          <AppButton
-            title="Sign-In"
-            onPress={() => router.push("/(auth)/sign-in")}
-          />
-        </View>
+        <AccountSignedOut />
       ) : (
         <>
           <View style={styles.userInfoContainer}>
@@ -140,20 +132,17 @@ const AccountScreen = () => {
           />
 
           <SettingsRow
+            label="Dark Mode"
+            icon="moon-outline"
+            hideChevron
+            right={<Switch value={isDarkMode} onValueChange={toggleTheme} />}
+          />
+
+          <SettingsRow
             label="Change Password"
             icon="lock-closed-outline"
             onPress={() => {}}
           />
-        </>
-      )}
-      <SettingsRow
-        label="Dark Mode"
-        icon="moon-outline"
-        hideChevron
-        right={<Switch value={isDarkMode} onValueChange={toggleTheme} />}
-      />
-      {token && (
-        <>
           <SettingsRow
             label="Sign Out"
             icon="log-out-outline"
@@ -187,17 +176,7 @@ const getStyles = (colors: ColorsType) =>
       color: colors.error,
       textAlign: "center",
     },
-    actionContainer: {
-      alignItems: "center",
-      gap: spacing.lg,
-      marginVertical: spacing.xl,
-    },
-    signInText: {
-      color: colors.textSecondary,
-      fontSize: typography.body.fontSize,
-      fontWeight: typography.heading.fontWeight,
-      paddingHorizontal: spacing.lg,
-    },
+
     userInfoContainer: {
       alignItems: "center",
       gap: spacing.sm,

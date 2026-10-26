@@ -9,11 +9,14 @@ import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface ProductCardProps {
-  item: Product | WishlistItem;
+  product: Product | WishlistItem;
   size?: "sm" | "md" | "lg";
 }
 
-export default function ProductCard({ item, size = "md" }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  size = "md",
+}: ProductCardProps) {
   const styles = useStyles(getStyles);
 
   const productSizes: Record<string, object> = {
@@ -55,10 +58,10 @@ export default function ProductCard({ item, size = "md" }: ProductCardProps) {
   return (
     <Pressable
       style={[styles.baseContainer, productSizes[size]]}
-      onPress={() => router.push(`/product/${item.slug}`)}
+      onPress={() => router.push(`/product/${product.slug}`)}
     >
       <Image
-        source={{ uri: item.cover_image }}
+        source={{ uri: product.cover_image }}
         resizeMode="cover"
         style={styles.image}
       />
@@ -68,13 +71,13 @@ export default function ProductCard({ item, size = "md" }: ProductCardProps) {
           ellipsizeMode="tail"
           style={[styles.baseProductName, productNameSizes[size]]}
         >
-          {item.title}
+          {product.title}
         </Text>
         <View style={styles.productPriceContainer}>
           <Text style={[styles.baseProductPrice, productPriceSizes[size]]}>
-            {formatPrice(item.base_price)}
+            {formatPrice(product.base_price)}
           </Text>
-          {item.rating_count === 0 ? (
+          {product.rating_count === 0 ? (
             <Text
               style={[styles.baseNoProductRating, noProductRatingSizes[size]]}
             >
@@ -82,7 +85,7 @@ export default function ProductCard({ item, size = "md" }: ProductCardProps) {
             </Text>
           ) : (
             <Text style={[styles.baseProductRating, productRatingSizes[size]]}>
-              ⭐️ {item.rating_avg} {`(${item.rating_count})`}
+              ⭐️ {product.rating_avg} {`(${product.rating_count})`}
             </Text>
           )}
         </View>

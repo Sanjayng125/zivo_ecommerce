@@ -5,7 +5,9 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
+  StyleProp,
   StyleSheet,
+  ViewStyle,
 } from "react-native";
 import { Edge, SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,6 +19,7 @@ interface ScreenWrapperProps {
   onRefresh?: () => void;
   keyboardAvoiding?: boolean;
   stickyHeaderIndices?: number[];
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function ScreenWrapper({
@@ -27,13 +30,14 @@ export default function ScreenWrapper({
   onRefresh,
   keyboardAvoiding = false,
   stickyHeaderIndices,
+  style,
 }: ScreenWrapperProps) {
   const styles = useStyles(getStyles);
 
   const content = scrollable ? (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[styles.contentContainer, style]}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       stickyHeaderIndices={stickyHeaderIndices}
@@ -53,10 +57,16 @@ export default function ScreenWrapper({
   );
 
   return (
-    <SafeAreaView style={styles.container} edges={edges}>
+    <SafeAreaView
+      style={[styles.container, !scrollable && !keyboardAvoiding && style]}
+      edges={edges}
+    >
       {keyboardAvoiding ? (
         <KeyboardAvoidingView
-          style={styles.keyboardAvoiding}
+          style={[
+            styles.keyboardAvoiding,
+            keyboardAvoiding && !scrollable && style,
+          ]}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
         >

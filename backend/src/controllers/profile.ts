@@ -72,7 +72,15 @@ export const getRecentlyViewedProducts = async (c: Context) => {
     const me = c.get("user")
 
     const productResult = await pool.query(`
-        SELECT pv.product_id, pv.viewed_at, p.base_price, p.title, p.cover_image, p.slug, p.rating_avg, p.rating_count
+        SELECT pv.id,
+        pv.product_id,
+        pv.viewed_at,
+        p.base_price,
+        p.title,
+        p.cover_image,
+        p.slug,
+        p.rating_avg,
+        p.rating_count
         FROM product_views pv
         JOIN products p ON p.id = pv.product_id
         WHERE pv.user_id = $1

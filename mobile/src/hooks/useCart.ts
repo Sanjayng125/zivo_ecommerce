@@ -33,6 +33,8 @@ export const useCart = () => {
     const shipping = subTotal <= 50000 ? 4000 : 0;
     const total = subTotal + shipping;
 
+    const cartCount = state.items.length;
+
     return {
         isLoading,
         error,
@@ -41,6 +43,7 @@ export const useCart = () => {
         subTotal,
         shipping,
         total,
-        ...state
+        ...state,
+        cartCount
     }
 }

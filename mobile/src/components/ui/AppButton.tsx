@@ -11,6 +11,7 @@ import {
   StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   ViewStyle,
 } from "react-native";
 
@@ -20,7 +21,7 @@ type ButtonVariant =
   | "outline"
   | "destructive"
   | "ghost";
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 type ButtonProps = {
   title?: string;
@@ -31,6 +32,7 @@ type ButtonProps = {
   size?: ButtonSize;
   fullWidth?: boolean;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
   accessibilityLabel?: string;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
@@ -45,6 +47,7 @@ export function AppButton({
   size = "md",
   fullWidth = false,
   style,
+  textStyle,
   accessibilityLabel,
   leftIcon,
   rightIcon,
@@ -69,9 +72,17 @@ export function AppButton({
   };
 
   const sizeStyles: Record<ButtonSize, object> = {
+    xs: styles.sizeXs,
     sm: styles.sizeSm,
     md: styles.sizeMd,
     lg: styles.sizeLg,
+  };
+
+  const sizeTextStyles: Record<ButtonSize, object> = {
+    xs: styles.textXs,
+    sm: styles.textSm,
+    md: styles.textMd,
+    lg: styles.textLg,
   };
 
   const spinnerColor =
@@ -100,7 +111,16 @@ export function AppButton({
         <>
           {leftIcon && leftIcon}
           {title != null && (
-            <Text style={[styles.text, textVariants[variant]]}>{title}</Text>
+            <Text
+              style={[
+                styles.textBase,
+                textVariants[variant],
+                sizeTextStyles[size],
+                textStyle,
+              ]}
+            >
+              {title}
+            </Text>
           )}
           {rightIcon && rightIcon}
         </>
@@ -137,17 +157,21 @@ const getStyles = (colors: ColorsType) =>
       flexDirection: "row",
       gap: spacing.sm,
     },
+    sizeXs: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
     sizeSm: {
-      minHeight: 38,
       paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
     },
     sizeMd: {
-      minHeight: 46,
       paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
     },
     sizeLg: {
-      minHeight: 52,
       paddingHorizontal: spacing.xl,
+      paddingVertical: spacing.lg,
     },
     fullWidth: {
       width: "100%",
@@ -158,9 +182,20 @@ const getStyles = (colors: ColorsType) =>
     disabled: {
       opacity: 0.5,
     },
-    text: {
-      fontSize: spacing.lg,
+    textBase: {
       fontWeight: typography.heading.fontWeight,
+    },
+    textXs: {
+      fontSize: typography.small.fontSize,
+    },
+    textSm: {
+      fontSize: typography.caption.fontSize,
+    },
+    textMd: {
+      fontSize: typography.body.fontSize,
+    },
+    textLg: {
+      fontSize: typography.heading.fontSize,
     },
     textPrimary: {
       color: colors.btnPrimaryText,

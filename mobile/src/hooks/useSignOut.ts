@@ -1,15 +1,15 @@
 import { ApiError, authApi } from "@/lib/api"
 import { clearToken } from "@/lib/secureStore"
 import { useAuthStore } from "@/store/authStore"
-import { useCartStore } from "@/store/cartStore"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { router } from "expo-router"
 import Toast from "react-native-toast-message"
+import { useCart } from "./useCart"
 
 export const useSignOut = () => {
     const { token, logout } = useAuthStore()
-    const clearCart = useCartStore(state => state.clearCart)
+    const { clearCart } = useCart()
     const queryClient = useQueryClient()
 
     const { mutate: signOutMutation, isPending: isSigningOut } = useMutation({

@@ -2,9 +2,9 @@ import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
+import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { useCartStore } from "@/store/cartStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -14,7 +14,7 @@ export default function Header() {
   const colors = useColors();
   const styles = useStyles(getStyles);
 
-  const cartCount = useCartStore((state) => state.items.length);
+  const { cartCount } = useCart();
 
   return (
     <View style={styles.container}>

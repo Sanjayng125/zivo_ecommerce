@@ -6,7 +6,7 @@ export const Colors = {
         border: '#E8E8E8',
         error: '#E53935',
         success: '#43A047',
-        warning: '#FB8C00',
+        warning: '#ff6f00',
 
         // Text
         text: '#1A1A1A',
