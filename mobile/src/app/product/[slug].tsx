@@ -69,7 +69,7 @@ const ProductScreen = () => {
           <AppButton
             leftIcon={
               <Ionicons
-                name="chevron-back"
+                name="arrow-back"
                 size={22}
                 color={colors.btnSecondaryText}
               />
@@ -97,7 +97,7 @@ const ProductScreen = () => {
           <AppButton
             leftIcon={
               <Ionicons
-                name="chevron-back"
+                name="arrow-back"
                 size={22}
                 color={colors.btnSecondaryText}
               />
@@ -125,7 +125,7 @@ const ProductScreen = () => {
       <AppButton
         leftIcon={
           <Ionicons
-            name="chevron-back"
+            name="arrow-back"
             size={22}
             color={colors.btnSecondaryText}
           />

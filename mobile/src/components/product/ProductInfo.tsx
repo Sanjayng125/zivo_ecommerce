@@ -5,7 +5,7 @@ import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { Product, ProductVariant } from "@/types";
-import { formatPrice } from "@/utils";
+import { formatCount, formatPrice } from "@/utils";
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import AddToCart from "../cart/AddToCart";
@@ -84,7 +84,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
           <>
             <StarRating value={Number(product?.rating_avg)} />
             <Text style={styles.productRating}>
-              {`(${product?.rating_count} reviews)`}
+              {`(${formatCount(product?.rating_count)} reviews)`}
             </Text>
           </>
         )}

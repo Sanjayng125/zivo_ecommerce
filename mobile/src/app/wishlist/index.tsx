@@ -1,6 +1,8 @@
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import ProductCard from "@/components/product/ProductCard";
 import { AppButton } from "@/components/ui/AppButton";
+import WishlistEmpty from "@/components/wishlist/WishlistEmpty";
+import WishlistHeader from "@/components/wishlist/WishlistHeader";
 import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -9,14 +11,16 @@ import { useStyles } from "@/hooks/useStyles";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
-import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  RefreshControl,
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 const WishlistScreen = () => {
@@ -28,10 +32,31 @@ const WishlistScreen = () => {
     isRefetching,
     refetch,
   } = useWishlist();
-  const queryClient = useQueryClient();
 
   const styles = useStyles(getStyles);
   const colors = useColors();
+  const { width: windowWidth } = useWindowDimensions();
+  const [listWidth, setListWidth] = useState(0);
+  const cardWidth = ((listWidth || windowWidth) - spacing.md * 3) / 2;
+
+  if (!token) {
+    return (
+      <ScreenWrapper edges={["top"]}>
+        <View style={styles.center}>
+          <Ionicons
+            name="heart-outline"
+            size={120}
+            color={colors.textSecondary}
+          />
+          <Text style={styles.emptyText}>Sign in to view your wishlist</Text>
+          <AppButton
+            title="Sign In"
+            onPress={() => router.push("/(auth)/sign-in")}
+          />
+        </View>
+      </ScreenWrapper>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -61,39 +86,26 @@ const WishlistScreen = () => {
   return (
     <ScreenWrapper edges={["top"]} scrollable={false}>
       <FlatList
+        onLayout={({ nativeEvent: { layout } }) => setListWidth(layout.width)}
         data={wishlistItems}
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.contentContainer}
         columnWrapperStyle={styles.columnWrapper}
-        refreshControl={<View />}
-        refreshing={isRefetching}
-        onRefresh={refetch}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>My Wishlist</Text>
-            {wishlistItems.length > 0 && (
-              <Text style={styles.headerCount}>
-                {wishlistItems.length} item{wishlistItems.length > 1 ? "s" : ""}
-              </Text>
-            )}
-          </View>
+        refreshControl={
+          token ? (
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+          ) : undefined
         }
-        renderItem={({ item }) => <ProductCard product={item} />}
-        ListEmptyComponent={
-          <View style={styles.center}>
-            <Ionicons
-              name="heart-outline"
-              size={120}
-              color={colors.textSecondary}
-            />
-            <Text style={styles.emptyText}>Your wishlist is empty</Text>
-            <Text style={styles.emptySubText}>
-              Save products you love to buy them later
-            </Text>
-            <AppButton title="Explore" onPress={() => router.push("/(tabs)")} />
-          </View>
-        }
+        ListHeaderComponent={<WishlistHeader />}
+        renderItem={({ item }) => (
+          <ProductCard
+            product={item}
+            containerStyle={[styles.productCard, { width: cardWidth }]}
+            wishlistCard
+          />
+        )}
+        ListEmptyComponent={<WishlistEmpty />}
       />
     </ScreenWrapper>
   );
@@ -117,32 +129,15 @@ const getStyles = (colors: ColorsType) =>
     columnWrapper: {
       gap: spacing.md,
     },
+    productCard: {
+      flexGrow: 0,
+      flexShrink: 0,
+    },
 
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingVertical: spacing.lg,
-    },
-    headerTitle: {
-      fontSize: typography.title.fontSize,
-      fontWeight: typography.heading.fontWeight,
-      color: colors.text,
-    },
-    headerCount: {
-      fontSize: typography.caption.fontSize,
-      fontWeight: typography.body.fontWeight,
-      color: colors.textSecondary,
-    },
     emptyText: {
       fontSize: typography.body.fontSize,
       fontWeight: typography.heading.fontWeight,
       color: colors.text,
-      textAlign: "center",
-    },
-    emptySubText: {
-      fontSize: typography.caption.fontSize,
-      color: colors.textSecondary,
       textAlign: "center",
     },
     errorText: {

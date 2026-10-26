@@ -3,19 +3,37 @@ import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useStyles } from "@/hooks/useStyles";
+import { ApiError, authApi } from "@/lib/api";
+import queryClient from "@/lib/queryClient";
 import { Product, WishlistItem } from "@/types";
-import { formatPrice } from "@/utils";
+import { formatCount, formatPrice } from "@/utils";
+import { useMutation } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { router } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
+import Toast from "react-native-toast-message";
+import { AppButton } from "../ui/AppButton";
 
 interface ProductCardProps {
   product: Product | WishlistItem;
   size?: "sm" | "md" | "lg";
+  containerStyle?: StyleProp<ViewStyle>;
+  wishlistCard?: boolean;
 }
 
 export default function ProductCard({
   product,
   size = "md",
+  containerStyle,
+  wishlistCard,
 }: ProductCardProps) {
   const styles = useStyles(getStyles);
 
@@ -55,9 +73,26 @@ export default function ProductCard({
     lg: styles.largeNoProductRating,
   };
 
+  const { mutate: removeItem, isPending: isRemovingItem } = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await authApi.delete(`/wishlist/${id}`);
+      return res.data;
+    },
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(["wishlist"], (old: WishlistItem[]) =>
+        old.filter((item) => item.id !== id),
+      );
+      Toast.show({ type: "success", text1: "Removed from wishlist" });
+    },
+    onError: (err: AxiosError<ApiError>) => {
+      const message = err.response?.data?.message ?? "Something went wrong";
+      Toast.show({ type: "error", text1: message });
+    },
+  });
+
   return (
     <Pressable
-      style={[styles.baseContainer, productSizes[size]]}
+      style={[styles.baseContainer, productSizes[size], containerStyle]}
       onPress={() => router.push(`/product/${product.slug}`)}
     >
       <Image
@@ -74,22 +109,45 @@ export default function ProductCard({
           {product.title}
         </Text>
         <View style={styles.productPriceContainer}>
-          <Text style={[styles.baseProductPrice, productPriceSizes[size]]}>
+          <Text
+            numberOfLines={1}
+            style={[styles.baseProductPrice, productPriceSizes[size]]}
+          >
             {formatPrice(product.base_price)}
           </Text>
           {product.rating_count === 0 ? (
             <Text
+              numberOfLines={1}
               style={[styles.baseNoProductRating, noProductRatingSizes[size]]}
             >
               New
             </Text>
           ) : (
-            <Text style={[styles.baseProductRating, productRatingSizes[size]]}>
-              ⭐️ {product.rating_avg} {`(${product.rating_count})`}
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={[styles.baseProductRating, productRatingSizes[size]]}
+            >
+              ⭐️ {product.rating_avg} {`(${formatCount(product.rating_count)})`}
             </Text>
           )}
         </View>
       </View>
+
+      {wishlistCard && (
+        <AppButton
+          title="Remove"
+          onPress={() => removeItem(product.id)}
+          variant="destructive"
+          size="sm"
+          loading={isRemovingItem}
+          style={{
+            marginHorizontal: spacing.sm,
+            marginBottom: spacing.sm,
+            marginTop: spacing.xs,
+          }}
+        />
+      )}
     </Pressable>
   );
 }
