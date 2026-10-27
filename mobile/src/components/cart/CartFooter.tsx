@@ -12,6 +12,7 @@ import { formatPrice } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -24,7 +25,8 @@ import { AppButton } from "../ui/AppButton";
 
 export default function CartFooter() {
   const { token } = useAuthStore();
-  const { subTotal, shipping, total, cartCount } = useCart();
+  const { subTotal, shipping, total, cartCount, isFetchingNextPage } =
+    useCart();
   const { data: recentlyViewedProducts } = useRecentlyViewed();
   const { data: wishlistItems } = useWishlist();
 
@@ -33,40 +35,49 @@ export default function CartFooter() {
 
   const OrderSummary = () => {
     return (
-      <View style={styles.summaryContainer}>
-        <View style={styles.orderSummaryContainer}>
-          <Text style={styles.summaryTitle}>Order Summary</Text>
-          <View style={styles.summarySection}>
-            <Text style={styles.summaryText}>Subtotal</Text>
-            <Text style={styles.summaryValue}>{formatPrice(subTotal)}</Text>
+      <>
+        {isFetchingNextPage && (
+          <View
+            style={{ backgroundColor: colors.surface, padding: spacing.md }}
+          >
+            <ActivityIndicator size="large" color={colors.text} />
           </View>
-          <View style={styles.summarySection}>
-            <Text style={styles.summaryText}>Shipping</Text>
-            <Text style={styles.summaryValue}>
-              {shipping > 0 ? formatPrice(shipping) : "Free"}
-            </Text>
+        )}
+        <View style={styles.summaryContainer}>
+          <View style={styles.orderSummaryContainer}>
+            <Text style={styles.summaryTitle}>Order Summary</Text>
+            <View style={styles.summarySection}>
+              <Text style={styles.summaryText}>Subtotal</Text>
+              <Text style={styles.summaryValue}>{formatPrice(subTotal)}</Text>
+            </View>
+            <View style={styles.summarySection}>
+              <Text style={styles.summaryText}>Shipping</Text>
+              <Text style={styles.summaryValue}>
+                {shipping > 0 ? formatPrice(shipping) : "Free"}
+              </Text>
+            </View>
+            <View style={styles.summarySection}>
+              <Text style={styles.summaryText}>Total</Text>
+              <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
+            </View>
           </View>
-          <View style={styles.summarySection}>
-            <Text style={styles.summaryText}>Total</Text>
-            <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
-          </View>
-        </View>
-        <AppButton
-          title="Checkout"
-          onPress={() =>
-            router.push(token ? "/checkout/address" : "/(auth)/sign-in")
-          }
-          fullWidth
-          style={{ marginTop: spacing.sm }}
-        />
-        <View style={styles.paymentGatewayContainer}>
-          <Image
-            source={require("@/assets/images/razorpay-logo.png")}
-            style={styles.paymentGatewayImage}
-            resizeMode="contain"
+          <AppButton
+            title="Checkout"
+            onPress={() =>
+              router.push(token ? "/checkout/address" : "/(auth)/sign-in")
+            }
+            fullWidth
+            style={{ marginTop: spacing.sm }}
           />
+          <View style={styles.paymentGatewayContainer}>
+            <Image
+              source={require("@/assets/images/razorpay-logo.png")}
+              style={styles.paymentGatewayImage}
+              resizeMode="contain"
+            />
+          </View>
         </View>
-      </View>
+      </>
     );
   };
 

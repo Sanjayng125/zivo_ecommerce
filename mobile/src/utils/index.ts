@@ -31,5 +31,5 @@ export const getDefaultAvatar = (fullName: string) => {
         .join("")
         .toUpperCase();
 
-    return `https://ui-avatars.com/api/?name=${initials}&background=random&format=png`;
+    return `https://ui-avatars.com/api/?name=${initials}&background=random&format=png&size=512`;
 }

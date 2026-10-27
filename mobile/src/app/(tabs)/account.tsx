@@ -1,4 +1,5 @@
 import AccountSignedOut from "@/components/account/AccountSignedOut";
+import ChangePasswordModal from "@/components/account/ChangePasswordModal";
 import EditProfileModal from "@/components/account/EditProfileModal";
 import SettingsRow from "@/components/account/SettingsRow";
 import AddressListModal from "@/components/address/AddressListModal";
@@ -138,11 +139,7 @@ const AccountScreen = () => {
             right={<Switch value={isDarkMode} onValueChange={toggleTheme} />}
           />
 
-          <SettingsRow
-            label="Change Password"
-            icon="lock-closed-outline"
-            onPress={() => {}}
-          />
+          <ChangePasswordModal />
           <SettingsRow
             label="Sign Out"
             icon="log-out-outline"

@@ -14,7 +14,7 @@ import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import Checkbox from "../ui/CheckBox";
 import TextField from "../ui/TextField";
@@ -76,10 +76,6 @@ export default function AddressModal({
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Address created successfully",
-        });
         reset({
           full_name: "",
           phone: "",
@@ -90,13 +86,11 @@ export default function AddressModal({
           is_default: false,
         });
         queryClient.refetchQueries({ queryKey: ["addresses"] });
+        toast.success(res?.message ?? "Address created successfully");
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
       onSettled: () => onCloseModal(),
     });
@@ -109,10 +103,6 @@ export default function AddressModal({
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Address updated successfully",
-        });
         reset({
           full_name: res?.updated_address?.full_name ?? "",
           phone: res?.updated_address?.phone ?? "",
@@ -124,13 +114,11 @@ export default function AddressModal({
           is_default: res?.updated_address?.is_default ?? false,
         });
         queryClient.refetchQueries({ queryKey: ["addresses"] });
+        toast.success(res?.message ?? "Address updated successfully");
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
       onSettled: () => onCloseModal(),
     });

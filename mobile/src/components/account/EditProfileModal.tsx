@@ -9,7 +9,7 @@ import { ApiError, authApi } from "@/lib/api";
 import { ProfileSchema, ProfileSchemaType } from "@/lib/schemas";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -22,7 +22,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
 
@@ -33,7 +33,6 @@ interface EditProfileModalProps {
 export default function EditProfileModal({ style }: EditProfileModalProps) {
   const { profile, refetch } = useProfile();
   const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const styles = useStyles(getStyles);
   const colors = useColors();
@@ -64,19 +63,17 @@ export default function EditProfileModal({ style }: EditProfileModalProps) {
           full_name: data?.updated_profile?.full_name ?? "",
           phone: data?.updated_profile?.phone ?? "",
         });
-        setIsOpen(false);
-        Toast.show({
-          type: "success",
-          text1: data?.message ?? "Profile updated successfully",
-        });
+
+        toast.success(data?.message ?? "Profile updated successfully");
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
+        reset();
 
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
+      },
+      onSettled: () => {
+        setIsOpen(false);
       },
     });
 

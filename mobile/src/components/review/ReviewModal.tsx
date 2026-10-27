@@ -14,7 +14,7 @@ import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Modal, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
 import StarRating from "./StarRating";
@@ -68,10 +68,7 @@ export default function ReviewModal({
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Review created successfully",
-        });
+        toast.success(res?.message ?? "Review added successfully");
         reset({
           rating: res?.review?.rating ?? 1,
           title: res?.review?.title ?? "",
@@ -81,10 +78,7 @@ export default function ReviewModal({
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
       onSettled: () => onClose(),
     });
@@ -100,10 +94,7 @@ export default function ReviewModal({
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Review updated successfully",
-        });
+        toast.success(res?.message ?? "Review updated successfully");
         reset({
           rating: res?.review?.rating ?? 1,
           title: res?.review?.title ?? "",
@@ -113,10 +104,7 @@ export default function ReviewModal({
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
       onSettled: () => onClose(),
     });
@@ -129,19 +117,13 @@ export default function ReviewModal({
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Review deleted successfully",
-        });
+        toast.success(res?.message ?? "Review deleted successfully");
         reset();
         onSuccess?.();
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
       onSettled: () => onClose(),
     });

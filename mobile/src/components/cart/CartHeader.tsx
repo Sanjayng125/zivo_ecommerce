@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import ShowDefaultAddress from "../address/ShowDefaultAddress";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
@@ -31,19 +31,13 @@ export default function CartHeader() {
       return res.data;
     },
     onSuccess: (data) => {
-      Toast.show({
-        type: "success",
-        text1: data?.message ?? "Cart cleared successfully",
-      });
+      toast.success(data?.message ?? "Cart cleared successfully");
       clearCart();
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";
-      Toast.show({
-        type: "error",
-        text1: message,
-      });
+      toast.error(message);
     },
   });
 

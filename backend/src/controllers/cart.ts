@@ -4,17 +4,43 @@ import pool from "../db/client.js";
 
 export const getCart = async (c: Context) => {
     const me = c.get("user")
+    const page = Number(c.req.query("page") ?? 1)
+    const limit = Number(c.req.query("limit") ?? 10)
+
+    const total = await pool.query(`
+        SELECT COUNT(ci.id) FROM cart_items ci WHERE ci.user_id = $1
+        `, [me.id])
+
+    const offset = (page - 1) * limit
 
     const cartResult = await pool.query(`
-        SELECT ci.*, pv.product_id, pv.price, pv.stock, p.title, p.cover_image, pv.size, pv.color, p.slug
+        SELECT ci.*,
+        pv.product_id,
+        pv.price,
+        pv.stock,
+        p.title,
+        p.cover_image,
+        pv.size,
+        pv.color,
+        p.slug
         FROM cart_items ci
         LEFT JOIN product_variants pv ON pv.id = ci.variant_id
         LEFT JOIN products p ON p.id = pv.product_id
         WHERE ci.user_id = $1
         ORDER BY ci.updated_at DESC
-        `, [me.id])
+        LIMIT $2
+        OFFSET $3
+        `, [me.id, limit, offset])
 
-    return c.json({ cart_items: cartResult.rows ?? [] })
+    return c.json({
+        cart_items: cartResult.rows ?? [],
+        pagination: {
+            page,
+            limit,
+            total: Number(total.rows[0].count),
+            total_pages: Math.ceil(Number(total.rows[0].count) / limit)
+        }
+    })
 }
 
 export const addCartItem = async (c: Context) => {

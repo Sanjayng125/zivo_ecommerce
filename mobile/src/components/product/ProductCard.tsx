@@ -19,7 +19,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 
 interface ProductCardProps {
@@ -82,11 +82,11 @@ export default function ProductCard({
       queryClient.setQueryData(["wishlist"], (old: WishlistItem[]) =>
         old.filter((item) => item.id !== id),
       );
-      Toast.show({ type: "success", text1: "Removed from wishlist" });
+      toast.success("Product removed from wishlist");
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";
-      Toast.show({ type: "error", text1: message });
+      toast.error(message);
     },
   });
 

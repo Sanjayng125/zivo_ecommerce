@@ -4,16 +4,40 @@ import pool from "../db/client.js";
 
 export const getWishlist = async (c: Context) => {
     const me = c.get("user")
+    const page = Number(c.req.query("page") ?? 1)
+    const limit = Number(c.req.query("limit") ?? 10)
+
+    const total = await pool.query(`
+        SELECT COUNT(wi.id) FROM wishlist_items wi WHERE wi.user_id = $1
+        `, [me.id])
+
+    const offset = (page - 1) * limit
 
     const wishlistResult = await pool.query(`
-        SELECT wi.*, p.base_price, p.title, p.cover_image, p.slug, p.rating_avg, p.rating_count
+        SELECT wi.*,
+        p.base_price,
+        p.title,
+        p.cover_image,
+        p.slug,
+        p.rating_avg,
+        p.rating_count
         FROM wishlist_items wi
         LEFT JOIN products p ON p.id = wi.product_id
         WHERE wi.user_id = $1
         ORDER BY wi.created_at DESC
-        `, [me.id])
+        LIMIT $2
+        OFFSET $3
+        `, [me.id, limit, offset])
 
-    return c.json({ wishlist_items: wishlistResult.rows ?? [] })
+    return c.json({
+        wishlist_items: wishlistResult.rows ?? [],
+        pagination: {
+            page,
+            limit,
+            total: Number(total.rows[0].count),
+            total_pages: Math.ceil(Number(total.rows[0].count) / limit)
+        }
+    })
 }
 
 export const addWishlistItem = async (c: Context) => {

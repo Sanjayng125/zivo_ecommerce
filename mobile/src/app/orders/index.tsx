@@ -1,11 +1,11 @@
 import { Text, View } from "react-native";
 
-const Index = () => {
+const OrdersScreen = () => {
   return (
     <View>
-      <Text>Index</Text>
+      <Text>OrdersScreen</Text>
     </View>
   );
 };
 
-export default Index;
+export default OrdersScreen;

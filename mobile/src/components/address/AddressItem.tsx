@@ -11,7 +11,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import ActionMenu from "../ui/ActionMenu";
 import AddressModal from "./AddressModal";
 
@@ -34,18 +34,12 @@ export default function AddressItem({ address }: AddressItemProps) {
         return res.data;
       },
       onSuccess: (res) => {
-        Toast.show({
-          type: "success",
-          text1: res?.message ?? "Address deleted successfully",
-        });
+        toast.success(res?.message ?? "Address deleted successfully");
         queryClient.refetchQueries({ queryKey: ["addresses"] });
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
     });
 

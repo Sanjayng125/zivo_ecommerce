@@ -14,7 +14,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 
 interface CartItemProps {
@@ -48,10 +48,7 @@ export default function CartItem({ item }: CartItemProps) {
       },
       onError: (err: AxiosError<ApiError>) => {
         const message = err.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
     });
 
@@ -67,17 +64,11 @@ export default function CartItem({ item }: CartItemProps) {
         queryClient.setQueryData(["cart"], (old: CartItemType[]) =>
           old.filter((i) => i.variant_id !== item.variant_id),
         );
-        Toast.show({
-          type: "success",
-          text1: data?.message || "Item removed from cart",
-        });
+        toast.success(data?.message || "Item removed from cart");
       },
       onError: (err: AxiosError<ApiError>) => {
         const message = err.response?.data?.message ?? "Something went wrong";
-        Toast.show({
-          type: "error",
-          text1: message,
-        });
+        toast.error(message);
       },
     },
   );

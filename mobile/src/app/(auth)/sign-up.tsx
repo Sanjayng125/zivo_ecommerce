@@ -18,7 +18,7 @@ import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Image, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 
 const SignUp = () => {
   const { setToken, setUser } = useAuthStore();
@@ -60,11 +60,8 @@ const SignUp = () => {
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message ?? "Something went wrong";
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: message,
-      });
+
+      toast.error(message);
     },
   });
 

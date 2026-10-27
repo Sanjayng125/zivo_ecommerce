@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/authStore"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { router } from "expo-router"
-import Toast from "react-native-toast-message"
+import { toast } from "sonner-native"
 import { useCart } from "./useCart"
 
 export const useSignOut = () => {
@@ -23,17 +23,11 @@ export const useSignOut = () => {
             clearCart()
             queryClient.clear()
             router.replace("/(tabs)")
-            Toast.show({
-                type: "success",
-                text1: "Signed out successfully"
-            })
+            toast.success("Signed out successfully")
         },
         onError: (error: AxiosError<ApiError>) => {
             const message = error.response?.data?.message ?? "Something went wrong while signing out"
-            Toast.show({
-                type: "error",
-                text1: message
-            })
+            toast.error(message)
         },
     })
 

@@ -26,8 +26,8 @@ export const getOrders = async (c: Context) => {
     const total = Number(countResult.rows[0].count)
 
     const ordersResult = await pool.query(`
-        WITH order_item AS
-        (SELECT
+        WITH order_item AS (
+        SELECT
         ois.id,
         ois.order_id,
         ois.title_snapshot,

@@ -10,7 +10,6 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
-import Toast from "react-native-toast-message";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import AddressItem from "./AddressItem";
@@ -44,7 +43,6 @@ export default function AddressListModal({
       presentationStyle="pageSheet"
       style={styles.container}
     >
-      <Toast position="bottom" />
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Your Addresses</Text>

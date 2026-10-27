@@ -31,6 +31,9 @@ const WishlistScreen = () => {
     error,
     isRefetching,
     refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   } = useWishlist();
 
   const styles = useStyles(getStyles);
@@ -97,6 +100,10 @@ const WishlistScreen = () => {
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
           ) : undefined
         }
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.5}
         ListHeaderComponent={<WishlistHeader />}
         renderItem={({ item }) => (
           <ProductCard
@@ -106,6 +113,15 @@ const WishlistScreen = () => {
           />
         )}
         ListEmptyComponent={<WishlistEmpty />}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator
+              size="large"
+              color={colors.text}
+              style={{ marginVertical: 10 }}
+            />
+          ) : undefined
+        }
       />
     </ScreenWrapper>
   );

@@ -89,8 +89,22 @@ export const ProfileSchema = z.object({
         ),
 });
 
+export const ChangePasswordSchema = z.object({
+    currentPassword: z.string({ message: "Invalid old password" })
+        .min(8, "Password must be at least 8 characters")
+        .max(20, "Password must be at most 20 characters"),
+    newPassword: z.string({ message: "Invalid new password" })
+        .min(8, "Password must be at least 8 characters")
+        .max(20, "Password must be at most 20 characters"),
+    confirmPassword: z.string().min(8),
+}).refine(data => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+});
+
 export type SignInSchemaType = z.infer<typeof SignInSchema>;
 export type SignUpSchemaType = z.infer<typeof SignUpSchema>;
 export type ReviewSchemaType = z.infer<typeof ReviewSchema>;
 export type AddressSchemaType = z.infer<typeof AddressSchema>;
 export type ProfileSchemaType = z.infer<typeof ProfileSchema>;
+export type ChangePasswordSchemaType = z.infer<typeof ChangePasswordSchema>;

@@ -128,3 +128,21 @@ export type WishlistItem = {
     rating_avg: string
     rating_count: number
 }
+
+export type OrderItem = {
+    id: string
+    order_id: string
+    rating_avg: number
+    rating_count: number
+    cover_image: string
+    title_snapshot: string
+}
+
+export type Order = {
+    id: string
+    status: string
+    payment_status: string
+    total: number
+    order_items: OrderItem[]
+    created_at: string
+}

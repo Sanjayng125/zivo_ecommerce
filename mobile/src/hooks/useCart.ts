@@ -2,29 +2,47 @@ import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import { CartItem } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export const useCart = () => {
     const { token } = useAuthStore();
     const state = useCartStore();
 
-    const { data, isLoading, error, isRefetching, refetch } = useQuery<
-        CartItem[]
-    >({
+    const {
+        data,
+        isLoading,
+        error,
+        isRefetching,
+        refetch,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage
+    } = useInfiniteQuery({
         queryKey: ["cart"],
-        queryFn: async () => {
-            const res = await authApi.get("/cart");
+        queryFn: async ({ pageParam }) => {
+            const res = await authApi.get("/cart",
+                { params: { page: pageParam } }
+            );
 
-            return res.data?.cart_items ?? [];
+            return res.data
         },
         enabled: !!token,
+        initialPageParam: 1,
+        getNextPageParam: (lastPage) => {
+            return lastPage.pagination.page < lastPage.pagination.total_pages
+                ? lastPage.pagination.page + 1
+                : undefined
+        },
     });
 
-    useEffect(() => {
-        if (data) state.setItems(data);
-    }, [data]);
+    const cartItems = (
+        data?.pages.flatMap(page => page?.cart_items ?? []) ?? []
+    ) as CartItem[];
 
+    useEffect(() => {
+        if (data?.pages.length) state.setItems(cartItems);
+    }, [data?.pages]);
 
     const subTotal = state.items?.reduce(
         (acc, item) => acc + item.price * item.quantity,
@@ -44,6 +62,9 @@ export const useCart = () => {
         shipping,
         total,
         ...state,
-        cartCount
+        cartCount,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
     }
 }
