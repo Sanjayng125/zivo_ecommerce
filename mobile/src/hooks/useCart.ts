@@ -6,7 +6,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export const useCart = () => {
-    const { token } = useAuthStore();
+    const { token, hydrated } = useAuthStore();
     const state = useCartStore();
 
     const {
@@ -27,7 +27,7 @@ export const useCart = () => {
 
             return res.data
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             return lastPage.pagination.page < lastPage.pagination.total_pages

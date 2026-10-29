@@ -11,6 +11,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useAddress } from "@/hooks/useAddress";
 import { useColors } from "@/hooks/useColors";
+import { useOrders } from "@/hooks/useOrders";
 import { useProfile } from "@/hooks/useProfile";
 import { useSignOut } from "@/hooks/useSignOut";
 import { useStyles } from "@/hooks/useStyles";
@@ -35,6 +36,7 @@ const AccountScreen = () => {
   const { profile, isLoading, error, isRefetching, refetch } = useProfile();
   const { defaultAddress } = useAddress();
   const { data: wishlistItems } = useWishlist();
+  const { data: orders } = useOrders();
   const { signOut, isSigningOut } = useSignOut();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
 
@@ -106,7 +108,7 @@ const AccountScreen = () => {
           <SettingsRow
             label="My Orders"
             icon="bag-outline"
-            value="3 active orders"
+            value={`${orders?.length} order${orders?.length > 1 && "s"}`}
             onPress={() => router.push("/orders")}
           />
 

@@ -10,9 +10,7 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { useStyles } from "@/hooks/useStyles";
-import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import {
   ActivityIndicator,
@@ -35,8 +33,6 @@ const CartScreen = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useCart();
-  const { refetch: refetchWishlist } = useWishlist();
-  const { refetch: refetchRecentlyViewedProducts } = useRecentlyViewed();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -44,8 +40,6 @@ const CartScreen = () => {
   const handleRefresh = () => {
     if (token) {
       refetch();
-      refetchWishlist();
-      refetchRecentlyViewedProducts();
     }
   };
 

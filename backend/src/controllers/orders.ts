@@ -27,16 +27,14 @@ export const getOrders = async (c: Context) => {
 
     const ordersResult = await pool.query(`
         WITH order_item AS (
-        SELECT
-        ois.id,
-        ois.order_id,
-        ois.title_snapshot,
-        p.cover_image,
-        p.rating_avg,
-        p.rating_count
-        FROM order_items ois
-        LEFT JOIN product_variants pv ON pv.id = ois.variant_id
-        JOIN products p ON p.id = pv.product_id
+            SELECT
+            ois.id,
+            ois.order_id,
+            ois.title_snapshot,
+            p.cover_image
+            FROM order_items ois
+            LEFT JOIN product_variants pv ON pv.id = ois.variant_id
+            LEFT JOIN products p ON p.id = pv.product_id
         )
 
         SELECT
@@ -72,17 +70,20 @@ export const getOrder = async (c: Context) => {
     const me = c.get("user")
 
     const orderResult = await pool.query(`
-        WITH order_item AS
-        (SELECT ois.*,
-                pv.sku,
-                pv.size,
-                pv.color,
-                p.cover_image,
-                p.rating_avg,
-                p.rating_count
+        WITH order_item AS (
+        SELECT
+        ois.*,
+        pv.product_id,
+        pv.sku,
+        pv.size,
+        pv.color,
+        p.cover_image,
+        p.rating_avg,
+        p.rating_count,
+        p.slug
         FROM order_items ois
         LEFT JOIN product_variants pv ON pv.id = ois.variant_id
-        JOIN products p ON p.id = pv.product_id
+        LEFT JOIN products p ON p.id = pv.product_id
         )
 
         SELECT o.*,

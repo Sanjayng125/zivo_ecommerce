@@ -52,7 +52,7 @@ export default function ExpandedModal({
         )}
       </View>
 
-      <ScrollView style={{ flex: 1 }}>
+      <ScrollView style={styles.scrollView}>
         <Text style={styles.content}>{content}</Text>
       </ScrollView>
     </Modal>
@@ -95,5 +95,8 @@ const getStyles = (colors: ColorsType) =>
       color: colors.text,
       paddingHorizontal: spacing.md,
       paddingBottom: spacing.xl,
+    },
+    scrollView: {
+      flex: 1,
     },
   });

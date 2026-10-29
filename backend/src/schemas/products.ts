@@ -69,7 +69,7 @@ export const getProductsSchema = z.object({
 })
 
 export const searchProductsSchema = getProductsSchema
-    .omit({ q: true })
+    .omit({ q: true, is_active: true })
     .extend({
         q: z.string().trim()
             .min(2, "Search query must be at least 2 characters")

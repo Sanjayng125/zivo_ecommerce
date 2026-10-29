@@ -6,13 +6,14 @@ import { useEffect } from "react";
 import { ActivityIndicator, Image, View } from "react-native";
 
 export default function Index() {
-  const { setToken } = useAuthStore();
+  const { setToken, setHydrated } = useAuthStore();
   const colors = useColors();
 
   useEffect(() => {
     const init = async () => {
       const token = await getToken();
       if (token) setToken(token);
+      setHydrated(true);
       router.replace("/(tabs)");
     };
     init();

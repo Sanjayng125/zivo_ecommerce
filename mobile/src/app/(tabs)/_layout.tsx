@@ -12,6 +12,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.tabBarActive,
         tabBarInactiveTintColor: colors.tabBarInactive,
         tabBarStyle: { backgroundColor: colors.tabBarBg },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen

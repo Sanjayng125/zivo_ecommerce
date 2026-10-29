@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 export const useAddress = () => {
-    const { token } = useAuthStore();
+    const { token, hydrated } = useAuthStore();
     const [defaultAddress, setDefaultAddress] = useState<string | null>(null);
 
     const {
@@ -19,7 +19,7 @@ export const useAddress = () => {
             const res = await authApi.get("/addresses");
             return res.data?.addresses ?? [];
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
     });
 
     useEffect(() => {

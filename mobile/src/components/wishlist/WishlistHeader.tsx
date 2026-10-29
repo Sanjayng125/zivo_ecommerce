@@ -3,15 +3,16 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { useWishlist } from "@/hooks/useWishlist";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../ui/AppButton";
 
-export default function WishlistHeader() {
-  const { data: wishlistItems } = useWishlist();
+interface WishlistHeaderProps {
+  count: number;
+}
 
+export default function WishlistHeader({ count }: WishlistHeaderProps) {
   const colors = useColors();
   const styles = useStyles(getStyles);
 
@@ -33,11 +34,9 @@ export default function WishlistHeader() {
         />
         <Text style={styles.headerTitle}>My Wishlist</Text>
       </View>
-      {wishlistItems.length > 0 && (
-        <Text style={styles.headerCount}>
-          {wishlistItems.length} item{wishlistItems.length > 1 ? "s" : ""}
-        </Text>
-      )}
+      <Text style={styles.headerCount}>
+        {count} item{count > 1 ? "s" : ""}
+      </Text>
     </View>
   );
 }
@@ -48,6 +47,7 @@ const getStyles = (colors: ColorsType) =>
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
+      paddingHorizontal: spacing.md,
       paddingVertical: spacing.lg,
     },
     headerTitleContainer: {

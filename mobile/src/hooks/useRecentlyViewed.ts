@@ -4,7 +4,7 @@ import { Product } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useRecentlyViewed = () => {
-    const { token } = useAuthStore();
+    const { token, hydrated } = useAuthStore();
 
     const { data = [], isLoading, error, isRefetching, refetch } = useQuery<
         Product[]
@@ -15,7 +15,7 @@ export const useRecentlyViewed = () => {
 
             return res.data?.products ?? [];
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
     });
 
     return {

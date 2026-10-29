@@ -3,8 +3,10 @@ import { useAuthStore } from "@/store/authStore";
 import { Order } from "@/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export const useOrders = () => {
-    const { token } = useAuthStore();
+export const useOrders = (sort?: string) => {
+    const { token, hydrated } = useAuthStore();
+
+    let ordersSort = sort ?? "newest"
 
     const {
         data,
@@ -16,15 +18,15 @@ export const useOrders = () => {
         hasNextPage,
         isFetchingNextPage
     } = useInfiniteQuery({
-        queryKey: ["orders"],
+        queryKey: ["orders", ordersSort],
         queryFn: async ({ pageParam }) => {
             const res = await authApi.get("/orders",
-                { params: { page: pageParam } }
+                { params: { page: pageParam, sort: ordersSort } }
             );
 
             return res.data
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             return lastPage.pagination.page < lastPage.pagination.total_pages

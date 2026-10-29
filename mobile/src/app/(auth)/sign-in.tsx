@@ -9,7 +9,7 @@ import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignInSchema, SignInSchemaType } from "@/lib/schemas";
-import { setToken as setSecureStoreToken } from "@/lib/secureStore";
+import { setToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 
 const SignIn = () => {
-  const { setToken, setUser } = useAuthStore();
+  const { setToken: setStoreToken, setUser } = useAuthStore();
   const { clearCart } = useCart();
   const colors = useColors();
 
@@ -49,8 +49,8 @@ const SignIn = () => {
       return res.data;
     },
     onSuccess: async (data) => {
-      await setSecureStoreToken(data.token);
-      setToken(data.token);
+      await setToken(data.token);
+      setStoreToken(data.token);
       setUser(data.user);
       clearCart();
 
@@ -95,43 +95,43 @@ const SignIn = () => {
 
         <Text style={styles.subtitle}>Sign-In to your account</Text>
 
-        <View>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.xl }}
-              />
+        <View style={styles.inputsContainer}>
+          <View>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.email && (
+              <Text style={styles.error}>{errors.email.message}</Text>
             )}
-          />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Password"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.xl }}
-              />
+          <View>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Password"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.password && (
+              <Text style={styles.error}>{errors.password.message}</Text>
             )}
-          />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password.message}</Text>
-          )}
+          </View>
         </View>
 
         <AppButton
@@ -186,6 +186,10 @@ const getStyles = (colors: ColorsType) =>
       marginTop: spacing.md,
       textAlign: "center",
       color: colors.text,
+    },
+    inputsContainer: {
+      marginTop: spacing.lg,
+      gap: spacing.lg,
     },
     subtitle: {
       fontSize: typography.heading.fontSize,

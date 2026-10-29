@@ -16,6 +16,7 @@ import { Product } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 const ProductScreen = () => {
@@ -37,18 +38,18 @@ const ProductScreen = () => {
     queryFn: async () => {
       const res = await api.get(`/products/${slug}`);
 
-      if (token && res.status === 200 && res.data?.product) {
-        void authApi
-          .post(`/products/views/${res.data.product.id}`)
-          .catch((error) => {
-            // console.error("Failed to record product view:", error);
-          });
-      }
-
       return res.data?.product;
     },
     enabled: !!slug,
   });
+
+  useEffect(() => {
+    if (token && product) {
+      void authApi.post(`/products/views/${product.id}`).catch((error) => {
+        // console.error("Failed to record product view:", error);
+      });
+    }
+  }, [token, product]);
 
   const handleRefresh = () => {
     refetch();

@@ -6,6 +6,8 @@ import { zustandMMKVStorage } from "./mmkvStorage";
 interface AuthStore {
     user: User | null
     token: string | null
+    hydrated: boolean
+    setHydrated: (val: boolean) => void
     setUser: (user: User | null) => void
     setToken: (token: string | null) => void
     logout: () => void
@@ -16,6 +18,7 @@ export const useAuthStore = create<AuthStore>()(
         (set): AuthStore => ({
             user: null,
             token: null,
+            hydrated: false,
 
             setUser(user) {
                 set(() => ({ user: user }))
@@ -28,6 +31,10 @@ export const useAuthStore = create<AuthStore>()(
             logout() {
                 set(() => ({ user: null, token: null }))
             },
+
+            setHydrated(val) {
+                set(() => ({ hydrated: val }))
+            }
         }),
         {
             name: "auth-storage",

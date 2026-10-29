@@ -9,7 +9,7 @@ import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { api, ApiError } from "@/lib/api";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/schemas";
-import { setToken as setSecureStoreToken } from "@/lib/secureStore";
+import { setToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 
 const SignUp = () => {
-  const { setToken, setUser } = useAuthStore();
+  const { setToken: setStoreToken, setUser } = useAuthStore();
   const { clearCart } = useCart();
   const colors = useColors();
 
@@ -51,8 +51,8 @@ const SignUp = () => {
       return res.data;
     },
     onSuccess: async (data) => {
-      await setSecureStoreToken(data.token);
-      setToken(data.token);
+      await setToken(data.token);
+      setStoreToken(data.token);
       setUser(data.user);
       clearCart();
 
@@ -96,61 +96,60 @@ const SignUp = () => {
         </View>
         <Text style={styles.subtitle}>Create your account to continue</Text>
 
-        <View>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Full Name"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.xl }}
-              />
+        <View style={styles.inputsContainer}>
+          <View>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Full Name"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.name && (
+              <Text style={styles.error}>{errors.name.message}</Text>
             )}
-          />
-          {errors.name && (
-            <Text style={styles.error}>{errors.name.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View>
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.xl }}
-              />
+          <View>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.email && (
+              <Text style={styles.error}>{errors.email.message}</Text>
             )}
-          />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View>
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Password"
-                secureTextEntry
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.xl }}
-              />
+          <View>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Password"
+                  secureTextEntry
+                  value={value}
+                  onChangeText={onChange}
+                />
+              )}
+            />
+            {errors.password && (
+              <Text style={styles.error}>{errors.password.message}</Text>
             )}
-          />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password.message}</Text>
-          )}
+          </View>
         </View>
 
         <AppButton
@@ -212,6 +211,10 @@ const getStyles = (colors: ColorsType) =>
       fontWeight: typography.heading.fontWeight,
       color: colors.text,
       textAlign: "center",
+    },
+    inputsContainer: {
+      marginTop: spacing.lg,
+      gap: spacing.lg,
     },
     error: {
       fontSize: typography.caption.fontSize,

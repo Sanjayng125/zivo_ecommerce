@@ -49,6 +49,7 @@ export const searchProducts = async (c: Context) => {
         price_desc: "base_price DESC",
         rating: "rating_avg DESC"
     }
+
     const total = Number(countResult.rows[0].count)
 
     const orderClause = searchQuery ?
@@ -61,7 +62,16 @@ export const searchProducts = async (c: Context) => {
     params.push(offset)
 
     const products = await pool.query(`
-        SELECT *,
+        SELECT
+        id,
+        title,
+        description,
+        slug,
+        base_price,
+        cover_image,
+        rating_avg,
+        rating_count,
+        category_id,
         ${searchParamIndex
             ? `ts_rank(search_vector, websearch_to_tsquery('english', $${searchParamIndex})) AS rank`
             : 'NULL AS rank'}

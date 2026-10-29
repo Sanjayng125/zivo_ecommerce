@@ -35,6 +35,9 @@ export default function TextField(props: TextFieldProps) {
         onBlur={() => setIsFocused(false)}
         placeholderTextColor={colors.inputPlaceholder}
         secureTextEntry={secureText}
+        autoCapitalize={
+          props.autoCapitalize || (props.secureTextEntry ? "none" : undefined)
+        }
       />
       {props?.secureTextEntry && (
         <AppButton
@@ -59,15 +62,16 @@ const getStyles = (colors: ColorsType) =>
   StyleSheet.create({
     container: {
       position: "relative",
+      flex: 1,
     },
     input: {
-      height: 50,
       borderRadius: radius.sm,
       backgroundColor: colors.surface,
       color: colors.inputText,
       justifyContent: "center",
       alignItems: "center",
       paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
       borderWidth: 1,
       borderColor: colors.border,
       fontSize: typography.body.fontSize,
@@ -85,9 +89,8 @@ const getStyles = (colors: ColorsType) =>
       top: 0,
       bottom: 0,
       right: 0,
-      paddingHorizontal: spacing.sm,
       paddingVertical: 0,
+      paddingRight: spacing.md,
       justifyContent: "center",
-      transform: [{ translateY: 5 }],
     },
   });

@@ -84,3 +84,18 @@ export const Colors = {
 }
 
 export type ColorsType = typeof Colors.light
+
+export const ORDER_STATUS_COLORS: Record<string, string> = {
+    placed: "#FB8C00",
+    confirmed: "#5a94ff",
+    shipped: "#9C27B0",
+    delivered: "#43A047",
+    cancelled: "#E53935",
+};
+
+export const ORDER_PAYMENT_COLORS: Record<string, string> = {
+    pending: "#FB8C00",
+    paid: "#43A047",
+    failed: "#E53935",
+    refunded: "#9C27B0",
+};

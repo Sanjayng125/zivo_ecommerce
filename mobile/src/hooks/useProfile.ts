@@ -4,7 +4,7 @@ import { Profile } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useProfile = () => {
-    const { token } = useAuthStore();
+    const { token, hydrated } = useAuthStore();
 
     const {
         data: profile,
@@ -18,7 +18,7 @@ export const useProfile = () => {
             const res = await authApi.get("/profile");
             return res.data?.profile;
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
     });
 
     return {

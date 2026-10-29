@@ -27,7 +27,7 @@ interface ReviewsProps {
 }
 
 export default function Reviews({ product }: ReviewsProps) {
-  const { token } = useAuthStore();
+  const { token, hydrated } = useAuthStore();
   const styles = useStyles(getStyles);
   const colors = useColors();
 
@@ -57,7 +57,7 @@ export default function Reviews({ product }: ReviewsProps) {
 
       return res.data?.my_review ?? null;
     },
-    enabled: !!product && !!token,
+    enabled: !!product && hydrated && !!token,
   });
 
   return (

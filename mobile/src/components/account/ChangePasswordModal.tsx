@@ -92,71 +92,77 @@ export default function ChangePasswordModal() {
           </View>
         </View>
 
-        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Password:</Text>
-            <Controller
-              control={control}
-              name="currentPassword"
-              render={({ field: { onChange, value } }) => (
-                <TextField
-                  placeholder="Enter current password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  value={value}
-                  onChangeText={onChange}
-                  style={{ marginTop: spacing.sm }}
-                  editable={!isUpdatingPassword}
-                />
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.inputsContainer}>
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>Password:</Text>
+              <Controller
+                control={control}
+                name="currentPassword"
+                render={({ field: { onChange, value } }) => (
+                  <TextField
+                    placeholder="Enter current password"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    value={value}
+                    onChangeText={onChange}
+                    editable={!isUpdatingPassword}
+                  />
+                )}
+              />
+              {errors.currentPassword && (
+                <Text style={styles.error}>
+                  {errors.currentPassword.message}
+                </Text>
               )}
-            />
-            {errors.currentPassword && (
-              <Text style={styles.error}>{errors.currentPassword.message}</Text>
-            )}
-          </View>
+            </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>New Password:</Text>
-            <Controller
-              control={control}
-              name="newPassword"
-              render={({ field: { onChange, value } }) => (
-                <TextField
-                  placeholder="Enter new password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  value={value}
-                  onChangeText={onChange}
-                  style={{ marginTop: spacing.sm }}
-                  editable={!isUpdatingPassword}
-                />
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>New Password:</Text>
+              <Controller
+                control={control}
+                name="newPassword"
+                render={({ field: { onChange, value } }) => (
+                  <TextField
+                    placeholder="Enter new password"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    value={value}
+                    onChangeText={onChange}
+                    editable={!isUpdatingPassword}
+                  />
+                )}
+              />
+              {errors.newPassword && (
+                <Text style={styles.error}>{errors.newPassword.message}</Text>
               )}
-            />
-            {errors.newPassword && (
-              <Text style={styles.error}>{errors.newPassword.message}</Text>
-            )}
-          </View>
+            </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Confirm Password:</Text>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, value } }) => (
-                <TextField
-                  placeholder="Enter confirm password"
-                  secureTextEntry
-                  autoCapitalize="none"
-                  value={value}
-                  onChangeText={onChange}
-                  style={{ marginTop: spacing.sm }}
-                  editable={!isUpdatingPassword}
-                />
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>Confirm Password:</Text>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, value } }) => (
+                  <TextField
+                    placeholder="Enter confirm password"
+                    secureTextEntry
+                    autoCapitalize="none"
+                    value={value}
+                    onChangeText={onChange}
+                    editable={!isUpdatingPassword}
+                  />
+                )}
+              />
+              {errors.confirmPassword && (
+                <Text style={styles.error}>
+                  {errors.confirmPassword.message}
+                </Text>
               )}
-            />
-            {errors.confirmPassword && (
-              <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-            )}
+            </View>
           </View>
 
           <AppButton
@@ -198,7 +204,15 @@ const getStyles = (colors: ColorsType) =>
       fontWeight: typography.title.fontWeight,
       color: colors.text,
     },
+    scrollView: {
+      flex: 1,
+    },
+    inputsContainer: {
+      marginTop: spacing.lg,
+      gap: spacing.sm,
+    },
     section: {
+      gap: spacing.sm,
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
     },

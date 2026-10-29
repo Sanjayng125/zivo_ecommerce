@@ -160,10 +160,12 @@ const getStyles = (colors: ColorsType) =>
     sizeXs: {
       paddingHorizontal: spacing.sm,
       paddingVertical: spacing.xs,
+      gap: spacing.xs,
     },
     sizeSm: {
       paddingHorizontal: spacing.md,
       paddingVertical: spacing.sm,
+      gap: spacing.xs,
     },
     sizeMd: {
       paddingHorizontal: spacing.lg,

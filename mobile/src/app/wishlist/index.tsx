@@ -38,6 +38,7 @@ const WishlistScreen = () => {
 
   const styles = useStyles(getStyles);
   const colors = useColors();
+
   const { width: windowWidth } = useWindowDimensions();
   const [listWidth, setListWidth] = useState(0);
   const cardWidth = ((listWidth || windowWidth) - spacing.md * 3) / 2;
@@ -88,6 +89,7 @@ const WishlistScreen = () => {
 
   return (
     <ScreenWrapper edges={["top"]} scrollable={false}>
+      <WishlistHeader count={wishlistItems?.length ?? 0} />
       <FlatList
         onLayout={({ nativeEvent: { layout } }) => setListWidth(layout.width)}
         data={wishlistItems}
@@ -104,7 +106,6 @@ const WishlistScreen = () => {
           if (hasNextPage && !isFetchingNextPage) fetchNextPage();
         }}
         onEndReachedThreshold={0.5}
-        ListHeaderComponent={<WishlistHeader />}
         renderItem={({ item }) => (
           <ProductCard
             product={item}

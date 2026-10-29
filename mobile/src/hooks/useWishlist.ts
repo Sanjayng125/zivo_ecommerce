@@ -4,7 +4,7 @@ import { WishlistItem } from "@/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 export const useWishlist = () => {
-    const { token } = useAuthStore();
+    const { token, hydrated } = useAuthStore();
 
     const {
         data,
@@ -24,7 +24,7 @@ export const useWishlist = () => {
 
             return res.data
         },
-        enabled: !!token,
+        enabled: hydrated && !!token,
         initialPageParam: 1,
         getNextPageParam: (lastPage) => {
             return lastPage.pagination.page < lastPage.pagination.total_pages
