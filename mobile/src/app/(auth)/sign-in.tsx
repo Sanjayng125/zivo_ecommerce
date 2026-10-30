@@ -7,7 +7,7 @@ import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, authApi } from "@/lib/api";
 import { SignInSchema, SignInSchemaType } from "@/lib/schemas";
 import { setToken } from "@/lib/secureStore";
 import { useAuthStore } from "@/store/authStore";
@@ -22,7 +22,7 @@ import { toast } from "sonner-native";
 
 const SignIn = () => {
   const { setToken: setStoreToken, setUser } = useAuthStore();
-  const { clearCart } = useCart();
+  const { items: guestItems, clearCart } = useCart();
   const colors = useColors();
 
   const styles = useStyles(getStyles);
@@ -50,9 +50,22 @@ const SignIn = () => {
     },
     onSuccess: async (data) => {
       await setToken(data.token);
+
+      if (guestItems.length > 0) {
+        await Promise.allSettled(
+          guestItems.map((item) =>
+            authApi.post("/cart", {
+              variant_id: item.variant_id,
+              quantity: item.quantity,
+            }),
+          ),
+        );
+
+        clearCart();
+      }
+
       setStoreToken(data.token);
       setUser(data.user);
-      clearCart();
 
       router.replace("/(tabs)");
     },

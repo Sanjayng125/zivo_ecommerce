@@ -59,13 +59,18 @@ export const addCartItem = async (c: Context) => {
             message: "Variant not found"
         })
     }
+    if (variant.rows?.[0]?.stock < 1) {
+        throw new HTTPException(400, {
+            message: "Sorry! Variant out of stock"
+        })
+    }
 
     const cartResult = await pool.query(`
         INSERT INTO cart_items (user_id, variant_id, quantity)
         VALUES ($1, $2, $3)
         ON CONFLICT (user_id, variant_id)
         DO UPDATE
-        SET quantity = cart_items.quantity + EXCLUDED.quantity
+        SET quantity = EXCLUDED.quantity
         RETURNING *
         `, [me.id, variant_id, quantity])
 
