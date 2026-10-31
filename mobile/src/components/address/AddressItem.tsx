@@ -10,7 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 import ActionMenu from "../ui/ActionMenu";
 import AddressModal from "./AddressModal";
@@ -58,7 +58,7 @@ export default function AddressItem({ address }: AddressItemProps) {
   };
 
   return (
-    <Pressable style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.iconContainer}>
         <Ionicons
           name="location-outline"
@@ -69,7 +69,9 @@ export default function AddressItem({ address }: AddressItemProps) {
       <View style={styles.infoContainer}>
         <View style={styles.actionContainer}>
           <View style={styles.nameContainer}>
-            <Text style={styles.name}>{address.full_name}</Text>
+            <Text style={styles.name} numberOfLines={1}>
+              {address.full_name}
+            </Text>
             {address.is_default && (
               <Text style={styles.defaultText}>Default</Text>
             )}
@@ -120,7 +122,9 @@ export default function AddressItem({ address }: AddressItemProps) {
         >{`${address.line1}, ${address.city}, ${address.state}, ${address.pincode}`}</Text>
         <View style={styles.phoneContainer}>
           <Ionicons name="call-outline" size={18} color={colors.text} />
-          <Text style={styles.phoneText}>{address.phone}</Text>
+          <Text style={styles.phoneText} numberOfLines={1}>
+            {address.phone}
+          </Text>
         </View>
       </View>
 
@@ -130,7 +134,7 @@ export default function AddressItem({ address }: AddressItemProps) {
         address={address}
         onSuccess={() => setIsEditAddressModalOpen(false)}
       />
-    </Pressable>
+    </View>
   );
 }
 
@@ -167,8 +171,10 @@ const getStyles = (colors: ColorsType) =>
       gap: spacing.xs,
     },
     nameContainer: {
+      flex: 1,
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "space-between",
       gap: spacing.sm,
     },
     defaultText: {

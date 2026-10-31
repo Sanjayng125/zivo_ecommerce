@@ -10,12 +10,13 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
-import { authApi } from "@/lib/api";
+import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { Order } from "@/types";
-import { formatDate, formatPrice } from "@/utils";
+import { formatDate, formatPrice, isOlderThan } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
@@ -25,10 +26,12 @@ import {
   Text,
   View,
 } from "react-native";
+import { toast } from "sonner-native";
 
 const OrderScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { token, hydrated } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -47,6 +50,26 @@ const OrderScreen = () => {
     },
     enabled: !!id && hydrated && !!token,
   });
+
+  const { mutate: verifyPaymentMutation, isPending: isVerifyingPayment } =
+    useMutation({
+      mutationFn: async () => {
+        const res = await authApi.get(`/orders/${id}/verify-payment`);
+
+        return res.data;
+      },
+      onSuccess: (data) => {
+        refetch();
+        queryClient.refetchQueries({ queryKey: ["orders"] });
+        toast.success(data?.message ?? "Payment verified");
+      },
+      onError: (err: AxiosError<ApiError>) => {
+        const message = err.response?.data?.message ?? "Something went wrong";
+        toast.error(message);
+      },
+    });
+
+  const isPaymentPending = order?.payment_status === "pending";
 
   const Header = () => {
     return (
@@ -119,7 +142,9 @@ const OrderScreen = () => {
           <Text style={styles.orderId}>
             #{order.id.slice(0, 8).toUpperCase()}
           </Text>
-          <Text style={styles.orderDate}>{formatDate(order.created_at)}</Text>
+          <Text style={styles.orderDate}>
+            {formatDate(order.created_at, true)}
+          </Text>
         </View>
 
         <View style={styles.statusRow}>
@@ -129,6 +154,15 @@ const OrderScreen = () => {
             </Text>
           </View>
         </View>
+        {isPaymentPending && isOlderThan(order.created_at, 10) && (
+          <AppButton
+            title="Verify Payment"
+            onPress={verifyPaymentMutation}
+            loading={isVerifyingPayment}
+            size="sm"
+            style={{ marginRight: "auto" }}
+          />
+        )}
       </View>
 
       <View style={styles.section}>

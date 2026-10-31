@@ -40,6 +40,7 @@ export default function CartItem({ item }: CartItemProps) {
       },
       onSuccess: (_data, quantity) => {
         updateQuantity(quantity, item.variant_id);
+
         queryClient.setQueryData(["cart"], (old: CartItemType[]) =>
           old.map((i) =>
             i.variant_id === item.variant_id ? { ...i, quantity } : i,
@@ -74,17 +75,18 @@ export default function CartItem({ item }: CartItemProps) {
   );
 
   const handleUpdateQuantity = (quantity: number) => {
-    if (quantity < 1 || quantity > 10 || isUpdatingQuantity) return;
-
-    if (!token) updateQuantity(quantity, item.variant_id);
+    if (quantity < 1 || quantity > 10 || isRemovingItem || isUpdatingQuantity)
+      return;
 
     if (token) updateQuantityMutation(quantity);
+    else updateQuantity(quantity, item.variant_id);
   };
 
   const handleRemoveItem = () => {
-    if (!token) removeItem(item.variant_id);
+    if (isRemovingItem || isUpdatingQuantity) return;
 
     if (token) removeItemMutation();
+    else removeItem(item.variant_id);
   };
 
   const btnsDisabled = isUpdatingQuantity || isRemovingItem;

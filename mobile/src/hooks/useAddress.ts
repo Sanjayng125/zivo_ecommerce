@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 
 export const useAddress = () => {
     const { token, hydrated } = useAuthStore();
-    const [defaultAddress, setDefaultAddress] = useState<string | null>(null);
+    const [defaultAddress, setDefaultAddress] = useState<Address | null>(null);
 
     const {
         data: addresses = [],
@@ -27,14 +27,13 @@ export const useAddress = () => {
 
         const defaultAddress = addresses.find(
             (address: Address) => address.is_default,
-        );
+        )
         if (!defaultAddress) {
             setDefaultAddress(null);
             return;
         }
 
-        const da = `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`;
-        setDefaultAddress(da);
+        setDefaultAddress(defaultAddress);
     }, [addresses]);
 
     return {

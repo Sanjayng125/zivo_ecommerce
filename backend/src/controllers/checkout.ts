@@ -111,7 +111,7 @@ export const createOrder = async (c: Context) => {
             `, [me.id])
         } catch (error) { }
 
-        return c.json({ order_id: orderResult.rows[0].id, razorpay_order_id: razorpayOrder.id, amount: total, currency: "INR", key_id: RAZORPAY_KEY_ID })
+        return c.json({ order_id: orderResult.rows[0].id, razorpay_order_id: razorpayOrder.id, amount: total, currency: "INR", key_id: RAZORPAY_KEY_ID }, 201)
     } catch (e) {
         await client.query('ROLLBACK')
         throw e

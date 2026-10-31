@@ -28,7 +28,9 @@ export default function ShowDefaultAddress() {
           onPress={() => setIsAddressModalOpen(true)}
         >
           <Text style={styles.addressText}>
-            {defaultAddress ?? "Add a delivery address"}
+            {defaultAddress
+              ? `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`
+              : "Add a delivery address"}
           </Text>
         </TouchableOpacity>
         <Ionicons name="chevron-down" size={18} color={colors.text} />

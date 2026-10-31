@@ -6,10 +6,18 @@ import { useAddress } from "@/hooks/useAddress";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
+import { Address } from "@/types";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import AddressItem from "./AddressItem";
@@ -18,11 +26,13 @@ import AddressModal from "./AddressModal";
 interface AddressListModalProps {
   isOpen: boolean;
   onCloseModal: () => void;
+  onSelect?: (address: Address) => void;
 }
 
 export default function AddressListModal({
   isOpen,
   onCloseModal,
+  onSelect,
 }: AddressListModalProps) {
   const { token } = useAuthStore();
   const { addresses, isLoading, refetch, isRefetching } = useAddress();
@@ -33,6 +43,11 @@ export default function AddressListModal({
 
   const handleRefresh = () => {
     if (token && !isLoading) refetch?.();
+  };
+
+  const handleAddressSelect = (address: Address) => {
+    onSelect?.(address);
+    onCloseModal();
   };
 
   return (
@@ -58,7 +73,9 @@ export default function AddressListModal({
           {!token
             ? "Looks like you're signed out. Please sign-in to continue."
             : addresses?.length > 0
-              ? "Select a default delivery address"
+              ? onSelect
+                ? "Select a delivery address"
+                : "Select a default delivery address"
               : "Add a delivery address"}
         </Text>
       </View>
@@ -137,9 +154,21 @@ export default function AddressListModal({
             )}
           </View>
         ) : (
-          addresses.map((address, i) => (
-            <AddressItem address={address} key={address?.id ?? i} />
-          ))
+          addresses.map((address, i) => {
+            if (onSelect) {
+              return (
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  onPress={() => handleAddressSelect(address)}
+                  key={address?.id ?? i}
+                >
+                  <AddressItem address={address} />
+                </TouchableOpacity>
+              );
+            }
+
+            return <AddressItem address={address} key={address?.id ?? i} />;
+          })
         )}
       </ScrollView>
     </Modal>

@@ -1,10 +1,5 @@
 import z from "zod"
 
-export const getCartSchema = z.object({
-    page: z.coerce.number().min(1).optional(),
-    limit: z.coerce.number().min(1).max(100).optional(),
-})
-
 export const cartItemIdSchema = z.object({
     item_id: z.uuid({
         error: "Invalid cart item ID"

@@ -22,7 +22,7 @@ export const WishlistSection = () => {
   const styles = useStyles(getStyles);
   const colors = useColors();
 
-  if (error) return null;
+  if (error || !wishlistItems?.length) return null;
 
   return (
     <View style={styles.container}>

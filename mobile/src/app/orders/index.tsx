@@ -37,7 +37,7 @@ const OrdersScreen = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useOrders(sort["sort"]);
+  } = useOrders();
 
   const colors = useColors();
   const styles = useStyles(getStyles);

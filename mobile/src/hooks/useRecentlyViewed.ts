@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 export const useRecentlyViewed = () => {
     const { token, hydrated } = useAuthStore();
 
-    const { data = [], isLoading, error, isRefetching, refetch } = useQuery<
+    const { data, isLoading, error, isRefetching, refetch } = useQuery<
         Product[]
     >({
         queryKey: ["recently-viewed"],

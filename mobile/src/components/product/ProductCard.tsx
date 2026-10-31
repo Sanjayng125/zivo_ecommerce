@@ -27,6 +27,7 @@ interface ProductCardProps {
   size?: "sm" | "md" | "lg";
   containerStyle?: StyleProp<ViewStyle>;
   wishlistCard?: boolean;
+  onPress?: () => void;
 }
 
 export default function ProductCard({
@@ -34,6 +35,7 @@ export default function ProductCard({
   size = "md",
   containerStyle,
   wishlistCard,
+  onPress,
 }: ProductCardProps) {
   const styles = useStyles(getStyles);
 
@@ -93,7 +95,10 @@ export default function ProductCard({
   return (
     <Pressable
       style={[styles.baseContainer, productSizes[size], containerStyle]}
-      onPress={() => router.push(`/product/${product.slug}`)}
+      onPress={() => {
+        router.push(`/product/${product.slug}`);
+        onPress?.();
+      }}
     >
       <Image
         source={{ uri: product.cover_image }}

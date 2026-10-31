@@ -1,4 +1,5 @@
 import { ExploreHeader } from "@/components/explore/ExploreHeader";
+import SearchHistory from "@/components/explore/SearchHistory";
 import FilterModal, { FilterValues } from "@/components/FilterModal";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import ProductCard from "@/components/product/ProductCard";
@@ -14,6 +15,7 @@ import { useColors } from "@/hooks/useColors";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
+import { useSearchStore } from "@/store/searchStore";
 import { Product } from "@/types";
 import { formatPrice } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
@@ -36,6 +38,7 @@ import { RefreshControl } from "react-native-gesture-handler";
 const DEFAULT_FILTERS: FilterValues = { sort: "newest" };
 
 const ExploreScreen = () => {
+  const { addQuery } = useSearchStore();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query.trim());
   const [mode, setMode] = useState<"browse" | "search">("browse");
@@ -102,6 +105,14 @@ const ExploreScreen = () => {
         : undefined,
   });
 
+  const saveCurrentSearch = () => {
+    const value = debouncedQuery;
+
+    if (value.length < 3) return;
+
+    addQuery(value);
+  };
+
   const products = useMemo(
     () => (data?.pages.flatMap((page) => page?.products) ?? []) as Product[],
     [data],
@@ -126,6 +137,7 @@ const ExploreScreen = () => {
             onChangeText={(text) => setQuery(text)}
             placeholder="Search products..."
             style={styles.searchInput}
+            onSubmitEditing={saveCurrentSearch}
           />
           {query.length > 0 && (
             <Pressable onPress={() => setQuery("")} style={styles.clearButton}>
@@ -150,6 +162,7 @@ const ExploreScreen = () => {
           style={styles.browseModeContainer}
           showsVerticalScrollIndicator={false}
         >
+          <SearchHistory onPress={(query) => setQuery(query)} />
           <RecentlyViewedSection />
           <WishlistSection />
         </ScrollView>
@@ -199,6 +212,7 @@ const ExploreScreen = () => {
                 <ProductCard
                   product={item}
                   containerStyle={[styles.productCard, { width: cardWidth }]}
+                  onPress={saveCurrentSearch}
                 />
               )}
               ListEmptyComponent={

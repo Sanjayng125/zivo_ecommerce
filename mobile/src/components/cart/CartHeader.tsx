@@ -12,7 +12,6 @@ import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { toast } from "sonner-native";
-import ShowDefaultAddress from "../address/ShowDefaultAddress";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 
@@ -80,9 +79,6 @@ export default function CartHeader() {
 
   return (
     <View>
-      <View style={styles.actionContainer}>
-        <ShowDefaultAddress />
-      </View>
       <View style={styles.cartTopContainer}>
         <Text style={styles.itemCountText}>
           {`${items.length > 9 ? "9+" : items.length}`} item

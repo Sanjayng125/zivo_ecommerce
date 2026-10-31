@@ -52,7 +52,7 @@ export default function CartFooter() {
           <AppButton
             title="Checkout"
             onPress={() =>
-              router.push(token ? "/checkout/address" : "/(auth)/sign-in")
+              router.push(token ? "/checkout/summary" : "/(auth)/sign-in")
             }
             fullWidth
             style={{ marginTop: spacing.sm }}

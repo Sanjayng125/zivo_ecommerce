@@ -115,7 +115,11 @@ const AccountScreen = () => {
           <SettingsRow
             label="My Addresses"
             icon="location-outline"
-            value={defaultAddress ?? "Add a delivery address"}
+            value={
+              defaultAddress
+                ? `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`
+                : "Add a delivery address"
+            }
             onPress={() => setIsAddressModalOpen(true)}
           />
           <AddressListModal

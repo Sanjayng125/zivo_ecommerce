@@ -4,13 +4,13 @@ import { addCartItem, clearCart, getCart, removeCartItem, updateQuantity } from 
 import { customValidationHandler } from "../lib/validator.js";
 import { requireAuth } from "../middleware/auth.js";
 import { protectedRateLimit } from "../middleware/rate-limit.js";
-import { addCartItemSchema, cartItemIdSchema, getCartSchema, updateCartItemSchema } from "../schemas/cart.js";
+import { addCartItemSchema, cartItemIdSchema, updateCartItemSchema } from "../schemas/cart.js";
 
 const app = new Hono()
 
 app.use("*", requireAuth, protectedRateLimit)
 
-app.get("/", zValidator("query", getCartSchema, customValidationHandler), getCart)
+app.get("/", getCart)
 app.post("/", zValidator("json", addCartItemSchema, customValidationHandler), addCartItem)
 app.patch("/:item_id",
     zValidator("param", cartItemIdSchema, customValidationHandler),

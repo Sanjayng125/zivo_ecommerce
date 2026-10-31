@@ -23,16 +23,7 @@ import {
 
 const CartScreen = () => {
   const { token } = useAuthStore();
-  const {
-    items,
-    refetch,
-    isLoading,
-    error,
-    isRefetching,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useCart();
+  const { items, refetch, isLoading, error, isRefetching } = useCart();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -83,10 +74,6 @@ const CartScreen = () => {
             />
           ) : undefined
         }
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-        }}
-        onEndReachedThreshold={0.5}
         ListHeaderComponent={<CartHeader />}
         renderItem={({ item }) => <CartItem item={item} />}
         ItemSeparatorComponent={

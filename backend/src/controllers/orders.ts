@@ -1,6 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../db/client.js";
+import { razorpay } from "../services/razorpay.js";
 
 export const getOrders = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -99,4 +100,79 @@ export const getOrder = async (c: Context) => {
     }
 
     return c.json({ order: orderResult.rows[0] })
+}
+
+export const verifyPayment = async (c: Context) => {
+    const me = c.get("user")
+    const order_id = c.req.param("order_id")
+
+    const orderResult = await pool.query(`
+        SELECT id, payment_status, p_gateway_order_id
+        FROM orders
+        WHERE id = $1 AND user_id = $2
+        `, [order_id, me.id])
+
+    if (!orderResult.rows?.[0]) {
+        throw new HTTPException(404, { message: "Order not found" })
+    }
+
+    const order = orderResult.rows[0]
+
+    if (order.payment_status === "paid") {
+        return c.json({ message: "Payment already verified", order })
+    }
+
+    if (!order.p_gateway_order_id) {
+        throw new HTTPException(400, { message: "No payment gateway order found" })
+    }
+
+    const rzpPayments = await razorpay.orders.fetchPayments(order.p_gateway_order_id)
+    const capturedPayment = rzpPayments.items.find((p: any) => p.status === "captured")
+    const failedPayment = rzpPayments.items.find((p: any) => p.status === "failed")
+
+    if (capturedPayment) {
+        const updatedOrder = await pool.query(`
+        UPDATE orders
+        SET
+        payment_status = 'paid',
+        status = 'confirmed',
+        p_gateway_payment_id = $1
+        WHERE id = $2
+        RETURNING *
+        `, [capturedPayment.id, order_id])
+
+        if (!updatedOrder.rowCount) {
+            throw new HTTPException(500, { message: "Failed to update order. Please try again later" })
+        }
+
+        return c.json({ message: "Payment verified", order: updatedOrder.rows[0] })
+    }
+
+    if (failedPayment) {
+        const updatedOrder = await pool.query(`
+        UPDATE orders
+        SET
+        payment_status = 'failed',
+        status = 'cancelled',
+        p_gateway_payment_id = $1
+        WHERE id = $2
+        RETURNING *
+        `, [failedPayment.id, order_id])
+
+        if (!updatedOrder.rowCount) {
+            throw new HTTPException(500, { message: "Failed to update order. Please try again later" })
+        }
+
+        await pool.query(`
+        UPDATE product_variants pv
+        SET stock = pv.stock + ois.quantity
+        FROM order_items ois
+        WHERE ois.order_id = $1
+        AND pv.id = ois.variant_id
+        `, [order_id])
+
+        return c.json({ message: "Payment failed", order: updatedOrder.rows[0] })
+    }
+
+    return c.json({ message: "Payment not captured yet", order })
 }

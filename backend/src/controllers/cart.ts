@@ -4,14 +4,6 @@ import pool from "../db/client.js";
 
 export const getCart = async (c: Context) => {
     const me = c.get("user")
-    const page = Number(c.req.query("page") ?? 1)
-    const limit = Number(c.req.query("limit") ?? 10)
-
-    const total = await pool.query(`
-        SELECT COUNT(ci.id) FROM cart_items ci WHERE ci.user_id = $1
-        `, [me.id])
-
-    const offset = (page - 1) * limit
 
     const cartResult = await pool.query(`
         SELECT ci.*,
@@ -28,24 +20,26 @@ export const getCart = async (c: Context) => {
         LEFT JOIN products p ON p.id = pv.product_id
         WHERE ci.user_id = $1
         ORDER BY ci.updated_at DESC
-        LIMIT $2
-        OFFSET $3
-        `, [me.id, limit, offset])
+        `, [me.id])
 
     return c.json({
         cart_items: cartResult.rows ?? [],
-        pagination: {
-            page,
-            limit,
-            total: Number(total.rows[0].count),
-            total_pages: Math.ceil(Number(total.rows[0].count) / limit)
-        }
     })
 }
 
 export const addCartItem = async (c: Context) => {
     const { variant_id, quantity = 1 } = await c.req.json()
     const me = c.get("user")
+
+    const total = await pool.query(`
+        SELECT COUNT(ci.id) FROM cart_items ci WHERE ci.user_id = $1
+        `, [me.id])
+
+    if (total?.rows[0]?.count >= 10) {
+        throw new HTTPException(400, {
+            message: "You can not add more than 10 items to cart at a time!"
+        })
+    }
 
     const variant = await pool.query(`
         SELECT pv.*,
