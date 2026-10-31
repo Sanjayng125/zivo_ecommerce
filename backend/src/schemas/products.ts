@@ -73,5 +73,5 @@ export const searchProductsSchema = getProductsSchema
     .extend({
         q: z.string().trim()
             .min(2, "Search query must be at least 2 characters")
-            .max(200, "Search query must be at most 200 characters"),
+            .max(100, "Search query must be at most 100 characters"),
     })

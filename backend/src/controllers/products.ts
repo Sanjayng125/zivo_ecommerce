@@ -12,15 +12,35 @@ export const searchProducts = async (c: Context) => {
     const max_price = c.req.query("max_price")
     const searchQuery = c.req.query("q")?.trim()
 
-    const conditions: string[] = ["is_active = true AND EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id) AND EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"]
+    const conditions: string[] = [
+        "is_active = true",
+        "EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id)",
+        "EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"
+    ]
     const params: unknown[] = []
 
-    let searchParamIndex: number | null = null
+    let prefixParamIndex: number | null = null
+    let rawParamIndex: number | null = null
+
     if (searchQuery) {
+        const prefixQuery = searchQuery
+            .split(/\s+/)
+            .filter(Boolean)
+            .map(w => `${w}:*`)
+            .join(" & ")
+
+        params.push(prefixQuery)
+        prefixParamIndex = params.length
+
         params.push(searchQuery)
-        searchParamIndex = params.length
-        conditions.push(`search_vector @@ websearch_to_tsquery('english', $${params.length})`)
+        rawParamIndex = params.length
+
+        conditions.push(`(
+            search_vector @@ to_tsquery('english', $${prefixParamIndex})
+            OR word_similarity($${rawParamIndex}, title) > 0.3
+        )`)
     }
+
     if (category_id) {
         params.push(category_id)
         conditions.push(`category_id = $${params.length}`)
@@ -36,11 +56,11 @@ export const searchProducts = async (c: Context) => {
 
     const whereClause = conditions.join(" AND ")
 
-    const countResult = await pool.query(`
-        SELECT COUNT(*)
-        FROM products
-        WHERE ${whereClause}
-        `, params)
+    const countResult = await pool.query(
+        `SELECT COUNT(*) FROM products WHERE ${whereClause}`,
+        params
+    )
+    const total = Number(countResult.rows[0].count)
 
     const orderBy: Record<string, string> = {
         newest: "created_at DESC",
@@ -50,31 +70,37 @@ export const searchProducts = async (c: Context) => {
         rating: "rating_avg DESC"
     }
 
-    const total = Number(countResult.rows[0].count)
+    const rankExpr = prefixParamIndex && rawParamIndex
+        ? `(
+            CASE WHEN search_vector @@ to_tsquery('english', $${prefixParamIndex})
+                THEN ts_rank(search_vector, to_tsquery('english', $${prefixParamIndex}))
+                ELSE word_similarity($${rawParamIndex}, title) * 0.5
+            END
+          )`
+        : "NULL"
 
-    const orderClause = searchQuery ?
-        (sort === "newest"
+    const orderClause = searchQuery
+        ? sort === "newest"
             ? "rank DESC"
-            : orderBy[sort] ?? "rank DESC") : "created_at DESC"
-    const offset = (page - 1) * limit
+            : orderBy[sort] ?? "rank DESC"
+        : "created_at DESC"
 
+    const offset = (page - 1) * limit
     params.push(limit)
     params.push(offset)
 
     const products = await pool.query(`
         SELECT
-        id,
-        title,
-        description,
-        slug,
-        base_price,
-        cover_image,
-        rating_avg,
-        rating_count,
-        category_id,
-        ${searchParamIndex
-            ? `ts_rank(search_vector, websearch_to_tsquery('english', $${searchParamIndex})) AS rank`
-            : 'NULL AS rank'}
+            id,
+            title,
+            description,
+            slug,
+            base_price,
+            cover_image,
+            rating_avg,
+            rating_count,
+            category_id,
+            ${rankExpr} AS rank
         FROM products
         WHERE ${whereClause}
         ORDER BY ${orderClause}
