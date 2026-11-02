@@ -35,7 +35,7 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       justifyContent: "center",
       gap: spacing.md,
-      marginTop: spacing.xl,
+      paddingVertical: spacing.xl,
     },
     emptyText: {
       fontSize: typography.body.fontSize,

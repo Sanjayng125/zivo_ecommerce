@@ -21,7 +21,7 @@ export const getCategories = async (c: Context) => {
     }
     if (q) {
         params.push(`%${q}%`)
-        conditions.push(`c.name LIKE $${params.length}`)
+        conditions.push(`c.name ILIKE $${params.length}`)
     }
 
     const orderBy: Record<string, string> = {

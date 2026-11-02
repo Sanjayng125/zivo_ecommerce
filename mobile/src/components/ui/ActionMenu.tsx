@@ -12,7 +12,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets } from "react-native-safe-area-context";
 
 interface ActionMenuOption {
   label: string;
@@ -33,8 +33,7 @@ export default function ActionMenu({
   children,
 }: ActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { bottom } = useSafeAreaInsets();
-  const styles = useStyles(getStyles, bottom);
+  const styles = useStyles(getStyles);
 
   return (
     <>
@@ -83,7 +82,7 @@ export default function ActionMenu({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, bottom: number) =>
+const getStyles = (colors: ColorsType, _: ScaledSize, { bottom }: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,

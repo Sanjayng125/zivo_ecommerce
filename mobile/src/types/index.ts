@@ -155,3 +155,11 @@ export type Order = {
     address_snapshot: Address
     created_at: string
 }
+
+export type CategoryWithParent = Category & {
+    parent_id: string
+}
+
+export type CategoryWithSubcategories = Category & {
+    subcategories: CategoryWithParent[]
+}

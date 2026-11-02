@@ -5,7 +5,15 @@ import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useStyles } from "@/hooks/useStyles";
 import { Ionicons } from "@expo/vector-icons";
-import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Modal,
+  ScaledSize,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { AppButton } from "./AppButton";
 
 interface ExpandedModalProps {
@@ -59,7 +67,7 @@ export default function ExpandedModal({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -68,7 +76,7 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: spacing.xl,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      marginTop: spacing.xl,
+      marginTop: top + spacing.md,
     },
     header: {
       paddingHorizontal: spacing.sm,

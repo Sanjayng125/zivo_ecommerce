@@ -1,3 +1,4 @@
+import CartEmpty from "@/components/cart/CartEmpty";
 import CheckoutFooter from "@/components/checkout/CheckoutFooter";
 import CheckoutHeader from "@/components/checkout/CheckoutHeader";
 import CheckoutItem from "@/components/checkout/CheckoutItem";
@@ -33,6 +34,7 @@ const SummaryScreen = () => {
             style={{ paddingHorizontal: spacing.sm }}
           />
         }
+        ListEmptyComponent={<CartEmpty />}
         ListFooterComponent={<CheckoutFooter />}
       />
     </ScreenWrapper>

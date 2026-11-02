@@ -13,7 +13,8 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, ScaledSize, StyleSheet, Text, View } from "react-native";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -246,7 +247,7 @@ export default function ReviewModal({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -255,7 +256,7 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: spacing.xl,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      marginTop: spacing.xl,
+      marginTop: top + spacing.md,
     },
     header: {
       flexDirection: "row",

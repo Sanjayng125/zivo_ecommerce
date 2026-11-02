@@ -9,32 +9,23 @@ import { AppButton } from "@/components/ui/AppButton";
 import { ColorsType } from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
+import { useHomeSections } from "@/hooks/useHomeSections";
 import { useStyles } from "@/hooks/useStyles";
-import { api } from "@/lib/api";
-import { HomeSection } from "@/types";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 const HomeScreen = () => {
-  const queryClient = useQueryClient();
-  const colors = useColors();
-
-  const styles = useStyles(getStyles);
-
   const {
     data = [],
     isLoading,
     error,
     isRefetching,
     refetch,
-  } = useQuery<HomeSection[]>({
-    queryKey: ["home"],
-    queryFn: async () => {
-      const res = await api.get("/home");
+  } = useHomeSections();
+  const queryClient = useQueryClient();
+  const colors = useColors();
 
-      return res.data?.home_sections ?? [];
-    },
-  });
+  const styles = useStyles(getStyles);
 
   const handleRefresh = () => {
     refetch();

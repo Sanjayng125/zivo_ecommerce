@@ -15,6 +15,7 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   Modal,
+  ScaledSize,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -22,6 +23,7 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -162,7 +164,7 @@ export default function EditProfileModal({ style }: EditProfileModalProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -171,7 +173,7 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: spacing.xxxl,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      marginTop: spacing.xl,
+      marginTop: top + spacing.md,
     },
     header: {
       paddingHorizontal: spacing.sm,

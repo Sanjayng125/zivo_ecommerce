@@ -14,7 +14,7 @@ export const getCategories = async (c: Context) => {
 
     if (q) {
         params.push(`%${q}%`)
-        conditions.push(`c.name LIKE $${params.length}`)
+        conditions.push(`c.name ILIKE $${params.length}`)
     }
 
     const orderBy: Record<string, string> = {
@@ -37,9 +37,20 @@ export const getCategories = async (c: Context) => {
 
     const categories = await pool.query(`
         SELECT
-        c.*,
+        c.id,
+        c.name,
+        c.slug,
+        c.image_url,
+        c.sort_order,
         COALESCE(
-            jsonb_agg(to_jsonb(sc)) FILTER (WHERE sc.id IS NOT NULL),
+            jsonb_agg(jsonb_build_object(
+            'id', sc.id,
+            'parent_id', sc.parent_id,
+            'name', sc.name,
+            'slug', sc.slug,
+            'image_url', sc.image_url,
+            'sort_order', sc.sort_order
+            )) FILTER (WHERE sc.id IS NOT NULL),
             '[]'::jsonb
         ) AS subcategories
         FROM categories c
@@ -75,9 +86,20 @@ export const getCategory = async (c: Context) => {
 
     const category = await pool.query(`
         SELECT
-        c.*,
+        c.id,
+        c.name,
+        c.slug,
+        c.image_url,
+        c.sort_order,
         COALESCE(
-            jsonb_agg(to_jsonb(sc)) FILTER (WHERE sc.id IS NOT NULL),
+            jsonb_agg(jsonb_build_object(
+            'id', sc.id,
+            'parent_id', sc.parent_id,
+            'name', sc.name,
+            'slug', sc.slug,
+            'image_url', sc.image_url,
+            'sort_order', sc.sort_order
+            )) FILTER (WHERE sc.id IS NOT NULL),
             '[]'::jsonb
         ) AS subcategories
         FROM categories c

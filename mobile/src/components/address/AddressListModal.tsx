@@ -12,12 +12,14 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   Modal,
+  ScaledSize,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import AddressItem from "./AddressItem";
@@ -175,7 +177,7 @@ export default function AddressListModal({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
@@ -184,7 +186,7 @@ const getStyles = (colors: ColorsType) =>
       paddingBottom: spacing.xl,
       borderTopLeftRadius: radius.xl,
       borderTopRightRadius: radius.xl,
-      marginTop: spacing.xl,
+      marginTop: top + spacing.md,
     },
     header: {
       paddingHorizontal: spacing.lg,

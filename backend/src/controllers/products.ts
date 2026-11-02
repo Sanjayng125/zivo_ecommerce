@@ -37,7 +37,7 @@ export const searchProducts = async (c: Context) => {
 
         conditions.push(`(
             search_vector @@ to_tsquery('english', $${prefixParamIndex})
-            OR word_similarity($${rawParamIndex}, title) > 0.3
+            OR word_similarity($${rawParamIndex}, title) > 0.5
         )`)
     }
 

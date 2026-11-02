@@ -15,6 +15,8 @@ export default function SearchHistory({ onPress }: SearchHistoryProps) {
 
   const styles = useStyles(getStyles);
 
+  if (!searchHistory || searchHistory.length === 0) return null;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>

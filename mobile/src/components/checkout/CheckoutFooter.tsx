@@ -23,7 +23,7 @@ import { AppButton } from "../ui/AppButton";
 
 export default function CheckoutFooter() {
   const { user } = useAuthStore();
-  const { subTotal, shipping, total, clearCart } = useCart();
+  const { cartCount, subTotal, shipping, total, clearCart } = useCart();
   const { defaultAddress } = useAddress();
   const { selectedAddress, setSelectedAddress, clear } = useCheckoutStore();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
@@ -54,7 +54,7 @@ export default function CheckoutFooter() {
         router.replace("/checkout/success");
       })
       .catch((error) => {
-        toast.error(error?.description ?? "Payment failed");
+        toast.error("Payment failed");
       })
       .finally(() => {
         clearCart();
@@ -146,7 +146,7 @@ export default function CheckoutFooter() {
           onPress={checkoutMutation}
           fullWidth
           style={{ marginTop: spacing.sm }}
-          disabled={!address}
+          disabled={!address || !cartCount}
           loading={isCheckingOut}
         />
 

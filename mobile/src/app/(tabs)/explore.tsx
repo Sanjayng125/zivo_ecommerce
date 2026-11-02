@@ -1,6 +1,7 @@
 import { ExploreHeader } from "@/components/explore/ExploreHeader";
 import SearchHistory from "@/components/explore/SearchHistory";
 import FilterModal, { FilterValues } from "@/components/FilterModal";
+import CategoryRow from "@/components/home/CategoryRow";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import ProductCard from "@/components/product/ProductCard";
 import { RecentlyViewedSection } from "@/components/RecentlyViewedSection";
@@ -13,10 +14,11 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useHomeSections } from "@/hooks/useHomeSections";
 import { useStyles } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
 import { useSearchStore } from "@/store/searchStore";
-import { Product } from "@/types";
+import { Category, Product } from "@/types";
 import { formatPrice } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -39,11 +41,15 @@ const DEFAULT_FILTERS: FilterValues = { sort: "newest" };
 
 const ExploreScreen = () => {
   const { addQuery } = useSearchStore();
+  const { data: HomeData = [] } = useHomeSections();
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query.trim());
   const [mode, setMode] = useState<"browse" | "search">("browse");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
 
   const styles = useStyles(getStyles);
   const colors = useColors();
@@ -54,6 +60,8 @@ const ExploreScreen = () => {
   useEffect(() => {
     if (mode !== "browse") {
       const backAction = () => {
+        setFilters(DEFAULT_FILTERS);
+        setSelectedCategory(null);
         setMode("browse");
         setQuery("");
         return true;
@@ -90,6 +98,9 @@ const ExploreScreen = () => {
       if ((filters["price"] as any)?.max) {
         params["max_price"] = (filters["price"] as any).max;
       }
+      if (filters["category_id"]) {
+        params["category_id"] = filters["category_id"];
+      }
 
       const res = await api.get("/products/search", {
         params: { page: pageParam, ...params, q: debouncedQuery },
@@ -119,8 +130,6 @@ const ExploreScreen = () => {
   );
 
   const totalProducts = data?.pages[0]?.pagination?.total ?? 0;
-  const hasChanges =
-    JSON.stringify(filters) !== JSON.stringify(DEFAULT_FILTERS);
 
   return (
     <ScreenWrapper edges={["top"]} scrollable={false}>
@@ -163,6 +172,18 @@ const ExploreScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <SearchHistory onPress={(query) => setQuery(query)} />
+          {HomeData?.length > 0 &&
+            HomeData.map((item) => {
+              if (item?.type === "category_row") {
+                return (
+                  <CategoryRow
+                    section={item}
+                    key={item.id}
+                    style={{ marginTop: spacing.sm }}
+                  />
+                );
+              }
+            })}
           <RecentlyViewedSection />
           <WishlistSection />
         </ScrollView>
@@ -170,6 +191,10 @@ const ExploreScreen = () => {
 
       {mode === "search" && (
         <View style={styles.searchModeContainer}>
+          <ExploreHeader
+            totalProducts={totalProducts}
+            onOpenFilter={() => setIsFilterOpen(true)}
+          />
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={colors.text} />
@@ -198,16 +223,6 @@ const ExploreScreen = () => {
                 if (hasNextPage && !isFetchingNextPage) fetchNextPage();
               }}
               onEndReachedThreshold={0.5}
-              ListHeaderComponent={
-                <ExploreHeader
-                  totalProducts={totalProducts}
-                  hasChanges={hasChanges}
-                  isLoading={isLoading}
-                  productsLength={products.length}
-                  onOpenFilter={() => setIsFilterOpen(true)}
-                  onClearFilter={() => setFilters(DEFAULT_FILTERS)}
-                />
-              }
               renderItem={({ item }) => (
                 <ProductCard
                   product={item}
@@ -241,6 +256,8 @@ const ExploreScreen = () => {
         onCloseModal={() => setIsFilterOpen(false)}
         title="Sort & Filter"
         defaultValues={DEFAULT_FILTERS}
+        selectedCategory={selectedCategory}
+        onSelectedCategoryChange={(category) => setSelectedCategory(category)}
         values={filters}
         onApply={(vals) => setFilters(vals)}
         onReset={() => setFilters(DEFAULT_FILTERS)}
@@ -261,12 +278,16 @@ const ExploreScreen = () => {
             key: "price",
             label: "Filter By Price",
             type: "range",
-            options: [],
             range: {
               min: 0,
               max: 5000000,
               format: formatPrice,
             },
+          },
+          {
+            key: "category_id",
+            label: "Filter By Category",
+            type: "category",
           },
         ]}
       />
@@ -281,7 +302,6 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       justifyContent: "center",
       gap: spacing.md,
-      paddingTop: spacing.xxxl,
     },
     loadingContainer: {
       flexGrow: 1,

@@ -113,7 +113,7 @@ const getStyles = (colors: ColorsType) =>
       alignItems: "center",
       gap: spacing.xs,
       marginHorizontal: "auto",
-      marginTop: spacing.md,
+      marginVertical: spacing.md,
     },
     cartTopContainer: {
       marginTop: spacing.md,
