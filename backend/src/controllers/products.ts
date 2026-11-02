@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import pool from "../db/client.js";
 import redis from "../lib/redis.js";
 
-export const searchProducts = async (c: Context) => {
+export const getProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
     const limit = Number(c.req.query("limit") ?? 20)
     const sort = c.req.query("sort") ?? "newest"
@@ -43,7 +43,15 @@ export const searchProducts = async (c: Context) => {
 
     if (category_id) {
         params.push(category_id)
-        conditions.push(`category_id = $${params.length}`)
+        conditions.push(`category_id IN (
+            SELECT id
+            FROM categories
+            WHERE id = $${params.length}
+            UNION
+            SELECT id
+            FROM categories
+            WHERE parent_id = $${params.length}
+            )`)
     }
     if (min_price) {
         params.push(Number(min_price))

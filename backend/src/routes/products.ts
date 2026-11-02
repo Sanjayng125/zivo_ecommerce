@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { addProductView, getProduct, searchProducts } from "../controllers/products.js";
+import { addProductView, getProduct, getProducts } from "../controllers/products.js";
 import { customValidationHandler } from "../lib/validator.js";
 import { requireAuth } from "../middleware/auth.js";
 import { publicRateLimit } from "../middleware/rate-limit.js";
@@ -11,7 +11,7 @@ const app = new Hono()
 
 app.use("*", publicRateLimit)
 
-app.get("/search", zValidator("query", searchProductsSchema, customValidationHandler), searchProducts)
+app.get("/", zValidator("query", searchProductsSchema, customValidationHandler), getProducts)
 app.get("/:slug", zValidator("param", productSlugSchema, customValidationHandler), getProduct);
 app.post("/views/:product_id", requireAuth, zValidator("param", productIdSchema, customValidationHandler), addProductView)
 

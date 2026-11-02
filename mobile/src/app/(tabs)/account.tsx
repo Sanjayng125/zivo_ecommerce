@@ -35,7 +35,7 @@ const AccountScreen = () => {
   const { profile, isLoading, error, isRefetching, refetch } = useProfile();
   const { defaultAddress } = useAddress();
   const { data: wishlistItems } = useWishlist();
-  const { data: orders } = useOrders();
+  const { activeOrdersCount } = useOrders();
   const { signOut, isSigningOut } = useSignOut();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
 
@@ -107,7 +107,7 @@ const AccountScreen = () => {
           <SettingsRow
             label="My Orders"
             icon="bag-outline"
-            value={`${orders?.length} order${orders?.length > 1 && "s"}`}
+            value={`${activeOrdersCount} active order${activeOrdersCount > 1 && "s"}`}
             onPress={() => router.push("/orders")}
           />
 
@@ -141,7 +141,14 @@ const AccountScreen = () => {
             label="Dark Mode"
             icon="moon-outline"
             hideChevron
-            right={<Switch value={isDarkMode} onValueChange={toggleTheme} />}
+            right={
+              <Switch
+                value={isDarkMode}
+                onValueChange={toggleTheme}
+                trackColor={{ false: colors.border, true: colors.border }}
+                thumbColor={isDarkMode ? colors.primary : colors.textSecondary}
+              />
+            }
           />
 
           <ChangePasswordModal />

@@ -159,6 +159,7 @@ const getStyles = ({ colors }: UseStylesContext) =>
       top: 10,
       left: 16,
       borderRadius: radius.full,
+      zIndex: 1,
     },
     errorText: {
       color: colors.error,

@@ -38,9 +38,11 @@ export const useOrders = (sort?: string) => {
     const orders = (
         data?.pages.flatMap(page => page?.orders ?? []) ?? []
     ) as Order[];
+    const activeOrdersCount = data?.pages?.[0]?.activeOrdersCount ?? 0
 
     return {
         data: orders,
+        activeOrdersCount,
         isLoading,
         error,
         isRefetching,

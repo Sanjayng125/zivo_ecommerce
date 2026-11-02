@@ -21,10 +21,18 @@ export const getOrders = async (c: Context) => {
     const offset = (page - 1) * limit
 
     const countResult = await pool.query(
-        `SELECT COUNT(*) FROM orders WHERE user_id = $1`,
+        `SELECT
+        COUNT(*) AS total,
+        COUNT(*) FILTER (
+            WHERE status NOT IN ('delivered', 'cancelled')
+        ) AS active
+     FROM orders
+     WHERE user_id = $1`,
         [me.id]
-    )
-    const total = Number(countResult.rows[0].count)
+    );
+
+    const total = Number(countResult.rows[0].total);
+    const active = Number(countResult.rows[0].active);
 
     const ordersResult = await pool.query(`
         WITH order_item AS (
@@ -56,6 +64,7 @@ export const getOrders = async (c: Context) => {
 
     return c.json({
         orders: ordersResult.rows,
+        activeOrdersCount: active,
         pagination: {
             page,
             limit,

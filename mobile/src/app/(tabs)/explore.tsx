@@ -7,7 +7,6 @@ import ProductCard from "@/components/product/ProductCard";
 import { RecentlyViewedSection } from "@/components/RecentlyViewedSection";
 import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
-import { WishlistSection } from "@/components/WishlistSection";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -101,7 +100,7 @@ const ExploreScreen = () => {
         params["category_id"] = filters["category_id"];
       }
 
-      const res = await api.get("/products/search", {
+      const res = await api.get("/products", {
         params: { page: pageParam, ...params, q: debouncedQuery },
       });
 
@@ -184,7 +183,6 @@ const ExploreScreen = () => {
               }
             })}
           <RecentlyViewedSection />
-          <WishlistSection />
         </ScrollView>
       )}
 

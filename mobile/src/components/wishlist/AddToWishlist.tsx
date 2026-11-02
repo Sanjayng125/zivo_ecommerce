@@ -99,5 +99,6 @@ const styles = StyleSheet.create({
     top: 10,
     right: 16,
     borderRadius: radius.full,
+    zIndex: 1,
   },
 });

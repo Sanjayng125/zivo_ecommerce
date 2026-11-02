@@ -65,13 +65,8 @@ export const getProductsSchema = z.object({
         .optional(),
     q: z.string().trim()
         .min(2, "Search query must be at least 2 characters")
-        .max(200, "Search query must be at most 200 characters").optional(),
+        .max(100, "Search query must be at most 100 characters").optional(),
 })
 
 export const searchProductsSchema = getProductsSchema
-    .omit({ q: true, is_active: true })
-    .extend({
-        q: z.string().trim()
-            .min(2, "Search query must be at least 2 characters")
-            .max(100, "Search query must be at most 100 characters"),
-    })
+    .omit({ is_active: true })
