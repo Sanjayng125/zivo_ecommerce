@@ -1,9 +1,8 @@
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import {
   ActivityIndicator,
   ScrollView,
@@ -52,7 +51,7 @@ export const RecentlyViewedSection = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: spacing.lg,

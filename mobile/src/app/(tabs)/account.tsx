@@ -5,7 +5,6 @@ import SettingsRow from "@/components/account/SettingsRow";
 import AddressListModal from "@/components/address/AddressListModal";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
@@ -14,7 +13,7 @@ import { useColors } from "@/hooks/useColors";
 import { useOrders } from "@/hooks/useOrders";
 import { useProfile } from "@/hooks/useProfile";
 import { useSignOut } from "@/hooks/useSignOut";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import { useThemeStore } from "@/store/uiStore";
@@ -166,7 +165,7 @@ const AccountScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     center: {
       flex: 1,

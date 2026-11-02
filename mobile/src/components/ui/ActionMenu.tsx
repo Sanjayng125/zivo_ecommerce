@@ -1,18 +1,9 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useState } from "react";
-import {
-  Modal,
-  Pressable,
-  ScaledSize,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { EdgeInsets } from "react-native-safe-area-context";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 interface ActionMenuOption {
   label: string;
@@ -82,7 +73,7 @@ export default function ActionMenu({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { bottom }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { bottom } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

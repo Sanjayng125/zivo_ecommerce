@@ -1,10 +1,9 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
@@ -53,7 +52,7 @@ export default function Header() {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: spacing.xl,

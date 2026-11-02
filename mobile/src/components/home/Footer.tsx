@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import {
   Image,
   Linking,
@@ -112,7 +111,7 @@ export default function Footer() {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       marginTop: spacing.xxxl,

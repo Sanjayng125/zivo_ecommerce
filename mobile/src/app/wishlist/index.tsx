@@ -3,11 +3,10 @@ import ProductCard from "@/components/product/ProductCard";
 import { AppButton } from "@/components/ui/AppButton";
 import WishlistEmpty from "@/components/wishlist/WishlistEmpty";
 import WishlistHeader from "@/components/wishlist/WishlistHeader";
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,8 +18,8 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
-  View,
   useWindowDimensions,
+  View,
 } from "react-native";
 
 const WishlistScreen = () => {
@@ -128,7 +127,7 @@ const WishlistScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     contentContainer: {
       flexGrow: 1,

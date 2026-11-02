@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import queryClient from "@/lib/queryClient";
 import { Product, WishlistItem } from "@/types";
@@ -157,7 +156,7 @@ export default function ProductCard({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     baseContainer: {
       borderRadius: radius.sm,

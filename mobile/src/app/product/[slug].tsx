@@ -4,12 +4,11 @@ import ProductInfo from "@/components/product/ProductInfo";
 import Reviews from "@/components/product/Reviews";
 import { AppButton } from "@/components/ui/AppButton";
 import AddToWishlist from "@/components/wishlist/AddToWishlist";
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { api, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { Product } from "@/types";
@@ -147,7 +146,7 @@ const ProductScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     center: {
       flex: 1,

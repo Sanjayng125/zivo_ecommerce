@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { CartItem } from "@/types";
 import { formatPrice } from "@/utils";
 import { Image, StyleSheet, Text, View } from "react-native";
@@ -43,7 +42,7 @@ export default function CheckoutItem({ item }: CheckoutItemProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flexDirection: "row",

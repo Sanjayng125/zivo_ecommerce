@@ -1,12 +1,11 @@
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { api, ApiError, authApi } from "@/lib/api";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/schemas";
 import { setToken } from "@/lib/secureStore";
@@ -188,7 +187,7 @@ const SignUp = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flexGrow: 1,

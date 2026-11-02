@@ -1,5 +1,4 @@
-import { ColorsType } from "@/constants/colors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -79,7 +78,7 @@ export default function ScreenWrapper({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

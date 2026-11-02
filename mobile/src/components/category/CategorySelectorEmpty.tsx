@@ -1,4 +1,3 @@
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
@@ -48,7 +47,7 @@ export default function CategorySelectorEmpty({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     subEmptyContainer: {
       flex: 1,

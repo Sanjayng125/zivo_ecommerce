@@ -4,12 +4,11 @@ import OrderItem from "@/components/order/OrderItem";
 import OrdersEmpty from "@/components/order/OrdersEmpty";
 import OrdersHeader from "@/components/order/OrdersHeader";
 import { AppButton } from "@/components/ui/AppButton";
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useOrders } from "@/hooks/useOrders";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -155,7 +154,7 @@ const OrdersScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     contentContainer: {
       flexGrow: 1,

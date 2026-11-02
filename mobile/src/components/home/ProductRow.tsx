@@ -1,7 +1,6 @@
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { HomeSection, Product } from "@/types";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import ProductCard from "../product/ProductCard";
@@ -34,7 +33,7 @@ export default function ProductRow({ section }: ProductRowProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

@@ -1,7 +1,6 @@
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Category, HomeSection } from "@/types";
 import { router } from "expo-router";
 import {
@@ -48,7 +47,7 @@ export default function CategoryRow({ section, style }: CategoryRowProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

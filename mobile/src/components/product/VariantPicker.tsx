@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 interface VariantPickerProps {
@@ -61,7 +60,7 @@ export default function VariantPicker({
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       gap: spacing.sm,

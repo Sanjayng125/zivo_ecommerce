@@ -1,7 +1,6 @@
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useSearchStore } from "@/store/searchStore";
 import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../ui/AppButton";
@@ -50,7 +49,7 @@ export default function SearchHistory({ onPress }: SearchHistoryProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: spacing.lg,

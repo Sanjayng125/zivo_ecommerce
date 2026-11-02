@@ -1,9 +1,8 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { ReviewSchema, ReviewSchemaType } from "@/lib/schemas";
 import { Product, Review } from "@/types";
@@ -13,8 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Modal, ScaledSize, StyleSheet, Text, View } from "react-native";
-import { EdgeInsets } from "react-native-safe-area-context";
+import { Modal, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -247,7 +245,7 @@ export default function ReviewModal({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { top } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

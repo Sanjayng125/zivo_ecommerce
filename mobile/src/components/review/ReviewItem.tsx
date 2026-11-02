@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Review } from "@/types";
 import { formatDate } from "@/utils";
 import { useState } from "react";
@@ -77,7 +76,7 @@ export default function ReviewItem({ review, style }: ReviewItemProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       paddingHorizontal: spacing.md,

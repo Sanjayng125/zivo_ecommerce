@@ -1,9 +1,8 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { api, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { Product, Review } from "@/types";
@@ -147,7 +146,7 @@ export default function Reviews({ product }: ReviewsProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

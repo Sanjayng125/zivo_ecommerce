@@ -1,15 +1,13 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ProductImage } from "@/types";
 import { useRef, useState } from "react";
 import {
   FlatList,
   Image,
   Pressable,
-  ScaledSize,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -93,8 +91,7 @@ export default function ProductCarousel({ images }: CarouselProps) {
 }
 
 const getStyles = (
-  colors: ColorsType,
-  { width }: ScaledSize,
+  { colors, dimensions: { width } }: UseStylesContext,
   buttonImageWidth: number,
 ) =>
   StyleSheet.create({

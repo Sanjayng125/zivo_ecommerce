@@ -8,14 +8,13 @@ import { RecentlyViewedSection } from "@/components/RecentlyViewedSection";
 import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
 import { WishlistSection } from "@/components/WishlistSection";
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useHomeSections } from "@/hooks/useHomeSections";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { api } from "@/lib/api";
 import { useSearchStore } from "@/store/searchStore";
 import { Category, Product } from "@/types";
@@ -295,7 +294,7 @@ const ExploreScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     center: {
       flex: 1,

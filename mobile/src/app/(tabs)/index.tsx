@@ -6,11 +6,10 @@ import ProductRow from "@/components/home/ProductRow";
 import StickySearchBar from "@/components/home/StickySearchBar";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
-import { ColorsType } from "@/constants/colors";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useHomeSections } from "@/hooks/useHomeSections";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useQueryClient } from "@tanstack/react-query";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
@@ -103,7 +102,7 @@ const HomeScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     loadingContainer: {
       flexGrow: 1,

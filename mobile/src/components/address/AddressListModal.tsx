@@ -1,10 +1,9 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useAddress } from "@/hooks/useAddress";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
 import { Address } from "@/types";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -12,14 +11,12 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   Modal,
-  ScaledSize,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { EdgeInsets } from "react-native-safe-area-context";
 import { AppButton } from "../ui/AppButton";
 import HorizontalSeparator from "../ui/HorizontalSeparator";
 import AddressItem from "./AddressItem";
@@ -177,7 +174,7 @@ export default function AddressListModal({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { top } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

@@ -1,11 +1,10 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useAddress } from "@/hooks/useAddress";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { useCheckoutStore } from "@/store/checkoutStore";
@@ -162,7 +161,7 @@ export default function CheckoutFooter() {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       backgroundColor: colors.surface,

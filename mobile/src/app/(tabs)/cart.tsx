@@ -5,12 +5,11 @@ import CartItem from "@/components/cart/CartItem";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
 import HorizontalSeparator from "@/components/ui/HorizontalSeparator";
-import { ColorsType } from "@/constants/colors";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
 import {
   ActivityIndicator,
@@ -89,7 +88,7 @@ const CartScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     loadingContainer: {
       flex: 1,

@@ -1,15 +1,11 @@
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
-import {
-  ColorsType,
-  ORDER_PAYMENT_COLORS,
-  ORDER_STATUS_COLORS,
-} from "@/constants/colors";
+import { ORDER_PAYMENT_COLORS, ORDER_STATUS_COLORS } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { Order } from "@/types";
@@ -262,7 +258,7 @@ const OrderScreen = () => {
   );
 };
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       paddingBottom: spacing.lg,

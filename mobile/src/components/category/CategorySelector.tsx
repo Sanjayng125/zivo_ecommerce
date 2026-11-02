@@ -1,10 +1,9 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCategories } from "@/hooks/useCategories";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Category, CategoryWithSubcategories } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -12,13 +11,11 @@ import {
   ActivityIndicator,
   FlatList,
   Modal,
-  ScaledSize,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { RefreshControl } from "react-native-gesture-handler";
-import { EdgeInsets } from "react-native-safe-area-context";
 import { AppButton } from "../ui/AppButton";
 import CategoryPill from "./CategoryPill";
 import CategorySelectorEmpty from "./CategorySelectorEmpty";
@@ -206,7 +203,7 @@ export default function CategorySelector({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { top } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

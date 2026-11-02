@@ -1,8 +1,7 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Banner, HomeSection } from "@/types";
 import { Href, router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -11,7 +10,6 @@ import {
   Image,
   ImageBackground,
   Pressable,
-  ScaledSize,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -133,8 +131,7 @@ export default function BannerCarousel({ section }: BannerCarouselProps) {
 }
 
 const getStyles = (
-  colors: ColorsType,
-  { width }: ScaledSize,
+  { colors, dimensions: { width } }: UseStylesContext,
   carouselWidth: number,
   hasBackgroundImage: boolean,
 ) =>

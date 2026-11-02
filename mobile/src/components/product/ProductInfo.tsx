@@ -1,9 +1,8 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Product, ProductVariant } from "@/types";
 import { formatCount, formatPrice } from "@/utils";
 import { useMemo, useState } from "react";
@@ -176,7 +175,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     infoContainer: {
       flexGrow: 1,

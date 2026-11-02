@@ -1,71 +1,58 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useCart } from "@/hooks/useCart";
-import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useAuthStore } from "@/store/authStore";
 import { formatPrice } from "@/utils";
 import { router } from "expo-router";
-import { ActivityIndicator, Image, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { RecentlyViewedSection } from "../RecentlyViewedSection";
 import { AppButton } from "../ui/AppButton";
 import { WishlistSection } from "../WishlistSection";
 
 export default function CartFooter() {
   const { token } = useAuthStore();
-  const { subTotal, shipping, total, cartCount, isFetchingNextPage } =
-    useCart();
+  const { subTotal, shipping, total, cartCount } = useCart();
 
   const styles = useStyles(getStyles);
-  const colors = useColors();
 
   const OrderSummary = () => {
     return (
-      <>
-        {isFetchingNextPage && (
-          <View
-            style={{ backgroundColor: colors.surface, padding: spacing.md }}
-          >
-            <ActivityIndicator size="large" color={colors.text} />
+      <View style={styles.summaryContainer}>
+        <View style={styles.orderSummaryContainer}>
+          <Text style={styles.summaryTitle}>Order Summary</Text>
+          <View style={styles.summarySection}>
+            <Text style={styles.summaryText}>Subtotal</Text>
+            <Text style={styles.summaryValue}>{formatPrice(subTotal)}</Text>
           </View>
-        )}
-        <View style={styles.summaryContainer}>
-          <View style={styles.orderSummaryContainer}>
-            <Text style={styles.summaryTitle}>Order Summary</Text>
-            <View style={styles.summarySection}>
-              <Text style={styles.summaryText}>Subtotal</Text>
-              <Text style={styles.summaryValue}>{formatPrice(subTotal)}</Text>
-            </View>
-            <View style={styles.summarySection}>
-              <Text style={styles.summaryText}>Shipping</Text>
-              <Text style={styles.summaryValue}>
-                {shipping > 0 ? formatPrice(shipping) : "Free"}
-              </Text>
-            </View>
-            <View style={styles.summarySection}>
-              <Text style={styles.summaryText}>Total</Text>
-              <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
-            </View>
+          <View style={styles.summarySection}>
+            <Text style={styles.summaryText}>Shipping</Text>
+            <Text style={styles.summaryValue}>
+              {shipping > 0 ? formatPrice(shipping) : "Free"}
+            </Text>
           </View>
-          <AppButton
-            title="Checkout"
-            onPress={() =>
-              router.push(token ? "/checkout/summary" : "/(auth)/sign-in")
-            }
-            fullWidth
-            style={{ marginTop: spacing.sm }}
-          />
-          <View style={styles.paymentGatewayContainer}>
-            <Image
-              source={require("@/assets/images/razorpay-logo.png")}
-              style={styles.paymentGatewayImage}
-              resizeMode="contain"
-            />
+          <View style={styles.summarySection}>
+            <Text style={styles.summaryText}>Total</Text>
+            <Text style={styles.summaryValue}>{formatPrice(total)}</Text>
           </View>
         </View>
-      </>
+        <AppButton
+          title="Checkout"
+          onPress={() =>
+            router.push(token ? "/checkout/summary" : "/(auth)/sign-in")
+          }
+          fullWidth
+          style={{ marginTop: spacing.sm }}
+        />
+        <View style={styles.paymentGatewayContainer}>
+          <Image
+            source={require("@/assets/images/razorpay-logo.png")}
+            style={styles.paymentGatewayImage}
+            resizeMode="contain"
+          />
+        </View>
+      </View>
     );
   };
 
@@ -80,7 +67,7 @@ export default function CartFooter() {
   );
 }
 
-const getStyles = (colors: ColorsType) =>
+const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     summaryContainer: {
       justifyContent: "center",

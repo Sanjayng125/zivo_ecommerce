@@ -1,23 +1,20 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { Category } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import {
   Modal,
   Pressable,
-  ScaledSize,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { EdgeInsets } from "react-native-safe-area-context";
 import CategorySelector from "./category/CategorySelector";
 import { AppButton } from "./ui/AppButton";
 
@@ -267,7 +264,7 @@ export default function FilterModal({
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { top } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,

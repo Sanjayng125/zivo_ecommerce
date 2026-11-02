@@ -1,10 +1,9 @@
-import { ColorsType } from "@/constants/colors";
 import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useColors } from "@/hooks/useColors";
 import { useProfile } from "@/hooks/useProfile";
-import { useStyles } from "@/hooks/useStyles";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { ProfileSchema, ProfileSchemaType } from "@/lib/schemas";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,7 +14,6 @@ import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   Modal,
-  ScaledSize,
   ScrollView,
   StyleProp,
   StyleSheet,
@@ -23,7 +21,6 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { EdgeInsets } from "react-native-safe-area-context";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -164,7 +161,7 @@ export default function EditProfileModal({ style }: EditProfileModalProps) {
   );
 }
 
-const getStyles = (colors: ColorsType, _: ScaledSize, { top }: EdgeInsets) =>
+const getStyles = ({ colors, safeAreaInsets: { top } }: UseStylesContext) =>
   StyleSheet.create({
     container: {
       flex: 1,
