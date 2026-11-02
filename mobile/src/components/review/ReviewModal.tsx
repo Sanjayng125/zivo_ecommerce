@@ -12,7 +12,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Modal, StyleSheet, Text, View } from "react-native";
+import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import TextField from "../ui/TextField";
@@ -152,95 +152,106 @@ export default function ReviewModal({
       presentationStyle="pageSheet"
       style={styles.container}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Review</Text>
+      <View>
+        <View style={styles.header}>
+          <Text style={styles.title}>Review</Text>
 
-        <AppButton
-          onPress={onCloseModal}
-          size="sm"
-          variant="ghost"
-          leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
-        />
-      </View>
+          <AppButton
+            onPress={onCloseModal}
+            size="sm"
+            variant="ghost"
+            leftIcon={<Ionicons name="close" size={22} color={colors.text} />}
+          />
+        </View>
 
-      <View style={styles.ratingContainer}>
-        <Text style={styles.sectionText}>Rating:</Text>
-        <Controller
-          control={control}
-          name="rating"
-          render={({ field: { onChange, value } }) => (
-            <StarRating
-              value={value}
-              size={30}
-              editable
-              onChange={onChange}
+        <ScrollView
+          style={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.ratingContainer}>
+            <Text style={styles.sectionText}>Rating:</Text>
+            <Controller
+              control={control}
+              name="rating"
+              render={({ field: { onChange, value } }) => (
+                <StarRating
+                  value={value}
+                  size={30}
+                  editable
+                  onChange={onChange}
+                  disabled={isCreatingReview || isUpdatingReview}
+                />
+              )}
+            />
+            {errors.rating && (
+              <Text style={styles.error}>{errors.rating.message}</Text>
+            )}
+          </View>
+
+          <View style={styles.section}>
+            <Controller
+              control={control}
+              name="title"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter title"
+                  autoCapitalize="sentences"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: 20 }}
+                  editable={!isCreatingReview && !isUpdatingReview}
+                />
+              )}
+            />
+            {errors.title && (
+              <Text style={styles.error}>{errors.title.message}</Text>
+            )}
+          </View>
+
+          <View style={styles.section}>
+            <Controller
+              control={control}
+              name="comment"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter comment"
+                  autoCapitalize="none"
+                  textArea
+                  value={value}
+                  onChangeText={(text) =>
+                    onChange(text === "" ? undefined : text)
+                  }
+                  style={{ marginTop: 20 }}
+                  editable={!isCreatingReview && !isUpdatingReview}
+                />
+              )}
+            />
+            {errors.comment && (
+              <Text style={styles.error}>{errors.comment.message}</Text>
+            )}
+          </View>
+
+          <AppButton
+            title={review ? "Update Review" : "Add Review"}
+            onPress={handleSubmit(onSubmit)}
+            disabled={
+              isCreatingReview || isUpdatingReview || !isValid || !isDirty
+            }
+            loading={isCreatingReview || isUpdatingReview}
+            style={{ marginTop: spacing.xl }}
+          />
+          {review && (
+            <AppButton
+              title="Delete Review"
+              onPress={() => deleteReviewMutation()}
+              variant="destructive"
               disabled={isCreatingReview || isUpdatingReview}
+              loading={isDeletingReview}
+              style={{ marginTop: spacing.xl }}
             />
           )}
-        />
-        {errors.rating && (
-          <Text style={styles.error}>{errors.rating.message}</Text>
-        )}
+        </ScrollView>
       </View>
-
-      <View style={styles.section}>
-        <Controller
-          control={control}
-          name="title"
-          render={({ field: { onChange, value } }) => (
-            <TextField
-              placeholder="Enter title"
-              autoCapitalize="sentences"
-              value={value}
-              onChangeText={onChange}
-              style={{ marginTop: 20 }}
-              editable={!isCreatingReview && !isUpdatingReview}
-            />
-          )}
-        />
-        {errors.title && (
-          <Text style={styles.error}>{errors.title.message}</Text>
-        )}
-      </View>
-
-      <View style={styles.section}>
-        <Controller
-          control={control}
-          name="comment"
-          render={({ field: { onChange, value } }) => (
-            <TextField
-              placeholder="Enter comment"
-              autoCapitalize="none"
-              textArea
-              value={value}
-              onChangeText={(text) => onChange(text === "" ? undefined : text)}
-              style={{ marginTop: 20 }}
-              editable={!isCreatingReview && !isUpdatingReview}
-            />
-          )}
-        />
-        {errors.comment && (
-          <Text style={styles.error}>{errors.comment.message}</Text>
-        )}
-      </View>
-
-      <AppButton
-        title={review ? "Update Review" : "Add Review"}
-        onPress={handleSubmit(onSubmit)}
-        disabled={isCreatingReview || isUpdatingReview || !isValid || !isDirty}
-        loading={isCreatingReview || isUpdatingReview}
-        style={{ marginTop: spacing.xl }}
-      />
-      {review && (
-        <AppButton
-          title="Delete Review"
-          onPress={() => deleteReviewMutation()}
-          variant="destructive"
-          disabled={isCreatingReview || isUpdatingReview}
-          loading={isDeletingReview}
-          style={{ marginTop: spacing.xl }}
-        />
-      )}
     </Modal>
   );
 }
