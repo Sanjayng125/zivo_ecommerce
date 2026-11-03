@@ -2,11 +2,6 @@ import { Context } from "hono";
 import pool from "../db/client.js";
 
 export const cleanupPendingOrders = async (c: Context) => {
-    const secret = c.req.header("x-cron-secret")
-    if (secret !== process.env.CRON_SECRET) {
-        return c.json({ message: "Unauthorized" }, 401)
-    }
-
     await pool.query(`
             UPDATE product_variants pv
             SET stock = pv.stock + oi.quantity
