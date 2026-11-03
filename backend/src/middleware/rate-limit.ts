@@ -47,3 +47,11 @@ export const adminRateLimit = rateLimiter({
     },
 })
 
+export const cronRateLimit = rateLimiter({
+    windowMs: 10 * 60 * 1000, // 10 minutes
+    limit: 2,
+    keyGenerator(c: Context) {
+        const ip = c.req.header("x-forwarded-for")?.split(",")[0].trim() ?? ""
+        return ip
+    },
+})
