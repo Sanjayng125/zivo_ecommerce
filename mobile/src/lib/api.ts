@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/authStore";
 import axios from "axios";
 import { router } from "expo-router";
 import { clearToken, getToken } from "./secureStore";
@@ -38,6 +39,8 @@ authApi.interceptors.response.use(
     },
     async function (error) {
         if (error?.response?.status === 401) {
+            const { hydrated } = useAuthStore.getState()
+            if (!hydrated) return Promise.reject(error)
             await clearToken()
             router.push("/(tabs)")
         }
