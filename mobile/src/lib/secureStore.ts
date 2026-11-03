@@ -2,9 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 export async function getToken() {
     const res = await SecureStore.getItemAsync("access-token")
-
-    if (res) return res
-    else return null
+    return res ?? null
 }
 
 export async function setToken(value: string) {

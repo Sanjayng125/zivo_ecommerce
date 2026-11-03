@@ -37,7 +37,7 @@ authApi.interceptors.response.use(
         return response;
     },
     async function (error) {
-        if (error.response?.status === 401) {
+        if (error?.response?.status === 401) {
             await clearToken()
             router.push("/(tabs)")
         }
