@@ -1,5 +1,6 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { DatabaseError } from "pg";
 import pool from "../db/client.js";
 
 export const getProfile = async (c: Context) => {
@@ -32,7 +33,8 @@ export const updateProfile = async (c: Context) => {
 
     const { full_name, phone } = await c.req.json()
 
-    const updateResult = await pool.query(`
+    try {
+        const updateResult = await pool.query(`
         UPDATE profiles
         SET
         full_name = $1,
@@ -41,11 +43,19 @@ export const updateProfile = async (c: Context) => {
         RETURNING *
         `, [full_name, phone, me.id])
 
-    if (!updateResult.rowCount) {
-        throw new HTTPException(404, { message: "Profile not found" })
-    }
+        if (!updateResult.rowCount) {
+            throw new HTTPException(404, { message: "Profile not found" })
+        }
 
-    return c.json({ message: "Profile updated", updated_profile: updateResult.rows[0] })
+        return c.json({ message: "Profile updated", updated_profile: updateResult.rows[0] })
+    }
+    catch (error) {
+        if (error instanceof DatabaseError && error.code === "23505") {
+            throw new HTTPException(409, { message: "An account with this phone number already exists." })
+        }
+
+        throw error
+    }
 }
 
 export const updateAvatar = async (c: Context) => {

@@ -92,15 +92,23 @@ const AccountScreen = () => {
               }}
               style={styles.avatar}
             />
-            <Text style={styles.name}>Hey 👋🏻 {profile?.full_name}!</Text>
+            <Text style={styles.name}>
+              Hey 👋🏻 {profile?.full_name ?? user?.name}!
+            </Text>
             <View style={styles.emailContainer}>
               <Ionicons name="mail-outline" size={20} color={colors.text} />
               <Text style={styles.email}>{profile?.email}</Text>
             </View>
-            <View style={styles.phoneContainer}>
-              <Ionicons name="call-outline" size={20} color={colors.text} />
-              <Text style={styles.phone}>{profile?.phone}</Text>
-            </View>
+            {profile?.phone ? (
+              <View style={styles.phoneContainer}>
+                <Ionicons name="call-outline" size={20} color={colors.text} />
+                <Text style={styles.phone}>{profile?.phone}</Text>
+              </View>
+            ) : (
+              <Text style={styles.phone}>
+                Please complete your profile before placing order
+              </Text>
+            )}
             <EditProfileModal />
           </View>
 
@@ -217,6 +225,7 @@ const getStyles = ({ colors }: UseStylesContext) =>
       fontSize: typography.caption.fontSize,
       fontWeight: typography.heading.fontWeight,
       color: colors.textSecondary,
+      textAlign: "center",
     },
   });
 

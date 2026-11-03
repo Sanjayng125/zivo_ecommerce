@@ -90,7 +90,7 @@ export default function ProductInfo({ product }: ProductInfoProps) {
       </View>
 
       <Text style={styles.productPrice}>
-        {formatPrice(product?.base_price ?? 0)}
+        {formatPrice(selectedVariant?.price ?? product?.base_price ?? 0)}
       </Text>
 
       <HorizontalSeparator />

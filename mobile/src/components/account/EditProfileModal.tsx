@@ -83,7 +83,11 @@ export default function EditProfileModal({ style }: EditProfileModalProps) {
   return (
     <>
       <AppButton
-        title="Edit Profile"
+        title={
+          !profile?.full_name || !profile?.phone
+            ? "Complete profile"
+            : "Edit Profile"
+        }
         onPress={() => setIsOpen(true)}
         style={style}
       />
@@ -149,7 +153,11 @@ export default function EditProfileModal({ style }: EditProfileModalProps) {
           </View>
 
           <AppButton
-            title="Update Profile"
+            title={
+              !profile?.full_name || !profile?.phone
+                ? "Submit"
+                : "Update Profile"
+            }
             onPress={handleSubmit(onSubmit)}
             disabled={!isValid || !isDirty}
             loading={isUpdatingProfile}

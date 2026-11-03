@@ -134,6 +134,7 @@ export const createCategory = async (c: Context) => {
         if (error instanceof DatabaseError && error.code === "23505") {
             throw new HTTPException(409, { message: "Slug already exists" })
         }
+
         throw error
     }
 }

@@ -11,6 +11,16 @@ export const createOrder = async (c: Context) => {
     try {
         await client.query('BEGIN')
 
+        const profileResult = await pool.query(`
+                SELECT *
+                FROM profiles
+                WHERE id = $1
+        `, [me.id])
+
+        if (!profileResult.rows?.[0] || !profileResult.rows?.[0].full_name || !profileResult.rows?.[0].phone) {
+            throw new HTTPException(400, { message: "Please complete your profile before placing order" })
+        }
+
         const cartResult = await client.query(`
         SELECT
         ci.variant_id,

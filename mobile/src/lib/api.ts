@@ -21,7 +21,7 @@ api.interceptors.request.use(async (config) => {
 
 export const authApi = axios.create({
     baseURL: SERVER_BASE_URL,
-    timeout: 5000
+    timeout: 20000
 });
 
 authApi.interceptors.request.use(async (config) => {

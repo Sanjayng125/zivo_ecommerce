@@ -12,7 +12,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { Modal, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { toast } from "sonner-native";
 import { AppButton } from "../ui/AppButton";
 import Checkbox from "../ui/CheckBox";
@@ -153,178 +161,184 @@ export default function AddressModal({
         </View>
       </View>
 
-      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Full Name:</Text>
-          <Controller
-            control={control}
-            name="full_name"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter full name"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 24}
+      >
+        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Full Name:</Text>
+            <Controller
+              control={control}
+              name="full_name"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter full name"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.full_name && (
+              <Text style={styles.error}>{errors.full_name.message}</Text>
             )}
-          />
-          {errors.full_name && (
-            <Text style={styles.error}>{errors.full_name.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Phone:</Text>
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter phone number"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Phone:</Text>
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter phone number"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.phone && (
+              <Text style={styles.error}>{errors.phone.message}</Text>
             )}
-          />
-          {errors.phone && (
-            <Text style={styles.error}>{errors.phone.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Address Line 1:</Text>
-          <Controller
-            control={control}
-            name="line1"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter address line 1"
-                textArea
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Address Line 1:</Text>
+            <Controller
+              control={control}
+              name="line1"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter address line 1"
+                  textArea
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.line1 && (
+              <Text style={styles.error}>{errors.line1.message}</Text>
             )}
-          />
-          {errors.line1 && (
-            <Text style={styles.error}>{errors.line1.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Address Line 2:</Text>
-          <Controller
-            control={control}
-            name="line2"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter address line 2 (optional)"
-                textArea
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Address Line 2:</Text>
+            <Controller
+              control={control}
+              name="line2"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter address line 2 (optional)"
+                  textArea
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.line2 && (
+              <Text style={styles.error}>{errors.line2.message}</Text>
             )}
-          />
-          {errors.line2 && (
-            <Text style={styles.error}>{errors.line2.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>City:</Text>
-          <Controller
-            control={control}
-            name="city"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter city number"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>City:</Text>
+            <Controller
+              control={control}
+              name="city"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter city number"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.city && (
+              <Text style={styles.error}>{errors.city.message}</Text>
             )}
-          />
-          {errors.city && (
-            <Text style={styles.error}>{errors.city.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>State:</Text>
-          <Controller
-            control={control}
-            name="state"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter state number"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>State:</Text>
+            <Controller
+              control={control}
+              name="state"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter state number"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.state && (
+              <Text style={styles.error}>{errors.state.message}</Text>
             )}
-          />
-          {errors.state && (
-            <Text style={styles.error}>{errors.state.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Pincode:</Text>
-          <Controller
-            control={control}
-            name="pincode"
-            render={({ field: { onChange, value } }) => (
-              <TextField
-                placeholder="Enter pincode number"
-                value={value}
-                onChangeText={onChange}
-                style={{ marginTop: spacing.sm }}
-                editable={!isCreatingAddress || !isUpdatingAddress}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Pincode:</Text>
+            <Controller
+              control={control}
+              name="pincode"
+              render={({ field: { onChange, value } }) => (
+                <TextField
+                  placeholder="Enter pincode number"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{ marginTop: spacing.sm }}
+                  editable={!isCreatingAddress || !isUpdatingAddress}
+                />
+              )}
+            />
+            {errors.pincode && (
+              <Text style={styles.error}>{errors.pincode.message}</Text>
             )}
-          />
-          {errors.pincode && (
-            <Text style={styles.error}>{errors.pincode.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>Is Default Address:</Text>
-          <Controller
-            control={control}
-            name="is_default"
-            render={({ field: { onChange, value } }) => (
-              <Checkbox
-                checked={value}
-                onChange={onChange}
-                label="Make this my default address"
-                style={{ marginTop: spacing.sm }}
-              />
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Is Default Address:</Text>
+            <Controller
+              control={control}
+              name="is_default"
+              render={({ field: { onChange, value } }) => (
+                <Checkbox
+                  checked={value}
+                  onChange={onChange}
+                  label="Make this my default address"
+                  style={{ marginTop: spacing.sm }}
+                />
+              )}
+            />
+            {errors.is_default && (
+              <Text style={styles.error}>{errors.is_default.message}</Text>
             )}
-          />
-          {errors.is_default && (
-            <Text style={styles.error}>{errors.is_default.message}</Text>
-          )}
-        </View>
+          </View>
 
-        <AppButton
-          title={address ? "Update Address" : "Add Address"}
-          onPress={handleSubmit(onSubmit)}
-          disabled={
-            isCreatingAddress || isUpdatingAddress || !isValid || !isDirty
-          }
-          loading={isCreatingAddress || isUpdatingAddress}
-          style={{ marginTop: spacing.xl }}
-        />
-      </ScrollView>
+          <AppButton
+            title={address ? "Update Address" : "Add Address"}
+            onPress={handleSubmit(onSubmit)}
+            disabled={
+              isCreatingAddress || isUpdatingAddress || !isValid || !isDirty
+            }
+            loading={isCreatingAddress || isUpdatingAddress}
+            style={{ marginTop: spacing.xl }}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
