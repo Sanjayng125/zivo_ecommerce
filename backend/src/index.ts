@@ -1,12 +1,12 @@
-import 'dotenv/config';
-
 import { serve } from '@hono/node-server';
-import app from './app.js';
+import 'dotenv/config';
 import { validateEnv } from './lib/env.js';
 
-const start = () => {
+const start = async () => {
     try {
         validateEnv();
+
+        const { default: app } = await import('./app.js');
 
         const PORT = Number(process.env.PORT ?? "3000");
 
