@@ -1,6 +1,7 @@
 import { ApiError, authApi } from "@/lib/api"
 import { clearToken } from "@/lib/secureStore"
 import { useAuthStore } from "@/store/authStore"
+import { useSearchStore } from "@/store/searchStore"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { router } from "expo-router"
@@ -10,6 +11,7 @@ import { useCart } from "./useCart"
 export const useSignOut = () => {
     const { token, logout } = useAuthStore()
     const { clearCart } = useCart()
+    const { clearHistory } = useSearchStore()
     const queryClient = useQueryClient()
 
     const { mutate: signOutMutation, isPending: isSigningOut } = useMutation({
@@ -21,6 +23,7 @@ export const useSignOut = () => {
             await clearToken()
             logout()
             clearCart()
+            clearHistory()
             queryClient.clear()
             router.replace("/(tabs)")
             toast.success("Signed out successfully")

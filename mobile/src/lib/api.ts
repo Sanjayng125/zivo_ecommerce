@@ -47,4 +47,5 @@ authApi.interceptors.response.use(
 
 export type ApiError = {
     message?: string
+    code?: string
 }

@@ -69,6 +69,20 @@ const SignIn = () => {
       router.replace("/(tabs)");
     },
     onError: (error: AxiosError<ApiError>) => {
+      if (
+        error.response?.status === 403 &&
+        error.response?.data?.code === "EMAIL_NOT_VERIFIED"
+      ) {
+        console.log(JSON.stringify(error.response));
+        toast.info(
+          "Check your inbox — we've sent you a verification email. Verify and Sign-in again.",
+          {
+            duration: 6000,
+          },
+        );
+        return;
+      }
+
       const message = error.response?.data?.message ?? "Something went wrong";
 
       toast.error(message);

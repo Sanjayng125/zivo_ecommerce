@@ -3,13 +3,10 @@ import { AppButton } from "@/components/ui/AppButton";
 import TextField from "@/components/ui/TextField";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
-import { useCart } from "@/hooks/useCart";
 import { useColors } from "@/hooks/useColors";
 import { useStyles, UseStylesContext } from "@/hooks/useStyles";
-import { api, ApiError, authApi } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { SignUpSchema, SignUpSchemaType } from "@/lib/schemas";
-import { setToken } from "@/lib/secureStore";
-import { useAuthStore } from "@/store/authStore";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -20,8 +17,6 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { toast } from "sonner-native";
 
 const SignUp = () => {
-  const { setToken: setStoreToken, setUser } = useAuthStore();
-  const { items: guestItems, clearCart } = useCart();
   const colors = useColors();
 
   const styles = useStyles(getStyles);
@@ -49,26 +44,15 @@ const SignUp = () => {
 
       return res.data;
     },
-    onSuccess: async (data) => {
-      await setToken(data.token);
+    onSuccess: async () => {
+      toast.info(
+        "Check your inbox — we've sent you a verification email. Verify and Sign-in.",
+        {
+          duration: 6000,
+        },
+      );
 
-      if (guestItems.length > 0) {
-        await Promise.allSettled(
-          guestItems.map((item) =>
-            authApi.post("/cart", {
-              variant_id: item.variant_id,
-              quantity: item.quantity,
-            }),
-          ),
-        );
-
-        clearCart();
-      }
-
-      setStoreToken(data.token);
-      setUser(data.user);
-
-      router.replace("/(tabs)");
+      router.replace("/(auth)/sign-in");
     },
     onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message ?? "Something went wrong";

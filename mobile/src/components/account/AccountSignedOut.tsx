@@ -33,7 +33,14 @@ export default function AccountSignedOut() {
         label="Dark Mode"
         icon="moon-outline"
         hideChevron
-        right={<Switch value={isDarkMode} onValueChange={toggleTheme} />}
+        right={
+          <Switch
+            value={isDarkMode}
+            onValueChange={toggleTheme}
+            trackColor={{ false: colors.border, true: colors.border }}
+            thumbColor={isDarkMode ? colors.primary : colors.textSecondary}
+          />
+        }
       />
     </View>
   );

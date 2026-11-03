@@ -35,7 +35,7 @@ export default function OrdersHeader({ count }: OrdersHeaderProps) {
           <Text style={styles.headerTitle}>My Orders</Text>
         </View>
         <Text style={styles.headerCount}>
-          {count} order{count > 1 ? "s" : ""}
+          {count} order{count === 1 ? "" : "s"}
         </Text>
       </View>
     </View>

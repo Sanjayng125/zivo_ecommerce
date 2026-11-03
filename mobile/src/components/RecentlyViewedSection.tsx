@@ -22,7 +22,7 @@ export const RecentlyViewedSection = () => {
   const styles = useStyles(getStyles);
   const colors = useColors();
 
-  if (error || !recentlyViewedProducts) return null;
+  if (error || !recentlyViewedProducts?.length) return null;
 
   return (
     <View style={styles.container}>

@@ -99,7 +99,7 @@ export default function FilterModal({
 
   const hasChanges =
     JSON.stringify(internal) !== JSON.stringify(defaultValues) ||
-    selectedCategory !== null;
+    selectedCategory;
 
   return (
     <Modal

@@ -8,7 +8,8 @@ const requiredEnvVars = [
     "CRON_SECRET",
     "UPSTASH_REDIS_REST_URL",
     "UPSTASH_REDIS_REST_TOKEN",
-    "UPSTASH_REDIS_URL"
+    "UPSTASH_REDIS_URL",
+    "RESEND_API_KEY"
 ] as const;
 
 export const validateEnv = () => {

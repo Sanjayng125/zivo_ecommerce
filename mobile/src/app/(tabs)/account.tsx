@@ -107,7 +107,11 @@ const AccountScreen = () => {
           <SettingsRow
             label="My Orders"
             icon="bag-outline"
-            value={`${activeOrdersCount} active order${activeOrdersCount > 1 && "s"}`}
+            {...(activeOrdersCount > 0
+              ? {
+                  value: `${activeOrdersCount} active order${activeOrdersCount === 1 ? "" : "s"}`,
+                }
+              : {})}
             onPress={() => router.push("/orders")}
           />
 
@@ -158,13 +162,6 @@ const AccountScreen = () => {
             destructive
             loading={isSigningOut}
             onPress={signOut}
-          />
-          <SettingsRow
-            label="Delete Account"
-            icon="trash-outline"
-            destructive
-            disabled={isSigningOut}
-            onPress={() => {}}
           />
         </>
       )}

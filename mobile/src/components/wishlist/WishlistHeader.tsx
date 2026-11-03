@@ -34,7 +34,7 @@ export default function WishlistHeader({ count }: WishlistHeaderProps) {
         <Text style={styles.headerTitle}>My Wishlist</Text>
       </View>
       <Text style={styles.headerCount}>
-        {count} item{count > 1 ? "s" : ""}
+        {count} item{count === 1 ? "" : "s"}
       </Text>
     </View>
   );
