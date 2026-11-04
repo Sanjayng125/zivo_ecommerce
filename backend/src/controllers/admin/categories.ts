@@ -4,6 +4,7 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
+import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
 
 export const getCategories = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -72,7 +73,7 @@ export const getCategories = async (c: Context) => {
 }
 
 export const createCategory = async (c: Context) => {
-    const { name, parent_id, image_url, sort_order, is_active } = await c.req.json()
+    const { name, parent_id, sort_order, is_active } = await c.req.json()
 
     const slug = slugify(name, { lower: true, strict: true })
 
@@ -95,11 +96,6 @@ export const createCategory = async (c: Context) => {
 
         colomns.push("parent_id")
         params.push(parent_id)
-        values.push(`$${params.length}`)
-    }
-    if (image_url) {
-        colomns.push("image_url")
-        params.push(image_url)
         values.push(`$${params.length}`)
     }
     if (sort_order !== undefined) {
@@ -139,15 +135,28 @@ export const createCategory = async (c: Context) => {
     }
 }
 
+export const getCategoryImageUploadAuth = async (c: Context) => {
+    const category_id = c.req.param("category_id")
+
+    const folder = `categories/images/${category_id}`
+
+    const authParams = generateUploadAuth(folder)
+
+    return c.json({
+        ...authParams
+    })
+}
+
 export const updateCategory = async (c: Context) => {
     const category_id = c.req.param("category_id")
 
-    const { name, parent_id, image_url, sort_order } = await c.req.json()
+    const { name, parent_id, image_url, image_file_id, sort_order } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
 
     let oldCategorySlug: string | null = null
+    let oldCategoryImageFileId: string | null = null
 
     if (name) {
         params.push(name)
@@ -156,16 +165,22 @@ export const updateCategory = async (c: Context) => {
         params.push(slug)
         columns.push(`slug = $${params.length}`)
 
-        const category = await pool.query(`SELECT slug FROM categories WHERE id = $1`, [category_id])
-        oldCategorySlug = category.rows[0].slug
+        const categoryResult = await pool.query(`SELECT slug FROM categories WHERE id = $1`, [category_id])
+        oldCategorySlug = categoryResult.rows[0].slug
     }
     if (parent_id) {
         params.push(parent_id)
         columns.push(`parent_id = $${params.length}`)
     }
-    if (image_url) {
+    if (image_url && image_file_id) {
         params.push(image_url)
         columns.push(`image_url = $${params.length}`)
+
+        params.push(image_file_id)
+        columns.push(`image_file_id = $${params.length}`)
+
+        const categoryResult = await pool.query(`SELECT image_file_id FROM categories WHERE id = $1`, [category_id])
+        oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
     }
     if (sort_order !== undefined) {
         params.push(sort_order)
@@ -193,6 +208,8 @@ export const updateCategory = async (c: Context) => {
 
         await redis.del("home:sections")
         await redis.del(`category:${oldCategorySlug ?? categoryResult.rows[0].slug}`)
+
+        if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
 
         return c.json({ category: categoryResult.rows[0], message: "Category updated" })
     } catch (error) {
@@ -239,6 +256,9 @@ export const deleteCategory = async (c: Context) => {
 
         await redis.del("home:sections")
         await redis.del(`category:${categoryResult.rows[0].slug}`)
+
+        const oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
+        if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
 
         return c.json({ message: "Category deleted" })
     } catch (error) {

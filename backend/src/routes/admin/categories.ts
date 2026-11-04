@@ -1,6 +1,6 @@
 import { zValidator } from "@hono/zod-validator"
 import { Hono } from "hono"
-import { createCategory, deleteCategory, getCategories, toggleIsActive, updateCategory } from "../../controllers/admin/categories.js"
+import { createCategory, deleteCategory, getCategories, getCategoryImageUploadAuth, toggleIsActive, updateCategory } from "../../controllers/admin/categories.js"
 import { customValidationHandler } from "../../lib/validator.js"
 import { categoryIdSchema, createCategorySchema, getAdminCategoriesSchema, updateCategorySchema } from "../../schemas/categories.js"
 
@@ -8,6 +8,10 @@ const app = new Hono()
 
 app.get("/", zValidator("query", getAdminCategoriesSchema, customValidationHandler), getCategories)
 app.post("/", zValidator("json", createCategorySchema, customValidationHandler), createCategory)
+app.get("/upload/:category_id",
+    zValidator("param", categoryIdSchema, customValidationHandler),
+    getCategoryImageUploadAuth
+);
 app.patch("/:category_id/toggle-is-active",
     zValidator("param", categoryIdSchema, customValidationHandler),
     toggleIsActive

@@ -17,14 +17,33 @@ export const createProductSchema = z.object({
         .min(10, "Description must be at least 3 characters")
         .max(2000, "Description must be at most 2000 characters"),
     base_price: z.coerce.number({ error: "Invalid base price" }).min(0, "Base price cannot be negative"),
-    cover_image: z.url({ error: "Invalid cover image URL" }),
     category_id: z.uuid({ error: "Invalid category ID" }),
     is_active: z.boolean().optional().default(true),
 })
 
+export const productImagesUploadSchema = z.object({
+    for_product_images: z.coerce.boolean().optional()
+})
+
 export const updateProductSchema = createProductSchema
     .omit({ is_active: true })
+    .extend({
+        cover_image: z.url({ error: "Invalid cover image URL" }),
+        cover_image_file_id: z.string({ error: "Invalid cover image file id" }),
+    })
     .partial()
+    .superRefine((data, ctx) => {
+        const hasImage = data.cover_image !== undefined;
+        const hasFileId = data.cover_image_file_id !== undefined;
+
+        if (hasImage !== hasFileId) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Cover image URL and its file ID must be provided together",
+                path: ["cover_image"],
+            });
+        }
+    });
 
 export const getProductsSchema = z.object({
     category_id: z

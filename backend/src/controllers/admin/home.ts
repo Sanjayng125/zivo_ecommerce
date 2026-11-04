@@ -2,6 +2,7 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
+import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
 
 export const getHomeSections = async (c: Context) => {
     const { is_active, sort } = c.req.query()
@@ -62,13 +63,38 @@ export const createHomeSection = async (c: Context) => {
     return c.json({ home_section: homeSectionResult.rows[0], message: "Home section created" })
 }
 
+export const getHomeSectionBgImageUploadAuth = async (c: Context) => {
+    const home_section_id = c.req.param("home_section_id")
+
+    const folder = `home_sections/bg_images/${home_section_id}`
+
+    const authParams = generateUploadAuth(folder)
+
+    return c.json({
+        ...authParams
+    })
+}
+
 export const updateHomeSection = async (c: Context) => {
     const home_section_id = c.req.param("home_section_id")
 
-    const { title, key, sort_order, config } = await c.req.json()
+    const { title, key, sort_order, config, bg_image, bg_image_file_id } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
+
+    let oldBgImageFileId: string | null = null
+
+    if (bg_image && bg_image_file_id) {
+        params.push(bg_image)
+        columns.push(`bg_image = $${params.length}`)
+
+        params.push(bg_image_file_id)
+        columns.push(`bg_image_file_id = $${params.length}`)
+
+        const homeSectionResult = await pool.query(`SELECT bg_image_file_id FROM home_sections WHERE id = $1`, [home_section_id])
+        oldBgImageFileId = homeSectionResult?.rows?.[0]?.bg_image_file_id ?? null
+    }
 
     if (title) {
         params.push(title)
@@ -108,6 +134,8 @@ export const updateHomeSection = async (c: Context) => {
 
     await redis.del("home:sections")
 
+    if (oldBgImageFileId) await deleteImage(oldBgImageFileId)
+
     return c.json({ home_section: homeSectionResult.rows[0], message: "Home section updated" })
 }
 
@@ -128,4 +156,25 @@ export const toggleIsActive = async (c: Context) => {
     await redis.del("home:sections")
 
     return c.json({ home_section: homeSectionResult.rows[0], message: `Home section ${homeSectionResult.rows[0].is_active ? "activated" : "deactivated"}` })
+}
+
+export const deleteHomeSection = async (c: Context) => {
+    const home_section_id = c.req.param("home_section_id")
+
+    const homeSectionResult = await pool.query(`
+        DELETE FROM home_sections
+        WHERE id = $1
+        RETURNING *
+        `, [home_section_id])
+
+    if (!homeSectionResult.rowCount) {
+        throw new HTTPException(404, { message: "Home section not found" })
+    }
+
+    await redis.del("home:sections")
+
+    const bgImageFileId = homeSectionResult?.rows?.[0]?.bg_image_file_id ?? null
+    if (bgImageFileId) await deleteImage(bgImageFileId)
+
+    return c.json({ message: "Home section deleted" })
 }

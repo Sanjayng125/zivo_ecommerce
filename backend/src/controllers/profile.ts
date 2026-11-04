@@ -2,6 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import pool from "../db/client.js";
+import { deleteImage } from "../services/imagekit.js";
 
 export const getProfile = async (c: Context) => {
     const me = c.get("user")
@@ -61,19 +62,29 @@ export const updateProfile = async (c: Context) => {
 export const updateAvatar = async (c: Context) => {
     const me = c.get("user")
 
-    const { avatar_url } = await c.req.json()
+    const { avatar_url, avatar_file_id } = await c.req.json()
+
+    const profileResult = await pool.query(
+        `SELECT avatar_file_id FROM profiles WHERE id = $1`,
+        [me.id]
+    )
+
+    const oldFileId = profileResult.rows?.[0]?.avatar_file_id
 
     const updateResult = await pool.query(`
         UPDATE profiles
         SET
-        avatar_url = $1
-        WHERE id = $2
+        avatar_url = $1,
+        avatar_file_id = $2
+        WHERE id = $3
         RETURNING *
-        `, [avatar_url, me.id])
+        `, [avatar_url, avatar_file_id, me.id])
 
     if (!updateResult.rowCount) {
         throw new HTTPException(404, { message: "Profile not found" })
     }
+
+    if (oldFileId) await deleteImage(oldFileId)
 
     return c.json({ message: "Avatar updated", updated_profile: updateResult.rows[0] })
 }

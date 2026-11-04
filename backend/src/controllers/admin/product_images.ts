@@ -3,6 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
 import redis from "../../lib/redis.js";
 import { ProductImage } from "../../schemas/product_images.js";
+import { deleteImage } from "../../services/imagekit.js";
 
 export const getProductImages = async (c: Context) => {
     const product_id = c.req.param("product_id")
@@ -20,7 +21,7 @@ export const getProductImages = async (c: Context) => {
 export const createProductImage = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
-    const { url, sort_order = 0 } = await c.req.json()
+    const { url, file_id, sort_order = 0 } = await c.req.json()
 
     const productResult = await pool.query(`
         SELECT id
@@ -33,10 +34,10 @@ export const createProductImage = async (c: Context) => {
     }
 
     const productImagesResult = await pool.query(`
-        INSERT INTO product_images (product_id, url, sort_order)
-        VALUES ($1, $2, $3)
+        INSERT INTO product_images (product_id, url, file_id, sort_order)
+        VALUES ($1, $2, $3, $4)
         RETURNING *
-        `, [product_id, url, sort_order])
+        `, [product_id, url, file_id, sort_order])
 
     if (!productImagesResult.rowCount) {
         throw new HTTPException(400, { message: "Failed to create product image" })
@@ -78,14 +79,23 @@ export const updateProductImage = async (c: Context) => {
     const product_id = c.req.param("product_id")
     const product_image_id = c.req.param("product_image_id")
 
-    const { url, sort_order } = await c.req.json()
+    const { url, file_id, sort_order } = await c.req.json()
+
+    const oldImageFileIdResult = await pool.query(`
+        SELECT file_id
+        FROM product_images
+        WHERE id = $1 AND product_id = $2
+        `, [product_image_id, product_id])
+    const oldImageFileId = oldImageFileIdResult.rows?.[0]?.file_id
 
     const columns: string[] = []
     const params: unknown[] = []
 
-    if (url) {
+    if (url && file_id) {
         params.push(url)
         columns.push(`url = $${params.length}`)
+        params.push(file_id)
+        columns.push(`file_id = $${params.length}`)
     }
     if (sort_order !== undefined) {
         params.push(sort_order)
@@ -115,6 +125,8 @@ export const updateProductImage = async (c: Context) => {
 
     await redis.del(`product:${productResult.rows[0].slug}`)
 
+    if (oldImageFileId) await deleteImage(oldImageFileId)
+
     return c.json({ productImage: productImagesResult.rows[0], message: "Product image updated" })
 }
 
@@ -127,7 +139,7 @@ export const deleteProductImage = async (c: Context) => {
     const productImagesResult = await pool.query(`
         DELETE FROM product_images
         WHERE product_id = $1 AND id = $2
-        RETURNING id
+        RETURNING *
         `, [product_id, product_image_id])
 
     if (!productImagesResult.rowCount) {
@@ -135,6 +147,9 @@ export const deleteProductImage = async (c: Context) => {
     }
 
     await redis.del(`product:${productResult.rows[0].slug}`)
+
+    const imageFileId = productImagesResult.rows?.[0]?.file_id
+    if (imageFileId) await deleteImage(imageFileId)
 
     return c.json({ message: "Product image deleted" })
 }

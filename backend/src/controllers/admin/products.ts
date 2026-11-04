@@ -4,9 +4,10 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
+import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
 
 export const createProduct = async (c: Context) => {
-    const { title, description, base_price, cover_image, category_id, is_active } = await c.req.json()
+    const { title, description, base_price, category_id, is_active } = await c.req.json()
 
     const categoryResult = await pool.query(`
         SELECT id, slug
@@ -22,10 +23,10 @@ export const createProduct = async (c: Context) => {
 
     try {
         const productResult = await pool.query(`
-            INSERT INTO products (title, description, slug, base_price, cover_image, category_id, is_active)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO products (title, description, slug, base_price, category_id, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
-            `, [title, description, slug, base_price, cover_image, categoryResult.rows[0].id, is_active])
+            `, [title, description, slug, base_price, categoryResult.rows[0].id, is_active])
 
         if (!productResult.rowCount) {
             throw new HTTPException(500, { message: "Something went wrong while creating product" })
@@ -40,6 +41,20 @@ export const createProduct = async (c: Context) => {
     }
 }
 
+export const getProductImagesUploadAuth = async (c: Context) => {
+    const product_id = c.req.param("product_id")
+    const { for_product_images } = await c.req.json()
+
+    const folder = for_product_images ? `products/product_images/${product_id}` : `products/cover_images/${product_id}`
+    const expiry = for_product_images ? 600 : 300
+
+    const authParams = generateUploadAuth(folder, expiry)
+
+    return c.json({
+        ...authParams
+    })
+}
+
 export const getProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
     const limit = Number(c.req.query("limit") ?? 20)
@@ -50,7 +65,7 @@ export const getProducts = async (c: Context) => {
     const is_active = c.req.query("is_active")
     const searchQuery = c.req.query("q")?.trim()
 
-    const conditions: string[] = ["EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id) AND EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"]
+    const conditions: string[] = []
     const params: unknown[] = []
 
     if (searchQuery) {
@@ -127,10 +142,14 @@ export const getProduct = async (c: Context) => {
             SELECT pv.product_id, JSONB_AGG(to_jsonb(pv.*) ORDER BY pv.price) AS product_variants  
             FROM product_variants pv GROUP BY pv.product_id
         )
-        SELECT p.*, images.product_images, variants.product_variants
+
+        SELECT
+        p.*,
+        images.product_images,
+        variants.product_variants
         FROM products p
-        JOIN images ON images.product_id = p.id
-        JOIN variants ON variants.product_id = p.id
+        LEFT JOIN images ON images.product_id = p.id
+        LEFT JOIN variants ON variants.product_id = p.id
         WHERE p.is_active = true AND p.slug = $1
             `,
         [slug])
@@ -145,12 +164,13 @@ export const getProduct = async (c: Context) => {
 export const updateProduct = async (c: Context) => {
     const product_id = c.req.param("product_id")
 
-    const { title, description, base_price, cover_image, category_id } = await c.req.json()
+    const { title, description, base_price, cover_image, cover_image_file_id, category_id } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
 
     let oldProductSlug: string | null = null
+    let oldCoverImageFileId: string | null = null
 
     if (title) {
         params.push(title)
@@ -159,8 +179,8 @@ export const updateProduct = async (c: Context) => {
         params.push(slug)
         columns.push(`slug = $${params.length}`)
 
-        const product = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
-        oldProductSlug = product.rows[0].slug
+        const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
+        oldProductSlug = productResult.rows[0].slug
     }
     if (description) {
         params.push(description)
@@ -170,9 +190,15 @@ export const updateProduct = async (c: Context) => {
         params.push(base_price)
         columns.push(`base_price = $${params.length}`)
     }
-    if (cover_image) {
+    if (cover_image && cover_image_file_id) {
         params.push(cover_image)
         columns.push(`cover_image = $${params.length}`)
+
+        params.push(cover_image_file_id)
+        columns.push(`cover_image_file_id = $${params.length}`)
+
+        const productResult = await pool.query(`SELECT cover_image_file_id FROM products WHERE id = $1`, [product_id])
+        oldCoverImageFileId = productResult?.rows?.[0]?.cover_image_file_id ?? null
     }
     if (category_id) {
         params.push(category_id)
@@ -198,6 +224,8 @@ export const updateProduct = async (c: Context) => {
     }
 
     await redis.del(`product:${oldProductSlug ?? productResult.rows[0].slug}`)
+
+    if (oldCoverImageFileId) await deleteImage(oldCoverImageFileId)
 
     return c.json({ product: productResult.rows[0], message: "Product updated" })
 }
@@ -235,6 +263,9 @@ export const deleteProduct = async (c: Context) => {
     }
 
     await redis.del(`product:${productResult.rows[0].slug}`)
+
+    const oldCoverImageFileId = productResult?.rows?.[0]?.cover_image_file_id ?? null
+    if (oldCoverImageFileId) await deleteImage(oldCoverImageFileId)
 
     return c.json({ message: "Product deleted" })
 }

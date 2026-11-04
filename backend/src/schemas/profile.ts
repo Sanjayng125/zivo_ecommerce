@@ -24,4 +24,7 @@ export const avatarUpdateSchema = z.object({
     avatar_url: z.url({
         error: "Please enter a valid avatar URL"
     }),
+    avatar_file_id: z.string({
+        error: "Invalid avatar file id"
+    })
 })

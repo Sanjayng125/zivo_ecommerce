@@ -9,7 +9,10 @@ const requiredEnvVars = [
     "UPSTASH_REDIS_REST_URL",
     "UPSTASH_REDIS_REST_TOKEN",
     "UPSTASH_REDIS_URL",
-    "RESEND_API_KEY"
+    "RESEND_API_KEY",
+    "IMAGEKIT_URL_ENDPOINT",
+    "IMAGEKIT_PUBLIC_KEY",
+    "IMAGEKIT_PRIVATE_KEY"
 ] as const;
 
 export const validateEnv = () => {

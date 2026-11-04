@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS products (
     slug TEXT NOT NULL UNIQUE,
     description TEXT,
     base_price INTEGER NOT NULL CHECK(base_price >= 0),
-    cover_image TEXT NOT NULL,
+    cover_image TEXT,
     rating_avg NUMERIC(3, 2) NOT NULL DEFAULT 0.00,
     rating_count INTEGER NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS product_variants (
 -- banners
 CREATE TABLE IF NOT EXISTS banners (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    image_url TEXT NOT NULL,
+    image_url TEXT,
     link TEXT,
     sort_order INTEGER NOT NULL DEFAULT 0,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,

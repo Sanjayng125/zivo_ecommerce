@@ -64,6 +64,8 @@ export const updateHomeSectionSchema = z.discriminatedUnion("type", [
         title: z.string().optional(),
         key: z.string().min(3).max(100).optional(),
         sort_order: z.coerce.number().optional(),
+        bg_image: z.url({ error: "Invalid image URL" }).optional(),
+        bg_image_file_id: z.string({ error: "Invalid image file id" }).optional(),
         config: bannerConfigSchema.partial().optional(),
     }),
     z.object({
@@ -71,6 +73,8 @@ export const updateHomeSectionSchema = z.discriminatedUnion("type", [
         title: z.string().optional(),
         key: z.string().min(3).max(100).optional(),
         sort_order: z.coerce.number().optional(),
+        bg_image: z.url({ error: "Invalid image URL" }).optional(),
+        bg_image_file_id: z.string({ error: "Invalid image file id" }).optional(),
         config: categoryRowConfigSchema.partial().optional(),
     }),
     z.object({
@@ -78,9 +82,23 @@ export const updateHomeSectionSchema = z.discriminatedUnion("type", [
         title: z.string().optional(),
         key: z.string().min(3).max(100).optional(),
         sort_order: z.coerce.number().optional(),
+        bg_image: z.url({ error: "Invalid image URL" }).optional(),
+        bg_image_file_id: z.string({ error: "Invalid image file id" }).optional(),
         config: productRowConfigSchema.partial().optional(),
     }),
 ], { error: "Invalid home section" })
+    .superRefine((data, ctx) => {
+        const hasImage = data.bg_image !== undefined
+        const hasImageFileId = data.bg_image_file_id !== undefined
+
+        if (hasImage !== hasImageFileId) {
+            ctx.addIssue({
+                code: "custom",
+                message: "Image URL and image file ID must be provided together",
+                path: ["bg_image"]
+            })
+        }
+    })
 
 export const getHomeSectionsSchema = z.object({
     is_active: z

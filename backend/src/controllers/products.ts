@@ -14,6 +14,7 @@ export const getProducts = async (c: Context) => {
 
     const conditions: string[] = [
         "is_active = true",
+        "cover_image IS NOT NULL",
         "EXISTS (SELECT 1 FROM product_images WHERE product_id = products.id)",
         "EXISTS (SELECT 1 FROM product_variants WHERE product_id = products.id)"
     ]
@@ -149,7 +150,12 @@ export const getProduct = async (c: Context) => {
         FROM products p
         JOIN images ON images.product_id = p.id
         JOIN variants ON variants.product_id = p.id
-        WHERE p.is_active = true AND p.slug = $1
+        WHERE
+        p.is_active = true
+        AND
+        p.cover_image IS NOT NULL
+        AND
+        p.slug = $1
             `,
         [slug])
 

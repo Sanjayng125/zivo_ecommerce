@@ -2,6 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
 import redis from "../../lib/redis.js";
+import { deleteImage, generateUploadAuth } from "../../services/imagekit.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -57,11 +58,11 @@ export const getBanners = async (c: Context) => {
 }
 
 export const createBanner = async (c: Context) => {
-    const { image_url, link, sort_order, is_active, group_name } = await c.req.json()
+    const { link, sort_order, is_active, group_name } = await c.req.json()
 
-    const columns: string[] = ["image_url"]
-    const values: string[] = ["$1"]
-    const params: unknown[] = [image_url]
+    const columns: string[] = []
+    const values: string[] = []
+    const params: unknown[] = []
 
     if (link) {
         columns.push("link")
@@ -102,17 +103,39 @@ export const createBanner = async (c: Context) => {
     return c.json({ banner: bannerResult.rows[0], message: "Banner created" })
 }
 
+export const getBannerImageUploadAuth = async (c: Context) => {
+    const banner_id = c.req.param("banner_id")
+
+    const folder = `banners/images/${banner_id}`
+
+    const authParams = generateUploadAuth(folder)
+
+    return c.json({
+        ...authParams
+    })
+}
+
 export const updateBanner = async (c: Context) => {
     const banner_id = c.req.param("banner_id")
 
-    const { image_url, link, sort_order, group_name } = await c.req.json()
+    const { image_url, image_file_id, link, sort_order, group_name } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
 
-    if (image_url) {
+    let oldImageFileId: string | null = null
+
+    if (image_url && image_file_id) {
         params.push(image_url)
         columns.push(`image_url = $${params.length}`)
+
+        params.push(image_file_id)
+        columns.push(`image_file_id = $${params.length}`)
+
+        const bannerResult = await pool.query(`
+            SELECT image_file_id FROM banners WHERE id = $1
+            `, [banner_id])
+        oldImageFileId = bannerResult?.rows?.[0]?.image_file_id ?? null
     }
     if (link) {
         params.push(link)
@@ -147,6 +170,8 @@ export const updateBanner = async (c: Context) => {
 
     await redis.del("home:sections")
 
+    if (oldImageFileId) await deleteImage(oldImageFileId)
+
     return c.json({ banner: bannerResult.rows[0], message: "Banner updated" })
 }
 
@@ -175,7 +200,7 @@ export const deleteBanner = async (c: Context) => {
     const bannerResult = await pool.query(`
         DELETE FROM banners
         WHERE id = $1
-        RETURNING id
+        RETURNING *
         `, [banner_id])
 
     if (!bannerResult.rowCount) {
@@ -183,6 +208,9 @@ export const deleteBanner = async (c: Context) => {
     }
 
     await redis.del("home:sections")
+
+    const imageFileId = bannerResult?.rows?.[0]?.image_file_id ?? null
+    if (imageFileId) await deleteImage(imageFileId)
 
     return c.json({ message: "Banner deleted" })
 }
