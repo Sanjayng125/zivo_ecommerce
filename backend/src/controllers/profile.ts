@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import pool from "../db/client.js";
-import { deleteImage } from "../services/imagekit.js";
+import { deleteImage, generateUploadAuth } from "../services/imagekit.js";
 
 export const getProfile = async (c: Context) => {
     const me = c.get("user")
@@ -57,6 +57,16 @@ export const updateProfile = async (c: Context) => {
 
         throw error
     }
+}
+
+export const getAvatarUploadAuth = async (c: Context) => {
+    const me = c.get("user")
+
+    const authParams = generateUploadAuth(`avatars/${me.id}`)
+
+    return c.json({
+        ...authParams
+    })
 }
 
 export const updateAvatar = async (c: Context) => {
