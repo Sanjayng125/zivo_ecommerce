@@ -74,15 +74,23 @@ export default function ChangeAvatar({ profile }: ChangeAvatarProps) {
 
     setIsUploadingAvatar(true);
     try {
-      const fileName = asset.uri.split("/").pop() || `avatar-${Date.now()}.jpg`;
+      const fileUri = asset.uri;
+      const fileName = fileUri.split("/").pop() || `avatar-${Date.now()}.jpg`;
+      const fileMimeType = asset.mimeType ?? "image/jpeg";
 
       const authRes = await authApi.post("/profile/avatar-upload-auth", {
         fileName,
       });
       const { token, uploadPayload } = authRes.data;
 
+      const file = {
+        uri: fileUri,
+        name: fileName,
+        type: fileMimeType,
+      };
+
       const { url, fileId } = await uploadToImageKit(
-        asset,
+        file,
         token,
         uploadPayload,
       );
