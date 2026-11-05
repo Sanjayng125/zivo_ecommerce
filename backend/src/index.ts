@@ -8,6 +8,9 @@ const start = async () => {
 
         const { default: app } = await import('./app.js');
 
+        // remove this if you deploy the worker on a separate machine.
+        await import('./worker.js');
+
         const PORT = Number(process.env.PORT ?? "3000");
 
         serve({ fetch: app.fetch, port: PORT }, (info) => {
