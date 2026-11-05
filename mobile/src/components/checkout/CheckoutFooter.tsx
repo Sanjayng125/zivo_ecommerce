@@ -10,7 +10,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useCheckoutStore } from "@/store/checkoutStore";
 import { formatPrice } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -22,10 +22,12 @@ import { AppButton } from "../ui/AppButton";
 
 export default function CheckoutFooter() {
   const { user } = useAuthStore();
-  const { cartCount, subTotal, shipping, total, clearCart } = useCart();
+  const { cartCount, subTotal, shipping, total, clearCart, refetch } =
+    useCart();
   const { defaultAddress } = useAddress();
   const { selectedAddress, setSelectedAddress, clear } = useCheckoutStore();
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
   const styles = useStyles(getStyles);
   const colors = useColors();
@@ -35,7 +37,7 @@ export default function CheckoutFooter() {
   function handleRazorpay(data: any) {
     RazorpayCheckout.open({
       description: "Zivo Order",
-      image: "your-logo-url",
+      image: "https://ik.imagekit.io/5f5uh7y7s/zivo/full_logo.png",
       currency: "INR",
       key: data.key_id,
       amount: data.amount,
@@ -48,15 +50,17 @@ export default function CheckoutFooter() {
       },
       theme: { color: "#c0d7ff" },
     })
-      .then((paymentData) => {
+      .then((_paymentData) => {
         clear();
         router.replace("/checkout/success");
       })
-      .catch((error) => {
+      .catch((_error) => {
         toast.error("Payment failed");
       })
       .finally(() => {
         clearCart();
+        refetch();
+        queryClient.refetchQueries({ queryKey: ["orders"] });
       });
   }
 
