@@ -6,7 +6,7 @@ import { useColors } from "@/hooks/useColors";
 import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -16,8 +16,7 @@ import HorizontalSeparator from "../ui/HorizontalSeparator";
 
 export default function CartHeader() {
   const { token } = useAuthStore();
-  const { items, clearCart } = useCart();
-  const queryClient = useQueryClient();
+  const { items, clearCart, refetch } = useCart();
 
   const colors = useColors();
   const styles = useStyles(getStyles);
@@ -31,7 +30,7 @@ export default function CartHeader() {
     onSuccess: (data) => {
       toast.success(data?.message ?? "Cart cleared successfully");
       clearCart();
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      refetch();
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";

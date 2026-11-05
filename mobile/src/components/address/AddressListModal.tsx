@@ -120,7 +120,10 @@ export default function AddressListModal({
             <AddressModal
               isOpen={isAddAddressModalOpen}
               onCloseModal={() => setIsAddAddressModalOpen(false)}
-              onSuccess={() => setIsAddAddressModalOpen(false)}
+              onSuccess={() => {
+                refetch();
+                setIsAddAddressModalOpen(false);
+              }}
             />
           </>
         )}
@@ -161,12 +164,18 @@ export default function AddressListModal({
                   onPress={() => handleAddressSelect(address)}
                   key={address?.id ?? i}
                 >
-                  <AddressItem address={address} />
+                  <AddressItem address={address} onSuccess={refetch} />
                 </TouchableOpacity>
               );
             }
 
-            return <AddressItem address={address} key={address?.id ?? i} />;
+            return (
+              <AddressItem
+                key={address?.id ?? i}
+                address={address}
+                onSuccess={refetch}
+              />
+            );
           })
         )}
       </ScrollView>

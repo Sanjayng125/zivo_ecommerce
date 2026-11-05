@@ -8,7 +8,7 @@ import { AddressSchema, AddressSchemaType } from "@/lib/schemas";
 import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -36,11 +36,11 @@ interface AddressModalProps {
 export default function AddressModal({
   isOpen,
   onCloseModal,
+  onSuccess,
   address,
 }: AddressModalProps) {
   const styles = useStyles(getStyles);
   const colors = useColors();
-  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
@@ -92,7 +92,7 @@ export default function AddressModal({
           pincode: "",
           is_default: false,
         });
-        queryClient.refetchQueries({ queryKey: ["addresses"] });
+        onSuccess?.();
         toast.success(res?.message ?? "Address created successfully");
       },
       onError: (error: AxiosError<ApiError>) => {
@@ -120,7 +120,7 @@ export default function AddressModal({
           pincode: res?.updated_address?.pincode ?? "",
           is_default: res?.updated_address?.is_default ?? false,
         });
-        queryClient.refetchQueries({ queryKey: ["addresses"] });
+        onSuccess?.();
         toast.success(res?.message ?? "Address updated successfully");
       },
       onError: (error: AxiosError<ApiError>) => {

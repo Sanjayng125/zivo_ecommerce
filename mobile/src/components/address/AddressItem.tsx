@@ -6,7 +6,7 @@ import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { Address } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
@@ -16,12 +16,12 @@ import AddressModal from "./AddressModal";
 
 interface AddressItemProps {
   address: Address;
+  onSuccess?: () => void;
 }
 
-export default function AddressItem({ address }: AddressItemProps) {
+export default function AddressItem({ address, onSuccess }: AddressItemProps) {
   const colors = useColors();
   const styles = useStyles(getStyles);
-  const queryClient = useQueryClient();
 
   const [isEditAddressModalOpen, setIsEditAddressModalOpen] = useState(false);
 
@@ -34,7 +34,7 @@ export default function AddressItem({ address }: AddressItemProps) {
       },
       onSuccess: (res) => {
         toast.success(res?.message ?? "Address deleted successfully");
-        queryClient.refetchQueries({ queryKey: ["addresses"] });
+        onSuccess?.();
       },
       onError: (error: AxiosError<ApiError>) => {
         const message = error.response?.data?.message ?? "Something went wrong";
@@ -131,7 +131,10 @@ export default function AddressItem({ address }: AddressItemProps) {
         isOpen={isEditAddressModalOpen}
         onCloseModal={() => setIsEditAddressModalOpen(false)}
         address={address}
-        onSuccess={() => setIsEditAddressModalOpen(false)}
+        onSuccess={() => {
+          onSuccess?.();
+          setIsEditAddressModalOpen(false);
+        }}
       />
     </View>
   );

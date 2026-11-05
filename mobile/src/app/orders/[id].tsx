@@ -154,7 +154,7 @@ const OrderScreen = () => {
           <AppButton
             title="Verify Payment"
             onPress={verifyPaymentMutation}
-            loading={isVerifyingPayment}
+            loading={isVerifyingPayment || isRefetching}
             size="sm"
             style={{ marginRight: "auto" }}
           />

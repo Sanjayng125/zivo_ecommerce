@@ -4,7 +4,7 @@ import { ApiError, authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/authStore";
 import { Product, ProductVariant } from "@/types";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
@@ -17,8 +17,7 @@ interface AddToCartProps {
 
 export default function AddToCart({ variant, product }: AddToCartProps) {
   const { token } = useAuthStore();
-  const { items, addItem } = useCart();
-  const queryClient = useQueryClient();
+  const { items, addItem, refetch, isRefetching } = useCart();
 
   const colors = useColors();
 
@@ -44,7 +43,7 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
         size: data?.cart_item?.size,
         color: data?.cart_item?.color,
       });
-      queryClient.refetchQueries({ queryKey: ["cart"] });
+      refetch();
     },
     onError: (err: AxiosError<ApiError>) => {
       const message = err.response?.data?.message ?? "Something went wrong";
@@ -83,8 +82,7 @@ export default function AddToCart({ variant, product }: AddToCartProps) {
     <AppButton
       title={itemExistsInCart ? "Go to cart" : "Add to cart"}
       onPress={handleAddToCart}
-      disabled={isAddingToCart}
-      loading={isAddingToCart}
+      loading={isAddingToCart || isRefetching}
       leftIcon={
         <MaterialIcons
           name="shopping-cart"

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Profile } from "@/types";
 import { getDefaultAvatar } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
@@ -16,12 +16,15 @@ import ActionMenu from "../ui/ActionMenu";
 
 interface ChangeAvatarProps {
   profile: Profile;
+  onSuccess?: () => void;
 }
 
-export default function ChangeAvatar({ profile }: ChangeAvatarProps) {
+export default function ChangeAvatar({
+  profile,
+  onSuccess,
+}: ChangeAvatarProps) {
   const { user } = useAuthStore();
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const queryClient = useQueryClient();
 
   const colors = useColors();
 
@@ -36,7 +39,7 @@ export default function ChangeAvatar({ profile }: ChangeAvatarProps) {
         return res.data;
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        onSuccess?.();
         toast.success(data?.message ?? "Avatar updated");
       },
       onError: (error: AxiosError<ApiError>) => {

@@ -44,7 +44,7 @@ const ProductScreen = () => {
 
   useEffect(() => {
     if (token && product) {
-      void authApi.post(`/products/views/${product.id}`).catch((error) => {
+      void authApi.post(`/products/views/${product.id}`).catch((_error) => {
         // console.error("Failed to record product view:", error);
       });
     }

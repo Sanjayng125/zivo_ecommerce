@@ -83,7 +83,7 @@ const AccountScreen = () => {
       ) : (
         <>
           <View style={styles.userInfoContainer}>
-            <ChangeAvatar profile={profile} />
+            <ChangeAvatar profile={profile} onSuccess={refetch} />
             <Text style={styles.name}>
               Hey 👋🏻 {profile?.full_name ?? user?.name}!
             </Text>

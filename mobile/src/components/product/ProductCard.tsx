@@ -3,10 +3,9 @@ import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
-import queryClient from "@/lib/queryClient";
 import { Product, WishlistItem } from "@/types";
 import { formatCount, formatPrice } from "@/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { router } from "expo-router";
 import {
@@ -36,6 +35,8 @@ export default function ProductCard({
   wishlistCard,
   onPress,
 }: ProductCardProps) {
+  const queryClient = useQueryClient();
+
   const styles = useStyles(getStyles);
 
   const productSizes: Record<string, object> = {
