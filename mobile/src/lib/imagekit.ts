@@ -1,4 +1,6 @@
 export const uploadToImageKit = (file: any, token: string, uploadPayload: any): Promise<{ url: string, fileId: string }> => {
+    const imageKitUploadUrl = process.env.EXPO_PUBLIC_IMAGEKIT_UPLOAD_URL ?? "https://upload.imagekit.io/api/v2/files/upload"
+
     return new Promise((resolve, reject) => {
         const formData = new FormData()
         formData.append("file", file)
@@ -6,7 +8,7 @@ export const uploadToImageKit = (file: any, token: string, uploadPayload: any): 
         Object.keys(uploadPayload).forEach(key => formData.append(key, uploadPayload[key]))
 
         const xhr = new XMLHttpRequest()
-        xhr.open("POST", "https://upload.imagekit.io/api/v2/files/upload")
+        xhr.open("POST", imageKitUploadUrl)
         xhr.onload = () => {
             const data = JSON.parse(xhr.responseText)
             if (xhr.status === 200) resolve({ url: data.url, fileId: data.fileId })
