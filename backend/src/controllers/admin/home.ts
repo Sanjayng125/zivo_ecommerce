@@ -2,7 +2,7 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
-import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
+import { deleteImage } from "../../services/imagekit.js"
 
 export const getHomeSections = async (c: Context) => {
     const { is_active, sort } = c.req.query()
@@ -61,18 +61,6 @@ export const createHomeSection = async (c: Context) => {
     await redis.del("home:sections")
 
     return c.json({ home_section: homeSectionResult.rows[0], message: "Home section created" })
-}
-
-export const getHomeSectionBgImageUploadAuth = async (c: Context) => {
-    const home_section_id = c.req.param("home_section_id")
-
-    const folder = `home_sections/bg_images/${home_section_id}`
-
-    const authParams = generateUploadAuth(folder)
-
-    return c.json({
-        ...authParams
-    })
 }
 
 export const updateHomeSection = async (c: Context) => {

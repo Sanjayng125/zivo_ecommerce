@@ -1,0 +1,156 @@
+import { radius } from "@/constants/radius";
+import { useColors } from "@/hooks/useColors";
+import { ApiError, authApi } from "@/lib/api";
+import { uploadToImageKit } from "@/lib/imagekit";
+import { useAuthStore } from "@/store/authStore";
+import { Profile } from "@/types";
+import { getDefaultAvatar } from "@/utils";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import * as ImagePicker from "expo-image-picker";
+import { useState } from "react";
+import { ActivityIndicator, Image, StyleSheet, View } from "react-native";
+import { toast } from "sonner-native";
+import ActionMenu from "../ui/ActionMenu";
+
+interface ChangeAvatarProps {
+  profile: Profile;
+}
+
+export default function ChangeAvatar({ profile }: ChangeAvatarProps) {
+  const { user } = useAuthStore();
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const queryClient = useQueryClient();
+
+  const colors = useColors();
+
+  const { mutate: updateAvatarMutation, isPending: isUpdatingAvatar } =
+    useMutation({
+      mutationFn: async (data: {
+        avatar_url: string;
+        avatar_file_id: string;
+      }) => {
+        const res = await authApi.patch("/profile/avatar", data);
+
+        return res.data;
+      },
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        toast.success(data?.message ?? "Avatar updated");
+      },
+      onError: (error: AxiosError<ApiError>) => {
+        const message = error.response?.data?.message ?? "Something went wrong";
+
+        toast.error(message);
+      },
+      onSettled: () => {
+        setIsUploadingAvatar(false);
+      },
+    });
+
+  const handleAvatarPress = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      toast.error("Permission to access gallery is required");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+    if (result.canceled) return;
+
+    const asset = result.assets[0];
+
+    if (asset.fileSize && asset.fileSize > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const fileName = asset.uri.split("/").pop() || `avatar-${Date.now()}.jpg`;
+
+      const authRes = await authApi.post("/profile/avatar-upload-auth", {
+        fileName,
+      });
+      const { token, uploadPayload } = authRes.data;
+
+      const { url, fileId } = await uploadToImageKit(
+        asset,
+        token,
+        uploadPayload,
+      );
+
+      updateAvatarMutation({
+        avatar_url: url,
+        avatar_file_id: fileId,
+      });
+    } catch (e) {
+      toast.error("Failed to update avatar");
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  return (
+    <ActionMenu
+      title="Change Avatar"
+      options={[
+        {
+          label: "Choose a photo",
+          onPress() {
+            handleAvatarPress();
+          },
+          icon: (
+            <Ionicons
+              name="image-outline"
+              size={20}
+              color={colors.btnSecondaryText}
+            />
+          ),
+        },
+      ]}
+      disabled={isUploadingAvatar || isUpdatingAvatar}
+    >
+      <View style={styles.avatarContainer}>
+        <Image
+          source={{
+            uri: profile?.avatar_url ?? getDefaultAvatar(user?.name ?? "User"),
+          }}
+          style={styles.avatar}
+        />
+        {(isUploadingAvatar || isUpdatingAvatar) && (
+          <ActivityIndicator
+            size={"large"}
+            color={colors.text}
+            style={styles.loader}
+          />
+        )}
+      </View>
+    </ActionMenu>
+  );
+}
+
+const styles = StyleSheet.create({
+  avatarContainer: {
+    width: 160,
+    aspectRatio: 1 / 1,
+    borderRadius: radius.full,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    position: "relative",
+  },
+  avatar: {
+    width: "100%",
+    aspectRatio: 1 / 1,
+  },
+  loader: {
+    position: "absolute",
+  },
+});

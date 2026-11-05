@@ -4,7 +4,7 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
-import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
+import { deleteImage } from "../../services/imagekit.js"
 
 export const getCategories = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -133,18 +133,6 @@ export const createCategory = async (c: Context) => {
 
         throw error
     }
-}
-
-export const getCategoryImageUploadAuth = async (c: Context) => {
-    const category_id = c.req.param("category_id")
-
-    const folder = `categories/images/${category_id}`
-
-    const authParams = generateUploadAuth(folder)
-
-    return c.json({
-        ...authParams
-    })
 }
 
 export const updateCategory = async (c: Context) => {

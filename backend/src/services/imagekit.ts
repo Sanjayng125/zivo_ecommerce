@@ -5,8 +5,9 @@ const imagekit = new ImageKit({
     privateKey: process.env.IMAGEKIT_PRIVATE_KEY!,
 });
 
-export const generateUploadAuth = (folder: string, expiresIn: number = 300) => {
+export const generateUploadAuth = (folder: string, fileName: string, expiresIn: number = 300) => {
     const uploadPayload = {
+        fileName,
         folder: `/zivo/${folder}`,
         useUniqueFileName: "true",
         isPrivateFile: "false",

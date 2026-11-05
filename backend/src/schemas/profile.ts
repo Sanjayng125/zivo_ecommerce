@@ -20,6 +20,10 @@ export const profileUpdateSchema = z.object({
         ),
 })
 
+export const getAvatarUploadAuthSchema = z.object({
+    fileName: z.string({ error: "Invalid filename" })
+})
+
 export const avatarUpdateSchema = z.object({
     avatar_url: z.url({
         error: "Please enter a valid avatar URL"

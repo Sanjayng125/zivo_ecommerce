@@ -6,6 +6,7 @@ import categoriesRoutes from "./admin/categories.js";
 import homeRoutes from "./admin/home.js";
 import ordersRoutes from "./admin/orders.js";
 import productsRoutes from "./admin/products.js";
+import uploadRoutes from "./admin/upload.js";
 import usersRoutes from "./admin/users.js";
 
 const admin = new Hono()
@@ -18,5 +19,6 @@ admin.route("/banners", bannersRoutes)
 admin.route("/home", homeRoutes)
 admin.route("/orders", ordersRoutes)
 admin.route("/users", usersRoutes)
+admin.route("/upload", uploadRoutes)
 
 export default admin

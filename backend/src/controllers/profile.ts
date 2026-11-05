@@ -61,8 +61,9 @@ export const updateProfile = async (c: Context) => {
 
 export const getAvatarUploadAuth = async (c: Context) => {
     const me = c.get("user")
+    const { fileName } = await c.req.json()
 
-    const authParams = generateUploadAuth(`avatars/${me.id}`)
+    const authParams = generateUploadAuth(`avatars/${me.id}`, fileName)
 
     return c.json({
         ...authParams

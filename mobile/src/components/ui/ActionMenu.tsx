@@ -16,19 +16,27 @@ interface ActionMenuProps {
   title?: string;
   options: ActionMenuOption[];
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
 export default function ActionMenu({
   title,
   options,
   children,
+  disabled,
 }: ActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const styles = useStyles(getStyles);
 
   return (
     <>
-      <Pressable onPress={() => setIsOpen(!isOpen)}>{children}</Pressable>
+      <Pressable
+        onPress={() => setIsOpen(!isOpen)}
+        disabled={disabled}
+        style={[disabled && styles.disabled]}
+      >
+        {children}
+      </Pressable>
       <Modal
         visible={isOpen}
         onRequestClose={() => setIsOpen(false)}
@@ -53,7 +61,9 @@ export default function ActionMenu({
                 style={[
                   styles.option,
                   option.destructive && styles.destructiveOption,
+                  disabled && styles.disabled,
                 ]}
+                disabled={disabled}
               >
                 <Text
                   style={[
@@ -116,6 +126,9 @@ const getStyles = ({ colors, safeAreaInsets: { bottom } }: UseStylesContext) =>
       color: colors.btnSecondaryText,
       fontSize: typography.body.fontSize,
       fontWeight: typography.heading.fontWeight,
+    },
+    disabled: {
+      opacity: 0.5,
     },
     destructiveOption: {
       backgroundColor: colors.error,

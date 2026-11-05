@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
 import redis from "../../lib/redis.js";
-import { deleteImage, generateUploadAuth } from "../../services/imagekit.js";
+import { deleteImage } from "../../services/imagekit.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -101,18 +101,6 @@ export const createBanner = async (c: Context) => {
     await redis.del("home:sections")
 
     return c.json({ banner: bannerResult.rows[0], message: "Banner created" })
-}
-
-export const getBannerImageUploadAuth = async (c: Context) => {
-    const banner_id = c.req.param("banner_id")
-
-    const folder = `banners/images/${banner_id}`
-
-    const authParams = generateUploadAuth(folder)
-
-    return c.json({
-        ...authParams
-    })
 }
 
 export const updateBanner = async (c: Context) => {

@@ -4,7 +4,7 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
-import { deleteImage, generateUploadAuth } from "../../services/imagekit.js"
+import { deleteImage } from "../../services/imagekit.js"
 
 export const createProduct = async (c: Context) => {
     const { title, description, base_price, category_id, is_active } = await c.req.json()
@@ -39,20 +39,6 @@ export const createProduct = async (c: Context) => {
         }
         throw error
     }
-}
-
-export const getProductImagesUploadAuth = async (c: Context) => {
-    const product_id = c.req.param("product_id")
-    const { for_product_images } = await c.req.json()
-
-    const folder = for_product_images ? `products/product_images/${product_id}` : `products/cover_images/${product_id}`
-    const expiry = for_product_images ? 600 : 300
-
-    const authParams = generateUploadAuth(folder, expiry)
-
-    return c.json({
-        ...authParams
-    })
 }
 
 export const getProducts = async (c: Context) => {

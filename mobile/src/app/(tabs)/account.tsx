@@ -1,11 +1,11 @@
 import AccountSignedOut from "@/components/account/AccountSignedOut";
+import ChangeAvatar from "@/components/account/ChangeAvatar";
 import ChangePasswordModal from "@/components/account/ChangePasswordModal";
 import EditProfileModal from "@/components/account/EditProfileModal";
 import SettingsRow from "@/components/account/SettingsRow";
 import AddressListModal from "@/components/address/AddressListModal";
 import ScreenWrapper from "@/components/layout/ScreenWrapper";
 import { AppButton } from "@/components/ui/AppButton";
-import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useAddress } from "@/hooks/useAddress";
@@ -17,13 +17,11 @@ import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useAuthStore } from "@/store/authStore";
 import { useThemeStore } from "@/store/uiStore";
-import { getDefaultAvatar } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Image,
   StyleSheet,
   Switch,
   Text,
@@ -58,7 +56,7 @@ const AccountScreen = () => {
     );
   }
 
-  if (error) {
+  if (error || !profile) {
     return (
       <ScreenWrapper
         edges={["top"]}
@@ -85,13 +83,7 @@ const AccountScreen = () => {
       ) : (
         <>
           <View style={styles.userInfoContainer}>
-            <Image
-              source={{
-                uri:
-                  profile?.avatar_url ?? getDefaultAvatar(user?.name ?? "User"),
-              }}
-              style={styles.avatar}
-            />
+            <ChangeAvatar profile={profile} />
             <Text style={styles.name}>
               Hey 👋🏻 {profile?.full_name ?? user?.name}!
             </Text>
@@ -195,11 +187,6 @@ const getStyles = ({ colors }: UseStylesContext) =>
       alignItems: "center",
       gap: spacing.sm,
       marginBottom: spacing.xl,
-    },
-    avatar: {
-      width: 160,
-      height: 160,
-      borderRadius: radius.full,
     },
     name: {
       fontSize: typography.heading.fontSize,
