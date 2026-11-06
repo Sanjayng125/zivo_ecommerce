@@ -1,5 +1,6 @@
 import { radius } from "@/constants/radius";
 import { useColors } from "@/hooks/useColors";
+import { useStyles, UseStylesContext } from "@/hooks/useStyles";
 import { ApiError, authApi } from "@/lib/api";
 import { uploadToImageKit } from "@/lib/imagekit";
 import { useAuthStore } from "@/store/authStore";
@@ -26,6 +27,7 @@ export default function ChangeAvatar({
   const { user } = useAuthStore();
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
+  const styles = useStyles(getStyles);
   const colors = useColors();
 
   const { mutate: updateAvatarMutation, isPending: isUpdatingAvatar } =
@@ -147,21 +149,26 @@ export default function ChangeAvatar({
   );
 }
 
-const styles = StyleSheet.create({
-  avatarContainer: {
-    width: 160,
-    aspectRatio: 1 / 1,
-    borderRadius: radius.full,
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden",
-    position: "relative",
-  },
-  avatar: {
-    width: "100%",
-    aspectRatio: 1 / 1,
-  },
-  loader: {
-    position: "absolute",
-  },
-});
+const getStyles = ({ colors }: UseStylesContext) =>
+  StyleSheet.create({
+    avatarContainer: {
+      width: 160,
+      aspectRatio: 1 / 1,
+      borderRadius: radius.full,
+      alignItems: "center",
+      justifyContent: "center",
+      borderWidth: 2,
+      padding: 2,
+      borderColor: colors.textSecondary + "70",
+      overflow: "hidden",
+      position: "relative",
+    },
+    avatar: {
+      width: "100%",
+      aspectRatio: 1 / 1,
+      borderRadius: radius.full,
+    },
+    loader: {
+      position: "absolute",
+    },
+  });
