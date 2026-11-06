@@ -4,7 +4,7 @@ import { typography } from "@/constants/typography";
 import { useAddress } from "@/hooks/useAddress";
 import { useColors } from "@/hooks/useColors";
 import { useStyles, UseStylesContext } from "@/hooks/useStyles";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddressListModal from "./AddressListModal";
@@ -17,16 +17,19 @@ export default function ShowDefaultAddress() {
   const styles = useStyles(getStyles);
 
   return (
-    <View>
+    <>
       <View style={styles.addressContainer}>
-        {defaultAddress && (
-          <Ionicons name="location" size={18} color={colors.text} />
-        )}
+        <MaterialIcons
+          name={defaultAddress ? "location-on" : "add-location"}
+          size={20}
+          color={colors.text}
+        />
         <TouchableOpacity
+          style={styles.addressTouchable}
           activeOpacity={0.6}
           onPress={() => setIsAddressModalOpen(true)}
         >
-          <Text style={styles.addressText}>
+          <Text style={styles.addressText} numberOfLines={1}>
             {defaultAddress
               ? `${defaultAddress.line1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.pincode}`
               : "Add a delivery address"}
@@ -38,20 +41,25 @@ export default function ShowDefaultAddress() {
         isOpen={isAddressModalOpen}
         onCloseModal={() => setIsAddressModalOpen(false)}
       />
-    </View>
+    </>
   );
 }
 
 const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
     addressContainer: {
-      paddingVertical: spacing.xs,
+      padding: spacing.xs,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       gap: spacing.xs,
       marginRight: "auto",
-      borderRadius: radius.sm,
+      borderRadius: radius.md,
+      backgroundColor: colors.surface,
+      overflow: "hidden",
+    },
+    addressTouchable: {
+      flexShrink: 1,
     },
     addressText: {
       color: colors.text,
