@@ -3,6 +3,7 @@ export type User = {
     name: string
     email: string
     emailVerified: boolean
+    role: string
     image: string | null
     createdAt: string
     updatedAt: string
@@ -10,8 +11,6 @@ export type User = {
 
 export type Profile = {
     id: string
-    name: string
-    email: string
     full_name: string
     phone: string
     avatar_url: string

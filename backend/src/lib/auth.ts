@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { admin } from "better-auth/plugins";
 import pool from "../db/client.js";
 import resend from "../services/resend.js";
 
@@ -6,6 +7,9 @@ export const auth = betterAuth({
     database: pool,
     trustedOrigins: [
         "zivo://",
+    ],
+    plugins: [
+        admin()
     ],
     emailAndPassword: {
         enabled: true,

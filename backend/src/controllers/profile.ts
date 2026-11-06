@@ -9,8 +9,6 @@ export const getProfile = async (c: Context) => {
 
     const profileResult = await pool.query(`
         SELECT
-        u.name,
-        u.email,
         p.id,
         p.full_name,
         p.phone,
@@ -18,7 +16,6 @@ export const getProfile = async (c: Context) => {
         p.updated_at,
         p.created_at
         FROM profiles p
-        JOIN "user" u ON u."id" = p.id
         WHERE p.id = $1
         `, [me.id])
 

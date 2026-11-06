@@ -20,7 +20,7 @@ export const getUsers = async (c: Context) => {
     }
     if (role) {
         params.push(role)
-        conditions.push(`p.role = $${params.length}`)
+        conditions.push(`u.role = $${params.length}`)
     }
 
     const orderBy: Record<string, string> = {
@@ -52,8 +52,9 @@ export const getUsers = async (c: Context) => {
         u.name,
         u.email,
         u."emailVerified",
+        u.role,
         u."createdAt",
-        p.role,
+        p.full_name,
         p.phone,
         p.avatar_url
         FROM "user" u
@@ -84,8 +85,9 @@ export const getUser = async (c: Context) => {
         u.name,
         u.email,
         u."emailVerified",
+        u.role,
         u."createdAt",
-        p.role,
+        p.full_name,
         p.phone,
         p.avatar_url
         FROM "user" u
@@ -112,7 +114,7 @@ export const updateUserRole = async (c: Context) => {
     const { role } = await c.req.json()
 
     const userResult = await pool.query(`
-        UPDATE profiles
+        UPDATE "user"
         SET role = $1
         WHERE id = $2
         RETURNING *

@@ -24,7 +24,17 @@ import adminRoutes from "./routes/admin.js"
 const app = new Hono<{ Variables: HonoVariables }>().basePath("/api")
 
 app.use('*', logger())
-app.use('*', cors())
+app.use('*', cors({
+    origin: (origin) => {
+        const allowed = [
+            process.env.ADMIN_URL!,
+        ];
+        return allowed.includes(origin) ? origin : null;
+    },
+    credentials: true,
+    allowHeaders: ["Content-Type", "Authorization"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+}))
 
 app.get('/health', (c) => c.json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() }))
 

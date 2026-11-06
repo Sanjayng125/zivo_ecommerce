@@ -1,3 +1,4 @@
+import { APIError } from "better-auth"
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { HTTPResponseError } from "hono/types"
@@ -21,6 +22,14 @@ export const errorHandler = async (err: Error | HTTPResponseError, c: Context) =
         return c.json(
             { message: "Invalid Request" },
             400
+        )
+    }
+
+    if (err instanceof APIError) {
+        const statusCode = err.statusCode as ContentfulStatusCode
+        return c.json(
+            { message: err.body?.message },
+            statusCode
         )
     }
 

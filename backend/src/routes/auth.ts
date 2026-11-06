@@ -1,19 +1,36 @@
-import { Context, Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
+import { Hono } from "hono";
+import { adminSignIn, getSession } from "../controllers/auth.js";
 import { auth } from "../lib/auth.js";
+import { customValidationHandler } from "../lib/validator.js";
 import { requireAuth } from "../middleware/auth.js";
 import { authRateLimit } from "../middleware/rate-limit.js";
+import { adminSignInSchema } from "../schemas/auth.js";
 
 const app = new Hono()
 
 app.use("*", authRateLimit)
 
-app.delete("/sign-out", requireAuth, async (c: Context) => {
-    const token = c.get("session")?.token
+app.post("/admin/sign-in", zValidator("json", adminSignInSchema, customValidationHandler), adminSignIn);
 
-    await auth.api.revokeSession({ headers: c.req.raw.headers, body: { token } })
+app.get("/me", requireAuth, getSession)
 
-    return c.json({ message: "Signed out" })
-})
-app.all("*", (c) => auth.handler(c.req.raw));
+app.on(
+    ["GET", "POST"],
+    [
+        "/sign-in/*",
+        "/sign-up/*",
+        "/sign-out/*",
+        "/get-session/*",
+        "/callback/*",
+        "/verify/*",
+        "/forgot-password/*",
+        "/reset-password/*",
+        "/magic-link/*",
+        "/error",
+        "/ok",
+    ],
+    (c) => auth.handler(c.req.raw)
+);
 
 export default app

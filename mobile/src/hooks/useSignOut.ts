@@ -16,7 +16,11 @@ export const useSignOut = () => {
 
     const { mutate: signOutMutation, isPending: isSigningOut } = useMutation({
         mutationFn: async () => {
-            const res = await authApi.delete("/auth/sign-out")
+            const res = await authApi.post("/auth/sign-out", {}, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
             return res.data
         },
         onSuccess: async () => {

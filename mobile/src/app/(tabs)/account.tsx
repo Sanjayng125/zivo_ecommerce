@@ -56,7 +56,7 @@ const AccountScreen = () => {
     );
   }
 
-  if (error || !profile) {
+  if (error) {
     return (
       <ScreenWrapper
         edges={["top"]}
@@ -66,7 +66,7 @@ const AccountScreen = () => {
         <View style={styles.center}>
           <Text style={styles.errorText}>Couldn't load profile.</Text>
 
-          <AppButton title="Retry" onPress={() => refetch()} />
+          <AppButton title="Retry" onPress={handleRefresh} />
         </View>
       </ScreenWrapper>
     );
@@ -83,13 +83,13 @@ const AccountScreen = () => {
       ) : (
         <>
           <View style={styles.userInfoContainer}>
-            <ChangeAvatar profile={profile} onSuccess={refetch} />
+            {profile && <ChangeAvatar profile={profile} onSuccess={refetch} />}
             <Text style={styles.name}>
               Hey 👋🏻 {profile?.full_name ?? user?.name}!
             </Text>
             <View style={styles.emailContainer}>
               <Ionicons name="mail-outline" size={20} color={colors.text} />
-              <Text style={styles.email}>{profile?.email}</Text>
+              <Text style={styles.email}>{user?.email}</Text>
             </View>
             {profile?.phone ? (
               <View style={styles.phoneContainer}>
