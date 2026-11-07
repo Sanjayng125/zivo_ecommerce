@@ -76,7 +76,7 @@ const AccountScreen = () => {
     <ScreenWrapper
       edges={["top"]}
       {...(token ? { refreshing: isRefetching, onRefresh: handleRefresh } : {})}
-      style={{ paddingTop: spacing.xl, paddingBottom: spacing.xxxl }}
+      style={styles.container}
     >
       {!token ? (
         <AccountSignedOut />
@@ -171,6 +171,10 @@ const AccountScreen = () => {
 
 const getStyles = ({ colors }: UseStylesContext) =>
   StyleSheet.create({
+    container: {
+      paddingTop: spacing.xl,
+      paddingBottom: spacing.xxxl,
+    },
     center: {
       flex: 1,
       justifyContent: "center",

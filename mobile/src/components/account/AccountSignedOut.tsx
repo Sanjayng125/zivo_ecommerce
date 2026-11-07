@@ -51,7 +51,7 @@ const getStyles = ({ colors }: UseStylesContext) =>
     actionContainer: {
       alignItems: "center",
       gap: spacing.lg,
-      marginVertical: spacing.xl,
+      paddingBottom: spacing.xl,
     },
     signInText: {
       color: colors.textSecondary,
