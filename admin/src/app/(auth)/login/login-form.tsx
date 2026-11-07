@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authApi } from "@/lib/api/auth";
+import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -30,9 +30,13 @@ export function LoginForm() {
   });
 
   const { mutate: login, isPending } = useMutation({
-    mutationFn: (values: FormValues) => authApi.login(values),
-    onSuccess: (user) => {
-      setUser(user);
+    mutationFn: async (values: FormValues) => {
+      const res = await apiClient.post("/auth/admin/sign-in", values);
+
+      return res.data;
+    },
+    onSuccess: (data) => {
+      setUser(data.user);
       router.push(params.get("from") || "/");
     },
     onError: (error: Error) => {

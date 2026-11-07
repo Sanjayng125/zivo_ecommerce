@@ -11,11 +11,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useProfile } from "@/hooks/use-profile";
-import { authApi } from "@/lib/api/auth";
+import { apiClient } from "@/lib/api/client";
 import { useAuthStore } from "@/store/auth-store";
-import { LogOut, Menu, Moon, Sun } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { Loader2, LogOut, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -27,15 +29,31 @@ export function Header({ onMenuClick }: HeaderProps) {
   const { data: profile } = useProfile();
   const router = useRouter();
 
-  async function handleLogout() {
-    try {
-      await authApi.logout();
-    } catch {
-    } finally {
+  const { mutate: logout, isPending } = useMutation({
+    mutationFn: async () => {
+      const res = await apiClient.post(
+        "/auth/sign-out",
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return res.data;
+    },
+    onSuccess: (data) => {
+      toast.error("Logged out successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message ?? "Something went wrong");
+    },
+    onSettled: () => {
       clearUser();
       router.push("/login");
-    }
-  }
+    },
+  });
 
   const name = profile?.full_name || user?.name;
 
@@ -95,11 +113,13 @@ export function Header({ onMenuClick }: HeaderProps) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem
-                onClick={handleLogout}
+                onClick={() => logout()}
+                disabled={isPending}
                 className="text-destructive focus:text-destructive cursor-pointer"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign out
+                {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
