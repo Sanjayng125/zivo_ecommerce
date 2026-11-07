@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/store/auth-store";
 import axios from "axios";
 
 export type ApiError = {
@@ -14,6 +15,7 @@ apiClient.interceptors.response.use(
     (res) => res,
     (error) => {
         if (error.response?.status === 401) {
+            useAuthStore().clearUser()
             window.location.href = "/login";
         }
         return Promise.reject(error);

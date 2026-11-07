@@ -11,9 +11,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isPending } = useSession();
+  const { isPending, error, data } = useSession();
 
-  if (isPending) {
+  if (isPending || error || (!isPending && !data)) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Skeleton className="h-8 w-48" />

@@ -28,6 +28,7 @@ export const productImagesUploadSchema = z.object({
 export const updateProductSchema = createProductSchema
     .omit({ is_active: true })
     .extend({
+        is_active: z.boolean().default(true),
         cover_image: z.url({ error: "Invalid cover image URL" }),
         cover_image_file_id: z.string({ error: "Invalid cover image file id" }),
     })

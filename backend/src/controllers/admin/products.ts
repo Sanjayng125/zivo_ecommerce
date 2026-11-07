@@ -2,8 +2,10 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
+import z from "zod"
 import pool from "../../db/client.js"
 import redis from "../../lib/redis.js"
+import { getProductsSchema } from "../../schemas/products.js"
 import { deleteImage } from "../../services/imagekit.js"
 
 export const createProduct = async (c: Context) => {
@@ -42,21 +44,40 @@ export const createProduct = async (c: Context) => {
 }
 
 export const getProducts = async (c: Context) => {
-    const page = Number(c.req.query("page") ?? 1)
-    const limit = Number(c.req.query("limit") ?? 20)
-    const sort = c.req.query("sort") ?? "newest"
-    const category_id = c.req.query("category_id")
-    const min_price = c.req.query("min_price")
-    const max_price = c.req.query("max_price")
-    const is_active = c.req.query("is_active")
-    const searchQuery = c.req.query("q")?.trim()
+    const query = c.req.valid("query" as never) as z.infer<typeof getProductsSchema>
+
+    const page = Number(query.page ?? 1)
+    const limit = Number(query.limit ?? 20)
+    const sort = query.sort ?? "newest"
+    const category_id = query.category_id
+    const min_price = query.min_price
+    const max_price = query.max_price
+    const is_active = query.is_active
+    const searchQuery = query.q?.trim()
 
     const conditions: string[] = []
     const params: unknown[] = []
 
+    let prefixParamIndex: number | null = null
+    let rawParamIndex: number | null = null
+
     if (searchQuery) {
+        const prefixQuery = searchQuery
+            .split(/\s+/)
+            .filter(Boolean)
+            .map(w => `${w}:*`)
+            .join(" & ")
+
+        params.push(prefixQuery)
+        prefixParamIndex = params.length
+
         params.push(searchQuery)
-        conditions.push(`(search_vector @@ websearch_to_tsquery('english', $${params.length}))`)
+        rawParamIndex = params.length
+
+        conditions.push(`(
+            search_vector @@ to_tsquery('english', $${prefixParamIndex})
+            OR word_similarity($${rawParamIndex}, title) > 0.5
+        )`)
     }
     if (is_active !== undefined) {
         params.push(is_active)
@@ -64,7 +85,15 @@ export const getProducts = async (c: Context) => {
     }
     if (category_id) {
         params.push(category_id)
-        conditions.push(`category_id = $${params.length}`)
+        conditions.push(`category_id IN (
+            SELECT id
+            FROM categories
+            WHERE id = $${params.length}
+            UNION
+            SELECT id
+            FROM categories
+            WHERE parent_id = $${params.length}
+            )`)
     }
     if (min_price) {
         params.push(Number(min_price))
@@ -83,8 +112,22 @@ export const getProducts = async (c: Context) => {
         rating: "rating_avg DESC"
     }
 
-    const whereClause = conditions.join(" AND ")
-    const orderClause = orderBy[sort] ?? "created_at DESC"
+    const rankExpr = prefixParamIndex && rawParamIndex
+        ? `(
+            CASE WHEN search_vector @@ to_tsquery('english', $${prefixParamIndex})
+                THEN ts_rank(search_vector, to_tsquery('english', $${prefixParamIndex}))
+                ELSE word_similarity($${rawParamIndex}, title) * 0.5
+            END
+          )`
+        : "NULL"
+
+    const orderClause = searchQuery
+        ? sort === "newest"
+            ? "rank DESC"
+            : orderBy[sort] ?? "rank DESC"
+        : "created_at DESC"
+
+    const whereClause = conditions.length > 0 ? conditions.join(" AND ") : "1=1"
     const offset = (page - 1) * limit
 
     const countResult = await pool.query(
@@ -97,7 +140,9 @@ export const getProducts = async (c: Context) => {
     params.push(offset)
 
     const products = await pool.query(
-        `SELECT * FROM products
+        `SELECT *,
+            ${rankExpr} AS rank
+            FROM products
          WHERE ${whereClause}
          ORDER BY ${orderClause}
          LIMIT $${params.length - 1}

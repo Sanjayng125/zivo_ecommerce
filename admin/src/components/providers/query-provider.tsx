@@ -1,20 +1,21 @@
 "use client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [client] = useState(
     () =>
       new QueryClient({
-        defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+        defaultOptions: {
+          queries: {
+            retry: 1,
+            refetchOnMount: false,
+            refetchOnWindowFocus: false,
+            staleTime: 30_000,
+          },
+        },
       }),
   );
 
-  return (
-    <QueryClientProvider client={client}>
-      {children}
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }
