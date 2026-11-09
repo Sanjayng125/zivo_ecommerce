@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
-import redis from "../../lib/redis.js";
+import { upstashRedis } from "../../lib/redis.js";
 import { deleteImage } from "../../services/imagekit.js";
 
 export const getBanners = async (c: Context) => {
@@ -98,7 +98,9 @@ export const createBanner = async (c: Context) => {
         throw new HTTPException(500, { message: "Something went wrong while creating banner" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     return c.json({ banner: bannerResult.rows[0], message: "Banner created" })
 }
@@ -156,7 +158,9 @@ export const updateBanner = async (c: Context) => {
         throw new HTTPException(404, { message: "Banner not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     if (oldImageFileId) await deleteImage(oldImageFileId)
 
@@ -177,7 +181,9 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Banner not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     return c.json({ banner: bannerResult.rows[0], message: `Banner ${bannerResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
@@ -195,7 +201,9 @@ export const deleteBanner = async (c: Context) => {
         throw new HTTPException(404, { message: "Banner not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     const imageFileId = bannerResult?.rows?.[0]?.image_file_id ?? null
     if (imageFileId) await deleteImage(imageFileId)

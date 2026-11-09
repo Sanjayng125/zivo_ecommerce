@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/table";
 import { apiClient } from "@/lib/api/client";
 import { Product } from "@/types";
+import { formatCount, formatPrice } from "@/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   ChevronLeft,
@@ -230,13 +231,13 @@ export default function ProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    ₹{product.base_price.toLocaleString()}
+                    {formatPrice(product.base_price)}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <span className="text-sm">
                       ⭐ {Number(product.rating_avg).toFixed(1)}
                       <span className="text-muted-foreground ml-1">
-                        ({product.rating_count})
+                        ({formatCount(product.rating_count)})
                       </span>
                     </span>
                   </TableCell>

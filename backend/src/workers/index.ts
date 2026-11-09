@@ -1,4 +1,5 @@
 import "dotenv/config";
 
-import "./workers/payments.js";
+import "./payments.js";
+
 console.log("Payments worker started")

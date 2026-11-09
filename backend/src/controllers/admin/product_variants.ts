@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { DatabaseError } from "pg";
 import pool from "../../db/client.js";
-import redis from "../../lib/redis.js";
+import { upstashRedis } from "../../lib/redis.js";
 
 export const getProductVariants = async (c: Context) => {
     const product_id = c.req.param("product_id")
@@ -43,7 +43,9 @@ export const createProductVariant = async (c: Context) => {
         }
 
 
-        await redis.del(`product:${productResult.rows[0].slug}`)
+        try {
+            await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+        } catch (error) { }
 
         return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant created" })
     } catch (error) {
@@ -106,7 +108,9 @@ export const updateProductVariant = async (c: Context) => {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant updated" })
 }
@@ -131,7 +135,9 @@ export const updateProductVariantStock = async (c: Context) => {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ product_variant: productVariantResult.rows[0], message: "Product variant stock updated" })
 }
@@ -153,7 +159,9 @@ export const deleteProductVariant = async (c: Context) => {
         throw new HTTPException(404, { message: "Product variant not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ message: "Product variant deleted" })
 }

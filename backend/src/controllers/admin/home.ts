@@ -1,7 +1,7 @@
 import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import pool from "../../db/client.js"
-import redis from "../../lib/redis.js"
+import { upstashRedis } from "../../lib/redis.js"
 import { deleteImage } from "../../services/imagekit.js"
 
 export const getHomeSections = async (c: Context) => {
@@ -58,7 +58,9 @@ export const createHomeSection = async (c: Context) => {
         throw new HTTPException(500, { message: "Something went wrong while creating home section" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     return c.json({ home_section: homeSectionResult.rows[0], message: "Home section created" })
 }
@@ -120,7 +122,9 @@ export const updateHomeSection = async (c: Context) => {
         throw new HTTPException(404, { message: "Home section not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     if (oldBgImageFileId) await deleteImage(oldBgImageFileId)
 
@@ -141,7 +145,9 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Home section not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     return c.json({ home_section: homeSectionResult.rows[0], message: `Home section ${homeSectionResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
@@ -159,7 +165,9 @@ export const deleteHomeSection = async (c: Context) => {
         throw new HTTPException(404, { message: "Home section not found" })
     }
 
-    await redis.del("home:sections")
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
 
     const bgImageFileId = homeSectionResult?.rows?.[0]?.bg_image_file_id ?? null
     if (bgImageFileId) await deleteImage(bgImageFileId)

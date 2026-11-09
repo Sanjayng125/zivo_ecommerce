@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
-import redis from "../../lib/redis.js";
+import { upstashRedis } from "../../lib/redis.js";
 import { ProductImage } from "../../schemas/product_images.js";
 import { deleteImage } from "../../services/imagekit.js";
 
@@ -43,7 +43,9 @@ export const createProductImage = async (c: Context) => {
         throw new HTTPException(400, { message: "Failed to create product image" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ productImage: productImagesResult.rows[0], message: "Product image created" })
 }
@@ -75,61 +77,6 @@ export const reorderProductImages = async (c: Context) => {
     return c.json({ message: "Product images reordered" })
 }
 
-export const updateProductImage = async (c: Context) => {
-    const product_id = c.req.param("product_id")
-    const product_image_id = c.req.param("product_image_id")
-
-    const { url, file_id, sort_order } = await c.req.json()
-
-    const oldImageFileIdResult = await pool.query(`
-        SELECT file_id
-        FROM product_images
-        WHERE id = $1 AND product_id = $2
-        `, [product_image_id, product_id])
-    const oldImageFileId = oldImageFileIdResult.rows?.[0]?.file_id
-
-    const columns: string[] = []
-    const params: unknown[] = []
-
-    if (url && file_id) {
-        params.push(url)
-        columns.push(`url = $${params.length}`)
-        params.push(file_id)
-        columns.push(`file_id = $${params.length}`)
-    }
-    if (sort_order !== undefined) {
-        params.push(sort_order)
-        columns.push(`sort_order = $${params.length}`)
-    }
-
-    if (columns.length === 0) {
-        throw new HTTPException(400, { message: "Invalid data" })
-    }
-
-    const setClause = columns.join(", ")
-    params.push(product_id)
-    params.push(product_image_id)
-
-    const productResult = await pool.query(`SELECT slug FROM products WHERE id = $1`, [product_id])
-
-    const productImagesResult = await pool.query(`
-        UPDATE product_images
-        SET ${setClause}
-        WHERE product_id = $${params.length - 1} AND id = $${params.length}
-        RETURNING *
-        `, params)
-
-    if (!productImagesResult.rowCount) {
-        throw new HTTPException(404, { message: "Product image not found" })
-    }
-
-    await redis.del(`product:${productResult.rows[0].slug}`)
-
-    if (oldImageFileId) await deleteImage(oldImageFileId)
-
-    return c.json({ productImage: productImagesResult.rows[0], message: "Product image updated" })
-}
-
 export const deleteProductImage = async (c: Context) => {
     const product_id = c.req.param("product_id")
     const product_image_id = c.req.param("product_image_id")
@@ -146,7 +93,9 @@ export const deleteProductImage = async (c: Context) => {
         throw new HTTPException(404, { message: "Product image not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     const imageFileId = productImagesResult.rows?.[0]?.file_id
     if (imageFileId) await deleteImage(imageFileId)

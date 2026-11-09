@@ -50,7 +50,7 @@ const NewProductPage = () => {
   });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">New Product</h1>
         <Button variant="outline" onClick={() => router.back()}>

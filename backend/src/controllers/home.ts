@@ -1,9 +1,9 @@
 import { Context } from "hono"
 import pool from "../db/client.js"
-import redis from "../lib/redis.js"
+import { upstashRedis } from "../lib/redis.js"
 
 export const getHomeSections = async (c: Context) => {
-    const cached = await redis.get("home:sections")
+    const cached = await upstashRedis.get("home:sections")
 
     if (cached) {
         return c.json(cached)
@@ -105,7 +105,9 @@ export const getHomeSections = async (c: Context) => {
         })
     )
 
-    await redis.set("home:sections", { home_sections: resolvedSections }, { ex: 3600 })
+    try {
+        await upstashRedis.set("home:sections", { home_sections: resolvedSections }, { ex: 3600 })
+    } catch (error) { }
 
     return c.json({ home_sections: resolvedSections })
 }

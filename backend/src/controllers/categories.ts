@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../db/client.js";
-import redis from "../lib/redis.js";
+import { upstashRedis } from "../lib/redis.js";
 
 export const getCategories = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -78,7 +78,7 @@ export const getCategories = async (c: Context) => {
 export const getCategory = async (c: Context) => {
     const slug = c.req.param("slug")
 
-    const cached = await redis.get(`category:${slug}`)
+    const cached = await upstashRedis.get(`category:${slug}`)
 
     if (cached) {
         return c.json(cached)
@@ -117,7 +117,9 @@ export const getCategory = async (c: Context) => {
         throw new HTTPException(404, { message: "Category not found" })
     }
 
-    await redis.set(`category:${slug}`, { category: category.rows[0] }, { ex: 3600 })
+    try {
+        await upstashRedis.set(`category:${slug}`, { category: category.rows[0] }, { ex: 3600 })
+    } catch (error) { }
 
     return c.json({ category: category.rows[0] })
 }

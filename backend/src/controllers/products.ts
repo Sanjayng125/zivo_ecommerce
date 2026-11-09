@@ -1,7 +1,7 @@
 import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../db/client.js";
-import redis from "../lib/redis.js";
+import { upstashRedis } from "../lib/redis.js";
 
 export const getProducts = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -131,7 +131,7 @@ export const getProducts = async (c: Context) => {
 export const getProduct = async (c: Context) => {
     const slug = c.req.param("slug")
 
-    const cached = await redis.get(`product:${slug}`)
+    const cached = await upstashRedis.get(`product:${slug}`)
 
     if (cached) {
         return c.json(cached)
@@ -163,7 +163,9 @@ export const getProduct = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    await redis.set(`product:${slug}`, { product: product.rows[0] }, { ex: 3600 })
+    try {
+        await upstashRedis.set(`product:${slug}`, { product: product.rows[0] }, { ex: 3600 })
+    } catch (error) { }
 
     return c.json({ product: product.rows[0] })
 }

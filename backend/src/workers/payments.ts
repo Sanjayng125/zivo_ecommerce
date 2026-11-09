@@ -1,6 +1,6 @@
 import { Worker } from "bullmq";
 import pool from "../db/client.js";
-import { ioRedisConnection } from "../lib/redis.js";
+import { workerRedis } from "../lib/redis.js";
 
 const paymentsWorker = new Worker(
     "payments",
@@ -58,7 +58,7 @@ const paymentsWorker = new Worker(
         }
     },
     {
-        connection: ioRedisConnection,
+        connection: workerRedis,
         prefix: "payments",
     }
 );

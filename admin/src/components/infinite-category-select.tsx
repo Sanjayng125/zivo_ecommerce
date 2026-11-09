@@ -63,7 +63,11 @@ export function InfiniteCategorySelect({
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
         <Label>
-          {selectedCategory ? selectedCategory.name : "Select Category"}
+          {selectedCategory
+            ? selectedCategory.name
+            : value
+              ? value
+              : "Select Category"}
         </Label>
       </SelectTrigger>
       <SelectContent>

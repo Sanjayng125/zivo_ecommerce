@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
-import redis from "../../lib/redis.js"
+import { upstashRedis } from "../../lib/redis.js"
 import { deleteImage } from "../../services/imagekit.js"
 
 export const getCategories = async (c: Context) => {
@@ -123,7 +123,9 @@ export const createCategory = async (c: Context) => {
             throw new HTTPException(500, { message: "Something went wrong while creating category" })
         }
 
-        await redis.del("home:sections")
+        try {
+            await upstashRedis.del("home:sections")
+        } catch (error) { }
 
         return c.json({ category: categoryResult.rows[0], message: "Category created" })
     } catch (error) {
@@ -194,8 +196,10 @@ export const updateCategory = async (c: Context) => {
             throw new HTTPException(404, { message: "Category not found" })
         }
 
-        await redis.del("home:sections")
-        await redis.del(`category:${oldCategorySlug ?? categoryResult.rows[0].slug}`)
+        try {
+            await upstashRedis.del("home:sections")
+            await upstashRedis.del(`category:${oldCategorySlug ?? categoryResult.rows[0].slug}`)
+        } catch (error) { }
 
         if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
 
@@ -222,8 +226,10 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Category not found" })
     }
 
-    await redis.del("home:sections")
-    await redis.del(`category:${categoryResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del("home:sections")
+        await upstashRedis.del(`category:${categoryResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ category: categoryResult.rows[0], message: `Category ${categoryResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
@@ -242,8 +248,10 @@ export const deleteCategory = async (c: Context) => {
             throw new HTTPException(404, { message: "Category not found" })
         }
 
-        await redis.del("home:sections")
-        await redis.del(`category:${categoryResult.rows[0].slug}`)
+        try {
+            await upstashRedis.del("home:sections")
+            await upstashRedis.del(`category:${categoryResult.rows[0].slug}`)
+        } catch (error) { }
 
         const oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
         if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)

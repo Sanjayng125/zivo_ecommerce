@@ -22,6 +22,24 @@ export interface Product {
     created_at: string;
 }
 
+export interface ProductVariant {
+    id: string;
+    product_id: string;
+    sku: string;
+    size: string | null;
+    color: string | null;
+    price: number;
+    stock: number;
+}
+
+export interface ProductImage {
+    id: string;
+    product_id: string;
+    url: string;
+    file_id: string;
+    sort_order: number;
+}
+
 
 export type Category = {
     id: string

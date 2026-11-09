@@ -2,10 +2,8 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import { DatabaseError } from "pg"
 import slugify from "slugify"
-import z from "zod"
 import pool from "../../db/client.js"
-import redis from "../../lib/redis.js"
-import { getProductsSchema } from "../../schemas/products.js"
+import { upstashRedis } from "../../lib/redis.js"
 import { deleteImage } from "../../services/imagekit.js"
 
 export const createProduct = async (c: Context) => {
@@ -44,16 +42,14 @@ export const createProduct = async (c: Context) => {
 }
 
 export const getProducts = async (c: Context) => {
-    const query = c.req.valid("query" as never) as z.infer<typeof getProductsSchema>
-
-    const page = Number(query.page ?? 1)
-    const limit = Number(query.limit ?? 20)
-    const sort = query.sort ?? "newest"
-    const category_id = query.category_id
-    const min_price = query.min_price
-    const max_price = query.max_price
-    const is_active = query.is_active
-    const searchQuery = query.q?.trim()
+    const page = Number(c.req.query("page") ?? 1)
+    const limit = Number(c.req.query("limit") ?? 20)
+    const sort = c.req.query("sort") ?? "newest"
+    const category_id = c.req.query("category_id")
+    const min_price = c.req.query("min_price")
+    const max_price = c.req.query("max_price")
+    const is_active = c.req.query("is_active")
+    const searchQuery = c.req.query("q")?.trim()
 
     const conditions: string[] = []
     const params: unknown[] = []
@@ -254,7 +250,9 @@ export const updateProduct = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    await redis.del(`product:${oldProductSlug ?? productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${oldProductSlug ?? productResult.rows[0].slug}`)
+    } catch (error) { }
 
     if (oldCoverImageFileId) await deleteImage(oldCoverImageFileId)
 
@@ -275,7 +273,9 @@ export const toggleIsActive = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     return c.json({ product: productResult.rows[0], message: `Product ${productResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
@@ -293,7 +293,9 @@ export const deleteProduct = async (c: Context) => {
         throw new HTTPException(404, { message: "Product not found" })
     }
 
-    await redis.del(`product:${productResult.rows[0].slug}`)
+    try {
+        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
+    } catch (error) { }
 
     const oldCoverImageFileId = productResult?.rows?.[0]?.cover_image_file_id ?? null
     if (oldCoverImageFileId) await deleteImage(oldCoverImageFileId)

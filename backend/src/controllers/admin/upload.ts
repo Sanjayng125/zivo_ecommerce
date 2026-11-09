@@ -16,25 +16,25 @@ export const getImageUploadAuth = async (c: Context) => {
     switch (type) {
         case "cover_image":
         case "product_image": {
-            const result = productIdSchema.safeParse(entity_id)
+            const result = productIdSchema.safeParse({ product_id: entity_id })
             if (!result.success) customValidationHandler(result)
             folder = `products/${type === "cover_image" ? "cover_images" : "product_images"}/${result.data?.product_id}`
             break
         }
         case "category_image": {
-            const result = categoryIdSchema.safeParse(entity_id)
+            const result = categoryIdSchema.safeParse({ category_id: entity_id })
             if (!result.success) customValidationHandler(result)
             folder = `categories/images/${result.data?.category_id}`
             break
         }
         case "banner_image": {
-            const result = bannerIdSchema.safeParse(entity_id)
+            const result = bannerIdSchema.safeParse({ banner_id: entity_id })
             if (!result.success) customValidationHandler(result)
             folder = `banners/images/${result.data?.banner_id}`
             break
         }
         case "home_section_image": {
-            const result = homeSectionIdSchema.safeParse(entity_id)
+            const result = homeSectionIdSchema.safeParse({ home_section_id: entity_id })
             if (!result.success) customValidationHandler(result)
             folder = `home_sections/images/${result.data?.home_section_id}`
             break

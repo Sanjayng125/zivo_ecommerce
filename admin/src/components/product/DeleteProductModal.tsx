@@ -52,7 +52,7 @@ export function DeleteProductModal({ product }: DeleteProductModalProps) {
           </Button>
         }
       />
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Delete Product</DialogTitle>
           <DialogDescription>

@@ -1,8 +1,8 @@
 import { Queue } from 'bullmq';
-import { ioRedisConnection } from './redis.js';
+import { queueRedis } from './redis.js';
 
 export const paymentsQueue = new Queue('payments', {
-    connection: ioRedisConnection,
+    connection: queueRedis,
     prefix: 'payments',
     defaultJobOptions: {
         attempts: 3,
