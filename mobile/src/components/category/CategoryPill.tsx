@@ -2,11 +2,7 @@ import { radius } from "@/constants/radius";
 import { spacing } from "@/constants/spacing";
 import { typography } from "@/constants/typography";
 import { useStyles, UseStylesContext } from "@/hooks/useStyles";
-import {
-  Category,
-  CategoryWithParent,
-  CategoryWithSubcategories,
-} from "@/types";
+import { Category } from "@/types";
 import {
   Image,
   Pressable,
@@ -19,10 +15,8 @@ import {
 } from "react-native";
 
 interface CategoryPillProps {
-  item: Category | CategoryWithSubcategories | CategoryWithParent;
-  onPress?: (
-    category: Category | CategoryWithSubcategories | CategoryWithParent,
-  ) => void;
+  item: Category;
+  onPress?: (category: Category) => void;
   containerStyle?: StyleProp<ViewStyle>;
   imageStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;

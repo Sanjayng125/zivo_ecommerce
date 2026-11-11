@@ -44,6 +44,7 @@ export type Category = {
     slug: string
     image_url: string | null
     sort_order: number
+    parent_id?: string
 }
 
 export type ProductImage = {
@@ -155,10 +156,6 @@ export type Order = {
     created_at: string
 }
 
-export type CategoryWithParent = Category & {
-    parent_id: string
-}
-
 export type CategoryWithSubcategories = Category & {
-    subcategories: CategoryWithParent[]
+    subcategories: Category[]
 }

@@ -7,6 +7,8 @@ import { upstashRedis } from "../../lib/redis.js"
 import { deleteImage } from "../../services/imagekit.js"
 
 export const getCategories = async (c: Context) => {
+    const exclude = c.req.query("exclude")?.trim()
+
     const page = Number(c.req.query("page") ?? 1)
     const limit = Number(c.req.query("limit") ?? 10)
     const sort = c.req.query("sort") ?? "newest"
@@ -19,6 +21,10 @@ export const getCategories = async (c: Context) => {
     if (is_active !== undefined) {
         params.push(is_active)
         conditions.push(`c.is_active = $${params.length}`)
+    }
+    if (exclude) {
+        params.push(exclude)
+        conditions.push(`c.id != $${params.length}`)
     }
     if (q) {
         params.push(`%${q}%`)
@@ -140,13 +146,12 @@ export const createCategory = async (c: Context) => {
 export const updateCategory = async (c: Context) => {
     const category_id = c.req.param("category_id")
 
-    const { name, parent_id, image_url, image_file_id, sort_order } = await c.req.json()
+    const { name, parent_id, sort_order } = await c.req.json()
 
     const columns: string[] = []
     const params: unknown[] = []
 
     let oldCategorySlug: string | null = null
-    let oldCategoryImageFileId: string | null = null
 
     if (name) {
         params.push(name)
@@ -161,16 +166,6 @@ export const updateCategory = async (c: Context) => {
     if (parent_id) {
         params.push(parent_id)
         columns.push(`parent_id = $${params.length}`)
-    }
-    if (image_url && image_file_id) {
-        params.push(image_url)
-        columns.push(`image_url = $${params.length}`)
-
-        params.push(image_file_id)
-        columns.push(`image_file_id = $${params.length}`)
-
-        const categoryResult = await pool.query(`SELECT image_file_id FROM categories WHERE id = $1`, [category_id])
-        oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
     }
     if (sort_order !== undefined) {
         params.push(sort_order)
@@ -201,8 +196,6 @@ export const updateCategory = async (c: Context) => {
             await upstashRedis.del(`category:${oldCategorySlug ?? categoryResult.rows[0].slug}`)
         } catch (error) { }
 
-        if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
-
         return c.json({ category: categoryResult.rows[0], message: "Category updated" })
     } catch (error) {
         if (error instanceof DatabaseError && error.code === "23505") {
@@ -210,6 +203,37 @@ export const updateCategory = async (c: Context) => {
         }
         throw error
     }
+}
+
+export const updateCategoryImage = async (c: Context) => {
+    const category_id = c.req.param("category_id")
+
+    const { image_url, image_file_id } = await c.req.json()
+
+    const categoryResult = await pool.query(`SELECT image_file_id FROM categories WHERE id = $1`, [category_id])
+    const oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
+
+    const updateCategoryResult = await pool.query(`
+        UPDATE categories
+        SET
+        image_url = $1,
+        image_file_id = $2
+        WHERE id = $3
+        RETURNING *
+        `, [image_url, image_file_id, category_id])
+
+    if (!categoryResult.rowCount) {
+        throw new HTTPException(404, { message: "Category not found" })
+    }
+
+    try {
+        await upstashRedis.del("home:sections")
+        await upstashRedis.del(`category:${updateCategoryResult.rows[0].slug}`)
+    } catch (error) { }
+
+    if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
+
+    return c.json({ category: updateCategoryResult.rows[0], message: "Category image updated" })
 }
 
 export const toggleIsActive = async (c: Context) => {

@@ -18,6 +18,7 @@ export const getCategoriesSchema = z.object({
 })
 
 export const getAdminCategoriesSchema = getCategoriesSchema.extend({
+    exclude: z.uuid({ error: "Invalid category ID" }).optional(),
     is_active: z
         .enum(["true", "false"])
         .transform((value) => value === "true")
@@ -35,20 +36,8 @@ export const createCategorySchema = z.object({
 
 export const updateCategorySchema = createCategorySchema
     .omit({ is_active: true })
-    .extend({
-        image_url: z.url({ error: "Invalid image URL" }),
-        image_file_id: z.string({ error: "Invalid image file id" }),
-    })
-    .partial()
-    .superRefine((data, ctx) => {
-        const hasImage = data.image_url !== undefined;
-        const hasFileId = data.image_file_id !== undefined;
 
-        if (hasImage !== hasFileId) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Image URL and its file ID must be provided together",
-                path: ["image_url"],
-            });
-        }
-    });
+export const updateCategoryImageSchema = z.object({
+    image_url: z.url({ error: "Invalid image URL" }),
+    image_file_id: z.string({ error: "Invalid image file id" }),
+})
