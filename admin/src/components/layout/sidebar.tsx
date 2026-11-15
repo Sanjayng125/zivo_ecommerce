@@ -69,7 +69,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             className="md:hidden"
             onClick={onClose}
           >
-            <X className="w-4 h-4" />
+            <X />
           </Button>
         </div>
 

@@ -14,11 +14,13 @@ import { Label } from "./ui/label";
 interface InfiniteCategorySelectProps {
   value: string;
   onChange: (value: string | null) => void;
+  excludeId?: string;
 }
 
 export function InfiniteCategorySelect({
   value,
   onChange,
+  excludeId,
 }: InfiniteCategorySelectProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +30,7 @@ export function InfiniteCategorySelect({
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useCategories();
+  } = useCategories(excludeId);
 
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,

@@ -2,7 +2,10 @@ import { apiClient } from "@/lib/api/client";
 import { CategoryWithSubcategories } from "@/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export const useCategories = () => {
+export const useCategories = (excludeId?: string) => {
+    const queryKeys = ["categories"]
+    if (excludeId) queryKeys.push(excludeId)
+
     const {
         data,
         isLoading,
@@ -13,10 +16,10 @@ export const useCategories = () => {
         hasNextPage,
         isFetchingNextPage
     } = useInfiniteQuery({
-        queryKey: ["categories"],
+        queryKey: queryKeys,
         queryFn: async ({ pageParam }) => {
-            const res = await apiClient.get("/categories",
-                { params: { page: pageParam } }
+            const res = await apiClient.get("/admin/categories",
+                { params: { page: pageParam, ...(excludeId && { exclude: excludeId }) } }
             );
 
             return res.data

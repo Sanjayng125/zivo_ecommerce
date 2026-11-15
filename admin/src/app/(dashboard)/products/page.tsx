@@ -108,7 +108,7 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Products</h1>
         <Button onClick={() => router.push("/products/new")}>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="mr-2" />
           New Product
         </Button>
       </div>
@@ -254,7 +254,7 @@ export default function ProductsPage() {
                           router.push(`/products/${product.slug}/edit`)
                         }
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil />
                       </Button>
                       <DeleteProductModal product={product} />
                     </div>
@@ -284,7 +284,7 @@ export default function ProductsPage() {
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft />
             </Button>
             <span className="text-sm">
               Page {pagination.page} of {pagination.total_pages}
@@ -295,7 +295,7 @@ export default function ProductsPage() {
               disabled={page === pagination.total_pages}
               onClick={() => setPage((p) => p + 1)}
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight />
             </Button>
           </div>
         </div>

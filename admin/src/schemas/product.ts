@@ -25,3 +25,6 @@ export const variantUpdateSchema = variantSchema.omit({
     sku: true,
     stock: true
 })
+
+export type CreateProductValues = z.infer<typeof creatSchema>;
+export type UpdateProductValues = z.infer<typeof updateSchema>;

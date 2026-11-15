@@ -6,7 +6,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient, ApiError } from "@/lib/api/client";
-import { updateSchema } from "@/schemas/product";
+import { UpdateProductValues, updateSchema } from "@/schemas/product";
 import { Product } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -15,9 +15,6 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod/v4";
-
-type FormValues = z.infer<typeof updateSchema>;
 
 interface DetailsFormProps {
   product: Product;
@@ -32,8 +29,8 @@ export function DetailsForm({ product, slug }: DetailsFormProps) {
     reset,
     handleSubmit,
     formState: { isDirty, isValid },
-  } = useForm<FormValues>({
-    resolver: zodResolver(updateSchema) as Resolver<FormValues>,
+  } = useForm<UpdateProductValues>({
+    resolver: zodResolver(updateSchema) as Resolver<UpdateProductValues>,
     defaultValues: {
       title: "",
       description: "",
@@ -58,7 +55,7 @@ export function DetailsForm({ product, slug }: DetailsFormProps) {
   }, [product, reset]);
 
   const { mutate: update, isPending } = useMutation({
-    mutationFn: async (values: FormValues) => {
+    mutationFn: async (values: UpdateProductValues) => {
       const res = await apiClient.patch(
         `/admin/products/${product.id}`,
         values,

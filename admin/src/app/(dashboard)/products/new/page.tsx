@@ -6,7 +6,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient, ApiError } from "@/lib/api/client";
-import { creatSchema } from "@/schemas/product";
+import { CreateProductValues, creatSchema } from "@/schemas/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
@@ -14,15 +14,12 @@ import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Controller, Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod/v4";
-
-type FormValues = z.infer<typeof creatSchema>;
 
 const NewProductPage = () => {
   const router = useRouter();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(creatSchema) as Resolver<FormValues>,
+  const form = useForm<CreateProductValues>({
+    resolver: zodResolver(creatSchema) as Resolver<CreateProductValues>,
     defaultValues: {
       title: "",
       description: "",
@@ -33,7 +30,7 @@ const NewProductPage = () => {
   });
 
   const { mutate: create, isPending } = useMutation({
-    mutationFn: async (values: FormValues) => {
+    mutationFn: async (values: CreateProductValues) => {
       const res = await apiClient.post("/admin/products", values);
 
       return res.data;

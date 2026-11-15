@@ -38,11 +38,12 @@ export function ImageUploadBox({
     setUploading(true);
     try {
       const result = await uploadToImageKit({ file, entityId, type });
+      setPreview(result.url ?? null);
       onUploaded(result);
     } catch (err: unknown) {
+      setPreview(existingUrl ?? null);
       toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
-      setPreview(existingUrl ?? null);
       setUploading(false);
       if (inputRef.current) inputRef.current.files = null;
     }
@@ -80,6 +81,7 @@ export function ImageUploadBox({
                   variant="secondary"
                   onClick={() => inputRef.current?.click()}
                   disabled={loading}
+                  className={"cursor-pointer"}
                 >
                   Change
                 </Button>
@@ -91,6 +93,7 @@ export function ImageUploadBox({
                   variant="destructive"
                   onClick={onRemove}
                   disabled={loading}
+                  className={"cursor-pointer"}
                 >
                   <Trash />
                 </Button>
@@ -101,7 +104,7 @@ export function ImageUploadBox({
                   size="sm"
                   variant="destructive"
                   disabled
-                  className={"text-white"}
+                  className={"text-white cursor-not-allowed"}
                 >
                   <Loader2 className="animate-spin" />
                 </Button>
@@ -114,7 +117,7 @@ export function ImageUploadBox({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={uploading || loading}
-          className="w-full h-full border-2 border-dashed border-muted-foreground/25 rounded-md flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-muted/50 transition-colors"
+          className="w-full h-full border-2 border-dashed border-muted-foreground/25 rounded-md flex flex-col items-center justify-center gap-2 hover:border-primary/50 hover:bg-muted/50 transition-colors cursor-pointer"
         >
           {uploading ? (
             <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />

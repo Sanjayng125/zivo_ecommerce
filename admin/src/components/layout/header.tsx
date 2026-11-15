@@ -84,8 +84,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
-          <Sun className="w-4 h-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute w-4 h-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+          <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           <span className="sr-only">Toggle theme</span>
         </Button>
 
@@ -117,9 +117,9 @@ export function Header({ onMenuClick }: HeaderProps) {
                 disabled={isPending}
                 className="text-destructive focus:text-destructive cursor-pointer"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <LogOut className="mr-2" />
                 Sign out
-                {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {isPending && <Loader2 className="mr-2 animate-spin" />}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

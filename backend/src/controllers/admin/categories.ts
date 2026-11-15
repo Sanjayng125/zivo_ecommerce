@@ -17,18 +17,20 @@ export const getCategories = async (c: Context) => {
 
     const conditions: string[] = ["c.parent_id IS NULL"]
     const params: unknown[] = []
+    let excludeIndex: number | null = null
 
     if (is_active !== undefined) {
         params.push(is_active)
         conditions.push(`c.is_active = $${params.length}`)
     }
-    if (exclude) {
-        params.push(exclude)
-        conditions.push(`c.id != $${params.length}`)
-    }
     if (q) {
         params.push(`%${q}%`)
         conditions.push(`c.name ILIKE $${params.length}`)
+    }
+    if (exclude) {
+        params.push(exclude)
+        excludeIndex = params.length
+        conditions.push(`c.id != $${params.length}`)
     }
 
     const orderBy: Record<string, string> = {
@@ -58,7 +60,7 @@ export const getCategories = async (c: Context) => {
         ) AS subcategories
         FROM categories c
         LEFT JOIN categories sc
-            ON c.id = sc.parent_id
+            ON c.id = sc.parent_id${excludeIndex ? ` AND sc.id != $${excludeIndex}` : ""}
         WHERE ${whereClause}
         GROUP BY c.id
         ORDER BY ${orderClause}

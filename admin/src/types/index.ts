@@ -45,14 +45,13 @@ export type Category = {
     id: string
     name: string
     slug: string
-    image_url: string | null
+    image_url: string | null;
+    image_file_id: string | null;
     sort_order: number
-}
-
-export type CategoryWithParent = Category & {
-    parent_id: string
+    is_active: boolean
+    parent_id?: string
 }
 
 export type CategoryWithSubcategories = Category & {
-    subcategories: CategoryWithParent[]
+    subcategories: Category[]
 }

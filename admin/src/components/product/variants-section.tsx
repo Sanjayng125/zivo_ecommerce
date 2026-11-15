@@ -128,10 +128,10 @@ export function VariantsSection({
           <div className="flex justify-end">
             <Button type="submit" size="sm" disabled={addingVariant}>
               {addingVariant ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="animate-spin" />
               ) : (
                 <>
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="mr-1" />
                   Add Variant
                 </>
               )}
