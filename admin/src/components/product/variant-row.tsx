@@ -102,9 +102,7 @@ export function VariantRow({
   return (
     <div className="flex flex-col p-3 border rounded-md gap-2">
       <div className="flex flex-row items-center gap-2 flex-wrap min-w-0">
-        <span className="text-xs font-mono text-muted-foreground shrink-0">
-          {variant.sku}
-        </span>
+        <Badge>{variant.sku}</Badge>
         {variant.size && <Badge variant="outline">{variant.size}</Badge>}
         {variant.color && <Badge variant="outline">{variant.color}</Badge>}
         <span className="text-sm font-medium">

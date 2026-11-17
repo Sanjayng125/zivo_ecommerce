@@ -109,7 +109,7 @@ export function CategoryRow({
 
               <div className="flex items-center gap-1 shrink-0">
                 <EditCategoryDialog category={sub} />
-                <DeleteCategoryModal category={category} />
+                <DeleteCategoryModal category={sub} />
               </div>
             </div>
           ))}

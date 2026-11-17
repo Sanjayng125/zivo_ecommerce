@@ -36,7 +36,7 @@ export default function ToggleIsActive({
         render={
           <Button
             size={"xs"}
-            variant={product.is_active ? "default" : "secondary"}
+            variant={product.is_active ? "default" : "outline"}
             className="cursor-pointer"
             onClick={() => toggleActive(product.id)}
             disabled={isPending || isLoading}

@@ -2,7 +2,7 @@ import { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import pool from "../../db/client.js";
 import { upstashRedis } from "../../lib/redis.js";
-import { deleteImage } from "../../services/imagekit.js";
+import { deleteFolder, deleteImage } from "../../services/imagekit.js";
 
 export const getBanners = async (c: Context) => {
     const page = Number(c.req.query("page") ?? 1)
@@ -23,6 +23,7 @@ export const getBanners = async (c: Context) => {
         oldest: "created_at ASC",
         sort_order_asc: "sort_order ASC",
         sort_order_desc: "sort_order DESC",
+        group_name: "group_name ASC, sort_order ASC",
     }
 
     const whereClause = conditions.join(" AND ");
@@ -167,6 +168,37 @@ export const updateBanner = async (c: Context) => {
     return c.json({ banner: bannerResult.rows[0], message: "Banner updated" })
 }
 
+export const updateBannerImage = async (c: Context) => {
+    const banner_id = c.req.param("banner_id")
+
+    const { image_url, image_file_id } = await c.req.json()
+
+    const bannerResult = await pool.query(`SELECT image_file_id FROM banners WHERE id = $1`, [banner_id])
+
+    if (!bannerResult.rows?.length) {
+        throw new HTTPException(404, { message: "banner not found" })
+    }
+
+    const oldBannerImageFileId = bannerResult?.rows?.[0]?.image_file_id ?? null
+
+    const updateBannerResult = await pool.query(`
+        UPDATE banners
+        SET
+        image_url = $1,
+        image_file_id = $2
+        WHERE id = $3
+        RETURNING *
+        `, [image_url, image_file_id, banner_id])
+
+    try {
+        await upstashRedis.del("home:sections")
+    } catch (error) { }
+
+    if (oldBannerImageFileId) await deleteImage(oldBannerImageFileId)
+
+    return c.json({ banner: updateBannerResult.rows[0], message: "Banner image updated" })
+}
+
 export const toggleIsActive = async (c: Context) => {
     const banner_id = c.req.param("banner_id")
 
@@ -206,7 +238,12 @@ export const deleteBanner = async (c: Context) => {
     } catch (error) { }
 
     const imageFileId = bannerResult?.rows?.[0]?.image_file_id ?? null
-    if (imageFileId) await deleteImage(imageFileId)
+    if (imageFileId) {
+        try {
+            await deleteImage(imageFileId)
+            await deleteFolder(`banners/images/${bannerResult?.rows?.[0]?.id}`)
+        } catch (error) { }
+    }
 
     return c.json({ message: "Banner deleted" })
 }

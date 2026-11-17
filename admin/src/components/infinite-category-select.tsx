@@ -9,7 +9,6 @@ import { useCategories } from "@/hooks/use-categories";
 import { Category } from "@/types";
 import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Label } from "./ui/label";
 
 interface InfiniteCategorySelectProps {
   value: string;
@@ -64,13 +63,13 @@ export function InfiniteCategorySelect({
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger>
-        <Label>
+        <p className="min-w-0 truncate">
           {selectedCategory
             ? selectedCategory.name
             : value
               ? value
               : "Select Category"}
-        </Label>
+        </p>
       </SelectTrigger>
       <SelectContent>
         {isLoading ? (

@@ -33,7 +33,12 @@ export const getHomeSections = async (c: Context) => {
                 const banners = await pool.query(`
                     SELECT *
                     FROM banners
-                    WHERE is_active = true AND group_name = $1
+                    WHERE
+                    is_active = true
+                    AND
+                    image_url IS NOT NULL
+                    AND
+                    group_name = $1
                     ORDER BY sort_order
                     `, [group_name])
 

@@ -28,7 +28,9 @@ export default function ToggleIsActive({
       queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
     onError: (err: AxiosError<ApiError>) => {
-      toast.error(err.response?.data?.message ?? "Failed to update category");
+      toast.error(
+        err.response?.data?.message ?? "Failed to update category status",
+      );
     },
   });
 
@@ -38,7 +40,7 @@ export default function ToggleIsActive({
         render={
           <Button
             size={"xs"}
-            variant={category.is_active ? "default" : "secondary"}
+            variant={category.is_active ? "default" : "outline"}
             className="cursor-pointer"
             onClick={() => toggleActive()}
             disabled={isPending || isLoading}

@@ -55,3 +55,14 @@ export type Category = {
 export type CategoryWithSubcategories = Category & {
     subcategories: Category[]
 }
+
+export interface Banner {
+    id: string;
+    image_url: string | null;
+    image_file_id: string | null;
+    link: string | null;
+    sort_order: number;
+    is_active: boolean;
+    group_name: string;
+    created_at: string;
+}

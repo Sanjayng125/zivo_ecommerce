@@ -2,7 +2,7 @@ import { Context } from "hono"
 import { HTTPException } from "hono/http-exception"
 import pool from "../../db/client.js"
 import { upstashRedis } from "../../lib/redis.js"
-import { deleteImage } from "../../services/imagekit.js"
+import { deleteFolder, deleteImage } from "../../services/imagekit.js"
 
 export const getHomeSections = async (c: Context) => {
     const { is_active, sort } = c.req.query()
@@ -170,7 +170,12 @@ export const deleteHomeSection = async (c: Context) => {
     } catch (error) { }
 
     const bgImageFileId = homeSectionResult?.rows?.[0]?.bg_image_file_id ?? null
-    if (bgImageFileId) await deleteImage(bgImageFileId)
+    if (bgImageFileId) {
+        try {
+            await deleteImage(bgImageFileId)
+            await deleteFolder(`home_sections/images/${homeSectionResult?.rows?.[0]?.id}`)
+        } catch (error) { }
+    }
 
     return c.json({ message: "Home section deleted" })
 }

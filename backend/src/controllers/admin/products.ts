@@ -4,7 +4,7 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import { upstashRedis } from "../../lib/redis.js"
-import { deleteImage } from "../../services/imagekit.js"
+import { deleteFolder, deleteImage } from "../../services/imagekit.js"
 
 export const createProduct = async (c: Context) => {
     const { title, description, base_price, category_id, is_active } = await c.req.json()
@@ -280,25 +280,85 @@ export const toggleIsActive = async (c: Context) => {
     return c.json({ product: productResult.rows[0], message: `Product ${productResult.rows[0].is_active ? "activated" : "deactivated"}` })
 }
 
+
 export const deleteProduct = async (c: Context) => {
-    const product_id = c.req.param("product_id")
-
-    const productResult = await pool.query(`
-        DELETE FROM products
-        WHERE id = $1
-        RETURNING *
-        `, [product_id])
-
-    if (!productResult.rowCount) {
-        throw new HTTPException(404, { message: "Product not found" })
-    }
+    const client = await pool.connect();
+    const product_id = c.req.param("product_id");
 
     try {
-        await upstashRedis.del(`product:${productResult.rows[0].slug}`)
-    } catch (error) { }
+        await client.query("BEGIN");
 
-    const oldCoverImageFileId = productResult?.rows?.[0]?.cover_image_file_id ?? null
-    if (oldCoverImageFileId) await deleteImage(oldCoverImageFileId)
+        const productResult = await client.query(`
+            SELECT slug, cover_image_file_id
+            FROM products
+            WHERE id = $1
+        `, [product_id]);
 
-    return c.json({ message: "Product deleted" })
-}
+        if (!productResult.rows.length) {
+            throw new HTTPException(404, {
+                message: "Product not found"
+            });
+        }
+
+        const product = productResult.rows[0];
+
+        const productImagesResult = await client.query(`
+            DELETE FROM product_images
+            WHERE product_id = $1
+            RETURNING file_id
+        `, [product_id]);
+
+        await client.query(`
+            DELETE FROM product_variants
+            WHERE product_id = $1
+        `, [product_id]);
+
+        await client.query(`
+            DELETE FROM products
+            WHERE id = $1
+        `, [product_id]);
+
+        await client.query("COMMIT");
+
+        const cleanupTasks = [
+            upstashRedis.del(`product:${product.slug}`),
+
+            ...productImagesResult.rows
+                .filter(image => image.file_id)
+                .map(image => deleteImage(image.file_id)),
+
+            deleteFolder(`products/product_images/${product_id}`)
+        ];
+
+        if (product.cover_image_file_id) {
+            cleanupTasks.push(
+                deleteImage(product.cover_image_file_id)
+            );
+
+            cleanupTasks.push(
+                deleteFolder(`products/cover_images/${product_id}`)
+            );
+        }
+
+        const results = await Promise.allSettled(cleanupTasks);
+
+        const failures = results.filter(
+            result => result.status === "rejected"
+        );
+
+        if (failures.length) {
+            console.error(
+                `Product ${product_id} cleanup failures:`,
+                failures
+            );
+        }
+
+        return c.json({ message: "Product deleted" });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+    } finally {
+        client.release();
+    }
+};
+

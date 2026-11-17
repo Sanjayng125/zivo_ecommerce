@@ -4,7 +4,7 @@ import { DatabaseError } from "pg"
 import slugify from "slugify"
 import pool from "../../db/client.js"
 import { upstashRedis } from "../../lib/redis.js"
-import { deleteImage } from "../../services/imagekit.js"
+import { deleteFolder, deleteImage } from "../../services/imagekit.js"
 
 export const getCategories = async (c: Context) => {
     const exclude = c.req.query("exclude")?.trim()
@@ -135,7 +135,7 @@ export const createCategory = async (c: Context) => {
             await upstashRedis.del("home:sections")
         } catch (error) { }
 
-        return c.json({ category: categoryResult.rows[0], message: "Category created" })
+        return c.json({ category: categoryResult.rows[0], message: "Category created" }, 201)
     } catch (error) {
         if (error instanceof DatabaseError && error.code === "23505") {
             throw new HTTPException(409, { message: "Slug already exists" })
@@ -213,6 +213,11 @@ export const updateCategoryImage = async (c: Context) => {
     const { image_url, image_file_id } = await c.req.json()
 
     const categoryResult = await pool.query(`SELECT image_file_id FROM categories WHERE id = $1`, [category_id])
+
+    if (!categoryResult.rows?.length) {
+        throw new HTTPException(404, { message: "Category not found" })
+    }
+
     const oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
 
     const updateCategoryResult = await pool.query(`
@@ -223,10 +228,6 @@ export const updateCategoryImage = async (c: Context) => {
         WHERE id = $3
         RETURNING *
         `, [image_url, image_file_id, category_id])
-
-    if (!categoryResult.rowCount) {
-        throw new HTTPException(404, { message: "Category not found" })
-    }
 
     try {
         await upstashRedis.del("home:sections")
@@ -280,11 +281,16 @@ export const deleteCategory = async (c: Context) => {
         } catch (error) { }
 
         const oldCategoryImageFileId = categoryResult?.rows?.[0]?.image_file_id ?? null
-        if (oldCategoryImageFileId) await deleteImage(oldCategoryImageFileId)
+        if (oldCategoryImageFileId) {
+            try {
+                await deleteImage(oldCategoryImageFileId)
+                await deleteFolder(`categories/images/${categoryResult?.rows?.[0]?.id}`)
+            } catch (error) { }
+        }
 
         return c.json({ message: "Category deleted" })
     } catch (error) {
-        if (error instanceof DatabaseError && error.code === "23503") {
+        if (error instanceof DatabaseError && (error.code === "23503" || error.code === "23001")) {
             throw new HTTPException(409, { message: "Category has products, reassign them first" })
         }
         throw error

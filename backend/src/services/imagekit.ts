@@ -29,7 +29,15 @@ export const deleteImage = async (fileId: string) => {
     try {
         await imagekit.files.delete(fileId)
     } catch (e) {
-        console.error("ImageKit delete failed:", e)
+        console.error("ImageKit file delete failed:", e)
+    }
+}
+
+export const deleteFolder = async (folderPath: string) => {
+    try {
+        await imagekit.folders.delete({ folderPath: `zivo/${folderPath}` })
+    } catch (e) {
+        console.error("ImageKit folder delete failed:", e)
     }
 }
 

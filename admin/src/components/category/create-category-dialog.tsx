@@ -67,8 +67,8 @@ export function CreateCategoryDialog({
       <DialogTrigger
         render={
           parentCategory ? (
-            <Button variant="ghost" size="sm" className="h-7 text-xs">
-              <Plus className="w-3 h-3 mr-1" />
+            <Button variant="ghost" size="sm">
+              <Plus className="mr-1" />
               Add Sub
             </Button>
           ) : (

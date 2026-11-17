@@ -9,7 +9,7 @@ export const bannerIdSchema = z.object({
 export const getBannersSchema = z.object({
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(30).default(10),
-    sort: z.enum(["newest", "oldest", "sort_order_asc", "sort_order_desc"]).optional().default("newest"),
+    sort: z.enum(["newest", "oldest", "sort_order_asc", "sort_order_desc", "group_name"]).optional().default("newest"),
     is_active: z
         .enum(["true", "false"])
         .transform((value) => value === "true")
@@ -25,20 +25,9 @@ export const createBannerSchema = z.object({
 
 export const updateBannerSchema = createBannerSchema
     .omit({ is_active: true })
-    .extend({
-        image_url: z.url({ error: "Invalid image URL" }),
-        image_file_id: z.string({ error: "Invalid image file id" }),
-    })
     .partial()
-    .superRefine((data, ctx) => {
-        const hasImage = data.image_url !== undefined
-        const hasImageFileId = data.image_file_id !== undefined
 
-        if (hasImage !== hasImageFileId) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Image URL and image file ID must be provided together",
-                path: ["image_url"]
-            })
-        }
-    })
+export const updateBannerImageSchema = z.object({
+    image_url: z.url({ error: "Invalid image URL" }),
+    image_file_id: z.string({ error: "Invalid image file id" }),
+})

@@ -94,7 +94,7 @@ export function EditCategoryDialog({ category }: EditCategoryDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button variant="ghost" size="icon" className="h-8 w-8">
+          <Button variant="ghost" size="icon">
             <Pencil />
           </Button>
         }
