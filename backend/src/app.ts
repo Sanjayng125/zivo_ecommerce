@@ -11,6 +11,7 @@ import authRoutes from "./routes/auth.js"
 import cartRoutes from "./routes/cart.js"
 import categoriesRoutes from "./routes/categories.js"
 import checkoutRoutes from "./routes/checkout.js"
+import healthRoutes from "./routes/health.js"
 import homeRoutes from "./routes/home.js"
 import internalRoutes from "./routes/internal.js"
 import ordersRoutes from "./routes/orders.js"
@@ -36,7 +37,7 @@ app.use('*', cors({
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 }))
 
-app.get('/health', (c) => c.json({ status: 'ok', uptime: process.uptime(), timestamp: Date.now() }))
+app.route('/health', healthRoutes)
 
 app.route("/auth", authRoutes);
 
